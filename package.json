@@ -12,7 +12,10 @@
     "url": "https://github.com/zahidraza/jazasoft/issues"
   },
   "homepage": "https://github.com/zahidraza/jazasoft",
-  "keywords": ["react-component", "react"],
+  "keywords": [
+    "react-component",
+    "react"
+  ],
   "options": {
     "mocha": "--require scripts/mocha_runner src/**/__tests__/**/*.js"
   },
@@ -55,6 +58,17 @@
   },
   "dependencies": {
     "babel-runtime": "^6.6.1",
-    "grommet": "^1.6.0"
+    "grommet": "^1.6.0",
+    "history": "^4.6.3",
+    "prop-types": "^15.5.10",
+    "react-bootstrap": "^0.31.1",
+    "react-redux": "^5.0.5",
+    "react-router-dom": "^4.1.2",
+    "react-router-redux": "^5.0.0-alpha.6",
+    "react-toolbox": "^2.0.0-beta.12",
+    "redux": "^3.7.2",
+    "redux-logger": "^3.0.6",
+    "redux-promise-middleware": "^4.3.0",
+    "redux-thunk": "^2.2.0"
   }
 }

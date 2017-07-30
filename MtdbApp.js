@@ -1,16 +1,16 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define(['exports', 'react', 'prop-types', 'redux', 'react-redux', 'history/createHashHistory', 'react-router-dom', 'react-router-redux', 'redux-thunk', 'redux-promise-middleware', './components/Hello', './components/Login'], factory);
+    define(['exports', 'react', 'prop-types', 'redux', 'react-redux', 'history/createHashHistory', 'react-router-dom', 'react-router-redux', 'redux-thunk', 'redux-promise-middleware', './components/Hello', './components/Login', './components/Protected'], factory);
   } else if (typeof exports !== "undefined") {
-    factory(exports, require('react'), require('prop-types'), require('redux'), require('react-redux'), require('history/createHashHistory'), require('react-router-dom'), require('react-router-redux'), require('redux-thunk'), require('redux-promise-middleware'), require('./components/Hello'), require('./components/Login'));
+    factory(exports, require('react'), require('prop-types'), require('redux'), require('react-redux'), require('history/createHashHistory'), require('react-router-dom'), require('react-router-redux'), require('redux-thunk'), require('redux-promise-middleware'), require('./components/Hello'), require('./components/Login'), require('./components/Protected'));
   } else {
     var mod = {
       exports: {}
     };
-    factory(mod.exports, global.react, global.propTypes, global.redux, global.reactRedux, global.createHashHistory, global.reactRouterDom, global.reactRouterRedux, global.reduxThunk, global.reduxPromiseMiddleware, global.Hello, global.Login);
+    factory(mod.exports, global.react, global.propTypes, global.redux, global.reactRedux, global.createHashHistory, global.reactRouterDom, global.reactRouterRedux, global.reduxThunk, global.reduxPromiseMiddleware, global.Hello, global.Login, global.Protected);
     global.MtdbApp = mod.exports;
   }
-})(this, function (exports, _react, _propTypes, _redux, _reactRedux, _createHashHistory, _reactRouterDom, _reactRouterRedux, _reduxThunk, _reduxPromiseMiddleware, _Hello, _Login) {
+})(this, function (exports, _react, _propTypes, _redux, _reactRedux, _createHashHistory, _reactRouterDom, _reactRouterRedux, _reduxThunk, _reduxPromiseMiddleware, _Hello, _Login, _Protected) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -30,6 +30,8 @@
   var _Hello2 = _interopRequireDefault(_Hello);
 
   var _Login2 = _interopRequireDefault(_Login);
+
+  var _Protected2 = _interopRequireDefault(_Protected);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -80,7 +82,9 @@
     var store = (0, _redux.createStore)(appReducer, initialState, middleware);
 
     //const logout = authClient ? createElement(logoutButton || Logout) : null;
-
+    var isAuth = function isAuth() {
+      return window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true' ? true : false;
+    };
     return _react2.default.createElement(
       _reactRedux.Provider,
       { store: store },
@@ -93,18 +97,13 @@
           _react2.default.createElement(
             _reactRouterDom.Switch,
             null,
-            _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', render: function render(props) {
+            _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/login', render: function render(props) {
                 return !(window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? (0, _react.createElement)(loginPage || _Login2.default, { location: location, title: title, onLogin: onLogin }, null) : _react2.default.createElement(_reactRouterDom.Redirect, { to: {
-                    pathname: '/dashboard',
-                    state: { from: props.location }
-                  } });
-              } }),
-            _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/dashboard', render: function render(props) {
-                return window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true' ? (0, _react.createElement)(appLayout || _Hello2.default, { location: location, title: title }, null) : _react2.default.createElement(_reactRouterDom.Redirect, { to: {
                     pathname: '/',
                     state: { from: props.location }
                   } });
-              } })
+              } }),
+            _react2.default.createElement(_Protected2.default, { exact: true, path: '/', isAuth: isAuth, component: _Hello2.default })
           )
         )
       )
@@ -125,7 +124,8 @@
     restClient: _propTypes2.default.func,
     title: _propTypes2.default.string.isRequired,
     initialState: _propTypes2.default.object,
-    onLogin: _propTypes2.default.func
+    onLogin: _propTypes2.default.func,
+    abc: _propTypes2.default.node
   };
 
   exports.default = MtdbApp;

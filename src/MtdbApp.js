@@ -12,6 +12,7 @@ import promise from 'redux-promise-middleware';
 //import Dashboard from './components/Dashboard';
 import Dashboard from './components/Hello';
 import Login from './components/Login';
+import Protected from './components/Protected';
 //import Logout from './components/Logout';
 
 
@@ -43,32 +44,23 @@ const MtdbApp = ({
   const store = createStore(appReducer, initialState, middleware);
 
   //const logout = authClient ? createElement(logoutButton || Logout) : null;
-
+  var isAuth = () => (window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? true : false;
   return (
     <Provider store={store}>
       <ConnectedRouter history={routerHistory}>
         <div>
           <Switch>
-            <Route exact path='/' render={props => (
+            <Route exact path='/login' render={(props) => (
               !(window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? (
                 createElement(loginPage || Login, { location, title, onLogin }, null)
-              ) : (
-                <Redirect to={{
-                  pathname: '/dashboard',
-                  state: { from: props.location }
-                }}/>
-              )
-            )}/>
-            <Route exact path='/dashboard' render={props => (
-              (window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? (
-                createElement(appLayout || Dashboard, { location, title }, null)
               ) : (
                 <Redirect to={{
                   pathname: '/',
                   state: { from: props.location }
                 }}/>
               )
-            )}/> 
+            )}/>
+            <Protected exact path='/' isAuth={isAuth} component={Dashboard} />
           </Switch>
         </div>
       </ConnectedRouter>
@@ -93,7 +85,8 @@ MtdbApp.propTypes = {
   restClient: PropTypes.func,
   title: PropTypes.string.isRequired,
   initialState: PropTypes.object,
-  onLogin: PropTypes.func
+  onLogin: PropTypes.func,
+  abc: PropTypes.node
 };
 
 export default MtdbApp;

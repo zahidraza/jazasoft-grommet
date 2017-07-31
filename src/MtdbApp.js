@@ -14,10 +14,14 @@ import Dashboard from './components/Hello';
 import Login from './components/Login';
 import Protected from './components/Protected';
 //import Logout from './components/Logout';
+import GSidebar from './components/GSidebar';
+import DefaultLayout from './components/Layout';
 
 
 const MtdbApp = ({
   appLayout,
+  dashboard,
+  sidebar,
   children,
   customReducers = {},
   customRoutes,
@@ -30,6 +34,9 @@ const MtdbApp = ({
   initialState,
   onLogin
 }) => {
+  const resources = React.Children.map(children, ({ props }) => props) || [];
+  const links = resources.map(r => ({label: r.label, path: r.name}));
+  
   const appReducer = combineReducers({
     routing: routerReducer,
     ...customReducers
@@ -60,7 +67,13 @@ const MtdbApp = ({
                 }}/>
               )
             )}/>
-            <Protected exact path='/' isAuth={isAuth} component={Dashboard} />
+            <Route path="/" render={() => createElement(appLayout || DefaultLayout, {
+              dashboard,
+              sidebar: createElement(sidebar || GSidebar, {links}),
+              resources,
+              title
+            })} />
+            {/* <Protected exact path='/' isAuth={isAuth} component={Dashboard} /> */}
           </Switch>
         </div>
       </ConnectedRouter>

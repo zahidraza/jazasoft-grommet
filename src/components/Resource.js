@@ -8,7 +8,8 @@ const Resource = () => <span>&lt;Resource&gt; elements are for configuration onl
 Resource.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  routes: PropTypes.array
+  routes: PropTypes.array,
+  reducer: PropTypes.func
 };
 
 Resource.defaultProps = {

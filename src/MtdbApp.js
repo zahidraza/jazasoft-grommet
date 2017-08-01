@@ -4,8 +4,9 @@ import { combineReducers, createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import createHistory from 'history/createHashHistory';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-redux';
-//import { logger } from 'redux-logger';
+import { ConnectedRouter, routerMiddleware } from 'react-router-redux';
+import { routerReducer } from './reducers/routerReducer';
+import logger  from 'redux-logger';
 import thunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
 
@@ -28,7 +29,7 @@ const MtdbApp = ({
   history,
   restClient,
   authClient,
-  title = 'Admin on REST',
+  title = 'Sample App',
   loginPage,
   logoutButton,
   initialState,
@@ -36,19 +37,24 @@ const MtdbApp = ({
 }) => {
   const resources = React.Children.map(children, ({ props }) => props) || [];
   const links = resources.map(r => ({label: r.label, path: r.name}));
-  
-  const appReducer = combineReducers({
-    routing: routerReducer,
-    ...customReducers
+  const reducers = {
+    routing: routerReducer
+  };
+  resources.forEach(resource => {
+    if (resource.reducer) {
+      reducers[resource.name] = resource.reducer;
+    }
   });
+  const appReducer = combineReducers(reducers);
   const routerHistory = history || createHistory();
   const middleware = applyMiddleware(
     promise(),
     thunk,
-    //logger(),
-    routerMiddleware(routerHistory)
+    logger
+    // routerMiddleware(routerHistory)
   );
-  const store = createStore(appReducer, initialState, middleware);
+  //const store = createStore(appReducer, initialState, middleware);
+  const store = createStore(appReducer, middleware);
 
   //const logout = authClient ? createElement(logoutButton || Logout) : null;
   var isAuth = () => (window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? true : false;

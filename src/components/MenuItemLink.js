@@ -9,7 +9,8 @@ export class MenuItemLink extends Component {
     history: PropTypes.object.isRequired,
     onClick: PropTypes.func,
     to: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired
+    label: PropTypes.string.isRequired,
+    className: PropTypes.string
   }
 
   handleClick = () => {
@@ -20,7 +21,7 @@ export class MenuItemLink extends Component {
   }
   render() {
     return (
-        <Anchor label={this.props.label} onClick={this.handleClick} />
+        <Anchor className={this.props.className} label={this.props.label} onClick={this.handleClick} />
     );
   }
 }

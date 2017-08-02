@@ -15,8 +15,10 @@ import Dashboard from './components/Hello';
 import Login from './components/Login';
 import Protected from './components/Protected';
 //import Logout from './components/Logout';
-import GSidebar from './components/GSidebar';
-import DefaultLayout from './components/Layout';
+import Sidebar from './components/Sidebar';
+import DefaultLayout from './components/AppLayout';
+import TLayout from './components/TLayout';
+import App from 'grommet/components/App';
 
 
 const MtdbApp = ({
@@ -61,7 +63,7 @@ const MtdbApp = ({
   return (
     <Provider store={store}>
       <ConnectedRouter history={routerHistory}>
-        <div>
+        <App>
           <Switch>
             <Route exact path='/login' render={(props) => (
               !(window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? (
@@ -73,15 +75,16 @@ const MtdbApp = ({
                 }}/>
               )
             )}/>
-            <Route path="/" render={() => createElement(appLayout || DefaultLayout, {
+  
+            <Route path="/" render={() => createElement(appLayout || TLayout, {
               dashboard,
-              sidebar: createElement(sidebar || GSidebar, {links}),
+              links,
               resources,
               title
-            })} />
+            })} /> 
             {/* <Protected exact path='/' isAuth={isAuth} component={Dashboard} /> */}
           </Switch>
-        </div>
+        </App>
       </ConnectedRouter>
     </Provider>
   );

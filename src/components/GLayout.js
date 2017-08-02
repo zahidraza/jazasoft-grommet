@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 
 import MainRoute from '../MainRoute';
@@ -8,7 +9,7 @@ import App from 'grommet/components/App';
 import Split from 'grommet/components/Split';
 import Box from 'grommet/components/Box';
 
-class TLayout extends Component {
+class GLayout extends Component {
 
   constructor () {
     super();
@@ -28,13 +29,13 @@ class TLayout extends Component {
   }
 
   render() {
-    const { resources, dashboard, links } = this.props;
+    const { resources, dashboard, links, appName, appShortName } = this.props;
     let header;
     if (this.props.location.pathname != '/login') {
-      header = <AppHeader onMenuOpen={this._openDrawer}/>;
+      header = <AppHeader appName={appName} onMenuOpen={this._openDrawer}/>;
     }
 
-    var pane1 = this.state.drawerActive ? <GSidebar links={links} onHide={this._closeDrawer} /> : null;
+    var pane1 = this.state.drawerActive ? <GSidebar links={links} appShortName={appShortName} onHide={this._closeDrawer} /> : null;
     var pane2 =  (
       <Box>
         {header}
@@ -53,4 +54,12 @@ class TLayout extends Component {
   }
 }
 
-export default withRouter(TLayout);
+GLayout.propTypes = {
+  resources: PropTypes.array,
+  dashboard: PropTypes.element,
+  appName: PropTypes.string.isRequired,
+  appShortName: PropTypes.string.isRequired,
+  links: PropTypes.array.isRequired
+};
+
+export default withRouter(GLayout);

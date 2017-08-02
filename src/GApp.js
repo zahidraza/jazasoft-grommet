@@ -24,14 +24,14 @@ import App from 'grommet/components/App';
 const GApp = ({
   appLayout,
   dashboard,
-  sidebar,
   children,
   customReducers = {},
   customRoutes,
   history,
   restClient,
   authClient,
-  title = 'Sample App',
+  appName = 'Sample App',
+  appShortName,
   loginPage,
   logoutButton,
   initialState,
@@ -80,7 +80,8 @@ const GApp = ({
               dashboard,
               links,
               resources,
-              title
+              appName,
+              appShortName
             })} /> 
             {/* <Protected exact path='/' isAuth={isAuth} component={Dashboard} /> */}
           </Switch>
@@ -105,7 +106,8 @@ GApp.propTypes = {
   loginPage: componentPropType,
   logoutButton: componentPropType,
   restClient: PropTypes.func,
-  title: PropTypes.string.isRequired,
+  appName: PropTypes.string.isRequired,
+  appShortName: PropTypes.string.isRequired,
   initialState: PropTypes.object,
   onLogin: PropTypes.func,
   abc: PropTypes.node

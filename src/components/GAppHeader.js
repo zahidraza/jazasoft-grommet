@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 import Anchor from 'grommet/components/Anchor';
 import Button from 'grommet/components/Button';
@@ -7,7 +8,7 @@ import Menu from 'grommet/components/Menu';
 import MenuIcon from 'grommet/components/icons/base/Menu';
 import Title from 'grommet/components/Title';
 
-class AppHeader extends Component {
+class GAppHeader extends Component {
 
   constructor () {
     super();
@@ -24,7 +25,7 @@ class AppHeader extends Component {
     return (
       <Header size='large' justify='between' colorIndex='neutral-1-a' pad={{horizontal: 'medium'}}>
         <Title>
-          <Button icon={<MenuIcon />} onClick={this._onClick}  /> Sample App
+          <Button icon={<MenuIcon />} onClick={this._onClick}  /> {this.props.appName}
         </Title>
         <Menu direction='row' align='center' responsive={false}>
           <Anchor path='/profile'>Md Zahid Raza</Anchor>
@@ -34,5 +35,9 @@ class AppHeader extends Component {
     );
   }
 }
+GAppHeader.propTypes = {
+  onMenuOpen: PropTypes.func,
+  appName: PropTypes.string.isRequired
+};
 
-export default AppHeader;
+export default GAppHeader;

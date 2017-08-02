@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 
 import Sidebar from 'grommet/components/Sidebar';
@@ -9,7 +10,7 @@ import Menu from 'grommet/components/Menu';
 import Close from 'grommet/components/icons/base/Close';
 import Link from './MenuItemLink';
 
-class TSidebar extends Component {
+class GSidebar extends Component {
   constructor () {
     super();
     this._onClose = this._onClose.bind(this);
@@ -34,7 +35,7 @@ class TSidebar extends Component {
     return (
       <Sidebar colorIndex='neutral-1' size='small'>
         <Header pad='medium' justify='between' >
-          <Title>App</Title>
+          <Title>{this.props.appShortName}</Title>
           <Button icon={<Close />} onClick={this._onClose} />
         </Header>
         <Menu fill={true} primary={true}>
@@ -45,4 +46,11 @@ class TSidebar extends Component {
   }
 }
 
-export default withRouter(TSidebar);
+GSidebar.propTypes = {
+  links: PropTypes.array.isRequired,
+  onHide: PropTypes.func,
+  appShortName: PropTypes.string.isRequired
+};
+
+
+export default withRouter(GSidebar);

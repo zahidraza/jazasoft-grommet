@@ -17,11 +17,11 @@ import Protected from './components/Protected';
 //import Logout from './components/Logout';
 import Sidebar from './components/Sidebar';
 import DefaultLayout from './components/AppLayout';
-import TLayout from './components/TLayout';
+import GLayout from './components/GLayout';
 import App from 'grommet/components/App';
 
 
-const MtdbApp = ({
+const GApp = ({
   appLayout,
   dashboard,
   sidebar,
@@ -76,7 +76,7 @@ const MtdbApp = ({
               )
             )}/>
   
-            <Route path="/" render={() => createElement(appLayout || TLayout, {
+            <Route path="/" render={() => createElement(appLayout || GLayout, {
               dashboard,
               links,
               resources,
@@ -95,7 +95,7 @@ const componentPropType = PropTypes.oneOfType([
   PropTypes.string
 ]);
 
-MtdbApp.propTypes = {
+GApp.propTypes = {
   appLayout: componentPropType,
   authClient: PropTypes.func,
   children: PropTypes.node,
@@ -111,4 +111,4 @@ MtdbApp.propTypes = {
   abc: PropTypes.node
 };
 
-export default MtdbApp;
+export default GApp;

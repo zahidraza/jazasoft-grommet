@@ -1,2 +1,1 @@
-export { default as Hello } from "./Hello";
-export { default as Dialog } from "./Dialog";
+export { default as GHeader } from "./GHeader";

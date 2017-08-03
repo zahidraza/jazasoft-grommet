@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {connect} from 'react-redux';
+
+import {userLogout} from '../actions/authActions';
 
 import Anchor from 'grommet/components/Anchor';
 import Button from 'grommet/components/Button';
@@ -13,12 +16,17 @@ class GAppHeader extends Component {
   constructor () {
     super();
     this._onClick = this._onClick.bind(this);
+    this._onLogout = this._onLogout.bind(this);
   }
 
   _onClick () {
     if (this.props.onMenuOpen) {
       this.props.onMenuOpen();
     }
+  }
+
+  _onLogout() {
+    this.props.dispatch(userLogout(this.props.authClient));
   }
 
   render() {
@@ -29,7 +37,7 @@ class GAppHeader extends Component {
         </Title>
         <Menu direction='row' align='center' responsive={false}>
           <Anchor path='/profile'>Md Zahid Raza</Anchor>
-          <Anchor path='/' >Logout</Anchor>
+          <Anchor path='/login' onClick={this._onLogout} >Logout</Anchor>
         </Menu>
       </Header>
     );
@@ -40,4 +48,6 @@ GAppHeader.propTypes = {
   appName: PropTypes.string.isRequired
 };
 
-export default GAppHeader;
+const select = (store) => ({});
+
+export default connect(select)(GAppHeader);

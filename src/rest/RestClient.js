@@ -112,7 +112,7 @@ export default (apiUrl, httpClient = fetchJson) => {
 
   /**
    * @param {string} type Request type, e.g GET_LIST
-   * @param {string} resource Resource name, e.g. "posts"
+   * @param {string} resource Resource name, e.g. 'posts'
    * @param {Object} params Request parameters. Depends on the request type
    * @returns {Promise} the Promise for a REST response
    */

@@ -26,10 +26,12 @@ class Login extends Component {
     this._onLogin = this._onLogin.bind(this);
   }
 
-  
-  componentWillMount() {
-    console.log(console.log(this.props));
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.auth.authenticated) {
+      this.props.history.push('/');
+    }
   }
+  
   
 
   _onChange(event) {
@@ -45,7 +47,7 @@ class Login extends Component {
   _onLogin () {
     const {email, password} = this.state;
     console.log(email);
-    
+
     this.props.dispatch(userLogin(this.props.authClient, this.state.email, this.state.password));
   }
 
@@ -53,7 +55,7 @@ class Login extends Component {
     const {email, password} = this.state;
     return (
       <App>
-        <Box pad={{horizontal: 'large', vertical: 'large'}} wrap={true}  full='vertical' texture='url(/andon-system/static/img/cover.jpg)' >
+        <Box pad={{horizontal: 'large', vertical: 'large'}} wrap={true}  full='vertical'  >
           <Box align='end' justify='end' pad={{'horizontal': 'large', vertical:'large', between:'large'}}>
             <Box size='auto'  align='center' separator='all' justify='center' colorIndex='light-1' pad={{'horizontal': 'medium', vertical:'medium', between:'medium'}} >
               <Heading >{this.props.title}</Heading>
@@ -88,7 +90,7 @@ Login.defaultProps = {
 };
 
 let select = (store) => {
-  return {routing: store.routing};
+  return {routing: store.routing, auth: store.auth};
 };
 
 export default withRouter(connect(select)(Login));

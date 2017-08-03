@@ -6,17 +6,14 @@ import createHistory from 'history/createHashHistory';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter, routerMiddleware } from 'react-router-redux';
 import { routerReducer } from './reducers/routerReducer';
+import authReducer from './reducers/authReducer';
 import logger  from 'redux-logger';
 import thunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
 
-//import Dashboard from './components/Dashboard';
-import Dashboard from './components/Hello';
+import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import Protected from './components/Protected';
-//import Logout from './components/Logout';
-import Sidebar from './components/Sidebar';
-import DefaultLayout from './components/AppLayout';
 import GLayout from './components/GLayout';
 import App from 'grommet/components/App';
 
@@ -43,7 +40,8 @@ const GApp = ({
   const resources = React.Children.map(children, ({ props }) => props) || [];
   const links = resources.map(r => ({label: r.label, path: r.name}));
   const reducers = {
-    routing: routerReducer
+    routing: routerReducer,
+    auth: authReducer
   };
   resources.forEach(resource => {
     if (resource.reducer) {
@@ -65,14 +63,14 @@ const GApp = ({
   }
 
   //const logout = authClient ? createElement(logoutButton || Logout) : null;
-  var isAuth = () => (window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? true : false;
+  var isAuth = () => (window.sessionStorage.authenticated == true || window.sessionStorage.authenticated == 'true') ? true : false;
   return (
     <Provider store={store}>
       <ConnectedRouter history={routerHistory}>
         <App>
           <Switch>
             <Route exact path='/login' render={(props) => (
-              !(window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? (
+              !isAuth() ? (
                 createElement(loginPage || Login, { location, appName, authClient, restClient }, null)
               ) : (
                 <Redirect to={{
@@ -88,10 +86,11 @@ const GApp = ({
               resources={resources}
               appName={appName}
               appShortName={appShortName}
+              authClient={authClient}
               {...restProps}
             />
   
-            {/* <Route path="/" render={() => createElement(appLayout || GLayout, {
+            {/* <Route path='/' render={() => createElement(appLayout || GLayout, {
               dashboard,
               links,
               resources,

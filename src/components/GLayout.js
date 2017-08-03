@@ -29,13 +29,13 @@ class GLayout extends Component {
   }
 
   render() {
-    const { resources, dashboard, links, appName, appShortName, ...restProps } = this.props;
+    const { resources, dashboard, links, appName, appShortName, authClient, ...restProps } = this.props;
     let header;
     if (this.props.location.pathname != '/login') {
-      header = <AppHeader appName={appName} onMenuOpen={this._openDrawer}/>;
+      header = <AppHeader {...restProps} authClient={authClient} appName={appName} onMenuOpen={this._openDrawer}/>;
     }
 
-    var pane1 = this.state.drawerActive ? <GSidebar links={links} appShortName={appShortName} onHide={this._closeDrawer} /> : null;
+    var pane1 = this.state.drawerActive ? <GSidebar {...restProps} links={links} appShortName={appShortName} onHide={this._closeDrawer} /> : null;
     var pane2 =  (
       <Box>
         {header}
@@ -45,7 +45,7 @@ class GLayout extends Component {
 
     return (
       <App centered={false}>
-        <Split flex="right">
+        <Split flex='right'>
           {pane1}
           {pane2}
         </Split>

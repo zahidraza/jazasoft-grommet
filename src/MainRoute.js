@@ -23,10 +23,10 @@ const MainRoute = ({resources = [], dashboard, ...restProps }) => {
         {dashboard
             ? <Route
                 exact
-                path="/"
+                path='/'
                 render={routeProps => React.createElement(dashboard)}    
               />
-            : (resources[0] && <Route exact path="/" render={() => <Redirect to={`/${resources[0].name}`} />} />
+            : (resources[0] && <Route exact path='/' render={() => <Redirect to={`/${resources[0].name}`} />} />
             )
         }
     </Switch>

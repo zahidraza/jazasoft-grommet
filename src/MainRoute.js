@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import SubRoute from './SubRoute';
 
-const MainRoute = ({resources = [], dashboard }) => {
+const MainRoute = ({resources = [], dashboard, ...restProps }) => {
   return (
     <Switch>
         {resources.map(resource=> 
@@ -12,6 +12,7 @@ const MainRoute = ({resources = [], dashboard }) => {
               key={resource.name} 
               render={()=>
                 <SubRoute 
+                  {...restProps}
                   basePath={resource.name}
                   routes={resource.routes}
                 />

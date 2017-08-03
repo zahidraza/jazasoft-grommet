@@ -37,6 +37,9 @@ const GApp = ({
   initialState,
   onLogin
 }) => {
+  //Props which should pass down to all components
+  const restProps = {restClient};
+
   const resources = React.Children.map(children, ({ props }) => props) || [];
   const links = resources.map(r => ({label: r.label, path: r.name}));
   const reducers = {
@@ -57,6 +60,9 @@ const GApp = ({
   );
   //const store = createStore(appReducer, initialState, middleware);
   const store = createStore(appReducer, middleware);
+  if (!appLayout) {
+    appLayout = GLayout;
+  }
 
   //const logout = authClient ? createElement(logoutButton || Logout) : null;
   var isAuth = () => (window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? true : false;
@@ -67,7 +73,7 @@ const GApp = ({
           <Switch>
             <Route exact path='/login' render={(props) => (
               !(window.sessionStorage.isLoggedIn == true || window.sessionStorage.isLoggedIn == 'true') ? (
-                createElement(loginPage || Login, { location, title, onLogin }, null)
+                createElement(loginPage || Login, { location, appName, authClient, restClient }, null)
               ) : (
                 <Redirect to={{
                   pathname: '/',
@@ -75,14 +81,24 @@ const GApp = ({
                 }}/>
               )
             )}/>
+
+            <Protected path='/' isAuth={isAuth} component={appLayout} 
+              dashboard={dashboard} 
+              links={links}  
+              resources={resources}
+              appName={appName}
+              appShortName={appShortName}
+              {...restProps}
+            />
   
-            <Route path="/" render={() => createElement(appLayout || GLayout, {
+            {/* <Route path="/" render={() => createElement(appLayout || GLayout, {
               dashboard,
               links,
               resources,
               appName,
-              appShortName
-            })} /> 
+              appShortName,
+              ...restProps
+            })} />  */}
             {/* <Protected exact path='/' isAuth={isAuth} component={Dashboard} /> */}
           </Switch>
         </App>

@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {withRouter} from 'react-router-dom';
+import {connect} from 'react-redux';
+
+import {userLogin} from '../actions/authActions';
 
 import App from 'grommet/components/App';
 import Box from 'grommet/components/Box';
@@ -19,7 +23,14 @@ class Login extends Component {
       password: ''
     };
     this._onChange = this._onChange.bind(this);
+    this._onLogin = this._onLogin.bind(this);
   }
+
+  
+  componentWillMount() {
+    console.log(console.log(this.props));
+  }
+  
 
   _onChange(event) {
     const attr = event.target.getAttribute('name');
@@ -29,6 +40,13 @@ class Login extends Component {
     if (attr === 'password') {
       this.setState({password: event.target.value})
     }
+  }
+
+  _onLogin () {
+    const {email, password} = this.state;
+    console.log(email);
+    
+    this.props.dispatch(userLogin(this.props.authClient, this.state.email, this.state.password));
   }
 
   render() {
@@ -49,7 +67,7 @@ class Login extends Component {
                   </FormField>
                 </FormFields>
                 <Footer pad={{'vertical': 'small'}}>
-                  <Button label='Login' fill={true} primary={true}  onClick={()=> window.sessionStorage.isLoggedIn = true} />
+                  <Button label='Login' fill={true} primary={true}  onClick={this._onLogin} />
                 </Footer>
               </Form>
             </Box>
@@ -69,4 +87,8 @@ Login.defaultProps = {
   title: 'Sample Application'
 };
 
-export default Login;
+let select = (store) => {
+  return {routing: store.routing};
+};
+
+export default withRouter(connect(select)(Login));

@@ -29,7 +29,7 @@ class GLayout extends Component {
   }
 
   render() {
-    const { resources, dashboard, links, appName, appShortName } = this.props;
+    const { resources, dashboard, links, appName, appShortName, ...restProps } = this.props;
     let header;
     if (this.props.location.pathname != '/login') {
       header = <AppHeader appName={appName} onMenuOpen={this._openDrawer}/>;
@@ -39,7 +39,7 @@ class GLayout extends Component {
     var pane2 =  (
       <Box>
         {header}
-         <MainRoute resources={resources} dashboard={dashboard}/> 
+         <MainRoute {...restProps} resources={resources} dashboard={dashboard}/> 
       </Box>
     );
 

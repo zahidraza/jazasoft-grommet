@@ -5,14 +5,14 @@ class Dashboard extends Component {
   render() {
     return (
       <div>
-        Welcome to {this.props.title} App.
+        Welcome to {this.props.appName}.
       </div>
     );
   }
 }
 
 Dashboard.prototype = {
-  title: PropTypes.string.isRequired
+  appName: PropTypes.string.isRequired
 };
 
 export default Dashboard;

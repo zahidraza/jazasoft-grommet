@@ -3,7 +3,7 @@ import { Route, Redirect } from 'react-router-dom';
 
 const Protected = ({ isAuth, component, ...rest }) => (
   <Route {...rest} render={(props) => {
-    return isAuth() ? (React.createElement(component, { ...props })) : (<Redirect to="/login" />);
+    return isAuth() ? (React.createElement(component, { ...props, ...rest })) : (<Redirect to="/login" />);
   }} />
 );
 

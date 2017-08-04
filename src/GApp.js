@@ -67,7 +67,7 @@ const GApp = ({
   return (
     <Provider store={store}>
       <ConnectedRouter history={routerHistory}>
-        <App>
+        <div>
           <Switch>
             <Route exact path='/login' render={(props) => (
               !isAuth() ? (
@@ -100,7 +100,7 @@ const GApp = ({
             })} />  */}
             {/* <Protected exact path='/' isAuth={isAuth} component={Dashboard} /> */}
           </Switch>
-        </App>
+        </div>
       </ConnectedRouter>
     </Provider>
   );

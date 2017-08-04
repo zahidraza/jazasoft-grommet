@@ -7,7 +7,7 @@ export const fetchJson = (url, options = {}) => {
   // if (!(options && options.body && options.body instanceof FormData)) {
   //   requestHeaders.set('Content-Type', 'application/json');
   // }
-  if (!(options && options.body)) {
+  if (options && options.body) {
     requestHeaders.set('Content-Type', 'application/json');
   }
   if (sessionStorage.authenticated && sessionStorage.accessToken) {

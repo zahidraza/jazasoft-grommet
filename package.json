@@ -59,6 +59,7 @@
   "dependencies": {
     "babel-runtime": "^6.6.1",
     "grommet": "^1.6.0",
+    "grommet-addons": "^0.4.0",
     "history": "^4.6.3",
     "prop-types": "^15.5.10",
     "react-bootstrap": "^0.31.1",

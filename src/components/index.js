@@ -1,1 +1,1 @@
-export { default as GHeader } from "./GHeader";
+export { default as GHeader } from './GHeader';

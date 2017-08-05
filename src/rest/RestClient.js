@@ -16,7 +16,7 @@ export const fetch = (config = {}, dispatch) => {
   if (config && config.data) {
     requestHeaders['Content-Type'] = 'application/json';
   }
-  if (sessionStorage.authenticated && sessionStorage.accessToken) {
+  if (sessionStorage.accessToken) {
     requestHeaders['Authorization'] = 'Bearer ' + sessionStorage.accessToken;
   }
 
@@ -35,7 +35,6 @@ export const fetch = (config = {}, dispatch) => {
 export default (apiUrl) => {
 
   const convertRESTRequestToHTTP = (type, resource, options) => {
-    let url = '';
     const config = {};
     config.params = options.params || {};
 

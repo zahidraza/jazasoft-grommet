@@ -36,7 +36,7 @@ class GAppHeader extends Component {
           <Button icon={<MenuIcon />} onClick={this._onClick}  /> {this.props.appName}
         </Title>
         <Menu direction='row' align='center' responsive={false}>
-          <Anchor path='/profile'>Md Zahid Raza</Anchor>
+          <Anchor path='/profile'>{sessionStorage.name}</Anchor>
           <Anchor path='/login' onClick={this._onLogout} >Logout</Anchor>
         </Menu>
       </Header>

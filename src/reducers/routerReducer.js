@@ -14,7 +14,7 @@ const initialState = {
  * if you have asynchronously-loaded routes, so reading from and relying on
  * this state is discouraged.
  */
-export function routerReducer(state = initialState, { type, payload } = {}) {
+export default function routerReducer(state = initialState, { type, payload } = {}) {
   if (type === LOCATION_CHANGE) {
     return { ...state, locationBeforeTransitions: payload }
   }

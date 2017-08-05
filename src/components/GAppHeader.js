@@ -20,8 +20,8 @@ class GAppHeader extends Component {
   }
 
   _onClick () {
-    if (this.props.onMenuOpen) {
-      this.props.onMenuOpen();
+    if (this.props.toggleMenu) {
+      this.props.toggleMenu();
     }
   }
 
@@ -44,7 +44,7 @@ class GAppHeader extends Component {
   }
 }
 GAppHeader.propTypes = {
-  onMenuOpen: PropTypes.func,
+  toggleMenu: PropTypes.func,
   appName: PropTypes.string.isRequired
 };
 

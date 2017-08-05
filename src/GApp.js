@@ -5,8 +5,7 @@ import { Provider } from 'react-redux';
 import createHistory from 'history/createHashHistory';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter, routerMiddleware } from 'react-router-redux';
-import { routerReducer } from './reducers/routerReducer';
-import authReducer from './reducers/authReducer';
+import { routerReducer, authReducer, notificationReducer } from './reducers';
 import logger  from 'redux-logger';
 import thunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
@@ -41,7 +40,8 @@ const GApp = ({
   const links = resources.map(r => ({label: r.label, path: r.name}));
   const reducers = {
     routing: routerReducer,
-    auth: authReducer
+    auth: authReducer,
+    nfn: notificationReducer
   };
   resources.forEach(resource => {
     if (resource.reducer) {
@@ -53,8 +53,8 @@ const GApp = ({
   const middleware = applyMiddleware(
     promise(),
     thunk,
-    logger
-    // routerMiddleware(routerHistory)
+    logger,
+    routerMiddleware(routerHistory)
   );
   //const store = createStore(appReducer, initialState, middleware);
   const store = createStore(appReducer, middleware);
@@ -89,16 +89,6 @@ const GApp = ({
               authClient={authClient}
               {...restProps}
             />
-  
-            {/* <Route path='/' render={() => createElement(appLayout || GLayout, {
-              dashboard,
-              links,
-              resources,
-              appName,
-              appShortName,
-              ...restProps
-            })} />  */}
-            {/* <Protected exact path='/' isAuth={isAuth} component={Dashboard} /> */}
           </Switch>
         </div>
       </ConnectedRouter>

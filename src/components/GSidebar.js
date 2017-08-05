@@ -13,17 +13,10 @@ import Link from './MenuItemLink';
 class GSidebar extends Component {
   constructor () {
     super();
-    this._onClose = this._onClose.bind(this);
-  }
-
-  _onClose () {
-    if (this.props.onHide) {
-      this.props.onHide();
-    }
   }
 
   render() {
-    const { links, location } = this.props;
+    const { links, location, fixed } = this.props;
 
     var items = links.map((link, index) => {
       var value = (`/${link.path}` == location.pathname) ? 'active' : '';
@@ -33,10 +26,9 @@ class GSidebar extends Component {
     });
 
     return (
-      <Sidebar colorIndex='neutral-1' size='small'>
+      <Sidebar colorIndex='neutral-1' size='small' fixed={fixed}>
         <Header pad='medium' justify='between' >
           <Title>{this.props.appShortName}</Title>
-          <Button icon={<Close />} onClick={this._onClose} />
         </Header>
         <Menu fill={true} primary={true}>
           {items}
@@ -48,8 +40,12 @@ class GSidebar extends Component {
 
 GSidebar.propTypes = {
   links: PropTypes.array.isRequired,
-  onHide: PropTypes.func,
-  appShortName: PropTypes.string.isRequired
+  appShortName: PropTypes.string.isRequired,
+  fixed: PropTypes.bool
+};
+
+GSidebar.defaultProps = {
+  fixed: false
 };
 
 

@@ -60,8 +60,6 @@ class PageHeader extends Component {
       match 
     } = this.props;
 
-    console.log(this.props);
-
     let searchItem, addItem, filterItem, helpItem;
     if (searchControl) {
       searchItem = (

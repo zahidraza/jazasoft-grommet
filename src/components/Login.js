@@ -32,8 +32,6 @@ class Login extends Component {
     }
   }
   
-  
-
   _onChange(event) {
     const attr = event.target.getAttribute('name');
     if (attr === 'email') {
@@ -46,8 +44,6 @@ class Login extends Component {
 
   _onLogin () {
     const {email, password} = this.state;
-    console.log(email);
-
     this.props.dispatch(userLogin(this.props.authClient, this.state.email, this.state.password));
   }
 
@@ -58,7 +54,7 @@ class Login extends Component {
         <Box pad={{horizontal: 'large', vertical: 'large'}} wrap={true}  full='vertical'  >
           <Box align='end' justify='end' pad={{'horizontal': 'large', vertical:'large', between:'large'}}>
             <Box size='auto'  align='center' separator='all' justify='center' colorIndex='light-1' pad={{'horizontal': 'medium', vertical:'medium', between:'medium'}} >
-              <Heading >{this.props.title}</Heading>
+              <Heading tag='h2'>{this.props.appName}</Heading>
               <Form>
                 <FormFields>
                   <FormField label='Email'>
@@ -81,12 +77,9 @@ class Login extends Component {
 }
 
 Login.propTypes = {
-  title: PropTypes.string.isRequired,
-  onLogin: PropTypes.func
-};
-
-Login.defaultProps = {
-  title: 'Sample Application'
+  appName: PropTypes.string.isRequired,
+  authClient: PropTypes.func.isRequired,
+  restClient: PropTypes.func
 };
 
 let select = (store) => {

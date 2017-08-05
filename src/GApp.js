@@ -71,7 +71,7 @@ const GApp = ({
           <Switch>
             <Route exact path='/login' render={(props) => (
               !isAuth() ? (
-                createElement(loginPage || Login, { location, appName, authClient, restClient }, null)
+                createElement(loginPage || Login, { appName, authClient, restClient }, null)
               ) : (
                 <Redirect to={{
                   pathname: '/',

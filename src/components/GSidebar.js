@@ -21,7 +21,7 @@ class GSidebar extends Component {
     var items = links.map((link, index) => {
       var value = (`/${link.path}` == location.pathname) ? 'active' : '';
       return (
-        <Link className={value} key={link.label} to={link.path} label={link.label} />
+        <Link className={value} key={link.label} to={`/${link.path}`} label={link.label} />
       );
     });
 

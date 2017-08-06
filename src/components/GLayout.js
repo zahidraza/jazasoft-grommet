@@ -40,7 +40,7 @@ class GLayout extends Component {
   }
 
   render() {
-    const { resources, dashboard, loading, links, appName, appShortName, authClient, ...restProps } = this.props;
+    const { resources, loading, links, appName, appShortName, authClient, ...restProps } = this.props;
     let header;
     if (this.props.location.pathname != '/login') {
       header = <AppHeader {...restProps} authClient={authClient} appName={appName} toggleMenu={this.toggleDrawer}/>;
@@ -54,7 +54,7 @@ class GLayout extends Component {
         </Title>
         <Box direction='row'
           align='center'
-          pad={{"between": "medium"}}>
+          pad={{'between': 'medium'}}>
           <Paragraph margin='none'>
             © 2016 Grommet Labs
           </Paragraph>
@@ -73,7 +73,7 @@ class GLayout extends Component {
       <Box justify='between' >
         <Box> 
           {header}
-          <MainRoute {...restProps} resources={resources} dashboard={dashboard}/> 
+          <MainRoute {...restProps} resources={resources} /> 
         </Box>
       </Box>
     );
@@ -100,7 +100,6 @@ const componentPropType = PropTypes.oneOfType([
 
 GLayout.propTypes = {
   resources: PropTypes.array,
-  dashboard: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
   loading: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
   appName: PropTypes.string.isRequired,
   appShortName: PropTypes.string.isRequired,

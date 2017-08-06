@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import createHistory from 'history/createHashHistory';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter, routerMiddleware } from 'react-router-redux';
-import { routerReducer, authReducer, notificationReducer, errReducer } from './reducers';
+import { routerReducer, authReducer, notificationReducer, errReducer, filterReducer } from './reducers';
 import logger  from 'redux-logger';
 import thunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
@@ -19,7 +19,6 @@ import App from 'grommet/components/App';
 
 const GApp = ({
   appLayout,
-  dashboard,
   children,
   customReducers = [],
   customRoutes,
@@ -29,7 +28,6 @@ const GApp = ({
   appName = 'Sample App',
   appShortName,
   loginPage,
-  logoutButton,
   initialState,
   loading
 }) => {
@@ -44,7 +42,8 @@ const GApp = ({
     routing: routerReducer,
     auth: authReducer,
     nfn: notificationReducer,
-    err: errReducer
+    err: errReducer,
+    filter: filterReducer
   };
   resources.forEach(resource => {
     if (resource.reducer) {
@@ -68,7 +67,6 @@ const GApp = ({
     appLayout = GLayout;
   }
 
-  //const logout = authClient ? createElement(logoutButton || Logout) : null;
   var isAuth = () => (window.sessionStorage.authenticated == true || window.sessionStorage.authenticated == 'true') ? true : false;
   return (
     <Provider store={store}>
@@ -87,7 +85,6 @@ const GApp = ({
             )}/>
 
             <Protected path='/' isAuth={isAuth} component={appLayout} 
-              dashboard={dashboard} 
               loading={loading}
               links={links}  
               resources={resources}
@@ -116,7 +113,6 @@ GApp.propTypes = {
   customRoutes: PropTypes.array,
   history: PropTypes.object,
   loginPage: componentPropType,
-  logoutButton: componentPropType,
   restClient: PropTypes.func,
   appName: PropTypes.string.isRequired,
   appShortName: PropTypes.string.isRequired,

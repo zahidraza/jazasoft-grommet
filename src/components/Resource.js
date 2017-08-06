@@ -18,7 +18,7 @@ Resource.defaultProps = {
 export default Resource;
 
 /*
-  route: Array of 
+  routes: Array of 
   [
     {
       path:

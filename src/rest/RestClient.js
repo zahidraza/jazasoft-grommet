@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { BAD_REQUEST } from '../actions/errActions';
+import {SHOW_SNACKBAR, SHOW_NOTIFICATION} from '../actions/notificationActions';
 
 import {
     GET_LIST,
@@ -22,13 +24,25 @@ export const fetch = (config = {}, dispatch) => {
 
   return axios({headers: requestHeaders, ...config})
       .catch(error => {
-        console.log('error occured');
-
         if (typeof dispatch === 'function') {
-          //TODO: dispatch notification action
-          dispatch({type: 'USER_ADD'});
+          const response = error.response;
+          if (response.status == 400) {
+            if (response.data instanceof Array) {
+              let err = {};
+              response.data.forEach(e => {
+                err[e.field] = e.message;
+              });
+              dispatch({type: BAD_REQUEST, payload: { error: err}});
+            }
+          } else if (response.status == 403) {
+            dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'Access Denied. You do not have enough privilege for this operation.', duration: 'long'}}});
+          } else if (response.status == 500) {
+            if (response.data && response.data instanceof Object && response.data.message) {
+              dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {message: response.data.message, status: 'critical'}}});
+            }
+          }
         }
-        return error;
+        return Promise.reject(error);
       });
 };
 

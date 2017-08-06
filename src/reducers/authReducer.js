@@ -16,7 +16,7 @@ const handlers = {
   [LOGIN_SUCCESS]: (_, action) => ({loginSuccess: true}),
   [PROFILE_SUCCESS]: (_, action) => ({profileSuccess: true}),
   [AUTH_SUCCESS]: (_, action) => ({authProgress: false, loginSuccess: false, profileSuccess: false, message: '', authenticated: true}),
-  [AUTH_FAILURE]: (_, action) => ({authProgress: false, authenticated: false, message: action.payload.message}),
+  [AUTH_FAILURE]: (_, action) => ({authProgress: false, authenticated: false, loginSuccess: false, profileSuccess: false, message: action.payload.message}),
   [USER_LOGOUT]: (_, action) => ({authProgress: false, authenticated: false})
 };
 

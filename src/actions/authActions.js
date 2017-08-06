@@ -1,6 +1,8 @@
 import {AUTH_LOGIN}  from '../rest/authTypes';
 import { GET_ONE, GET_LIST } from '../rest/types';
 
+import { CLEAR_SNACKBAR } from './notificationActions';
+
 export const USER_LOGIN = 'USER_LOGIN';
 export const AUTH_PROGRESS = 'AUTH_PROGRESS';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -63,6 +65,7 @@ export const userProfile = (restClient, username) => {
     .catch(error => {
       if (error.response.status == 403) {
         dispatch({type: AUTH_FAILURE, payload:{ message: 'Access Denied. Contact Administrator.'}});
+        dispatch({type: CLEAR_SNACKBAR});
       } else {
         dispatch({type: AUTH_FAILURE, payload:{ message: 'Some Error occured. Try again later!'}});
       }

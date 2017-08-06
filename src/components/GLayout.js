@@ -40,7 +40,7 @@ class GLayout extends Component {
   }
 
   render() {
-    const { resources, dashboard, links, appName, appShortName, authClient, ...restProps } = this.props;
+    const { resources, dashboard, loading, links, appName, appShortName, authClient, ...restProps } = this.props;
     let header;
     if (this.props.location.pathname != '/login') {
       header = <AppHeader {...restProps} authClient={authClient} appName={appName} toggleMenu={this.toggleDrawer}/>;
@@ -88,15 +88,20 @@ class GLayout extends Component {
         </App>
         <TSnackbar />
         <GNotification />
+        {loading && React.createElement(loading, {...restProps})}
       </div>
     );
   }
 }
-
+const componentPropType = PropTypes.oneOfType([
+  PropTypes.func,
+  PropTypes.string
+]);
 
 GLayout.propTypes = {
   resources: PropTypes.array,
-  dashboard: PropTypes.element,
+  dashboard: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
+  loading: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
   appName: PropTypes.string.isRequired,
   appShortName: PropTypes.string.isRequired,
   links: PropTypes.array.isRequired

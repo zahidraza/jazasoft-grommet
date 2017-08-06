@@ -18,7 +18,7 @@ const SubRoute = ({ basePath, routes = [], ...restProps}) => {
   );
 };
 
-SubRoute.prototype = {
+SubRoute.propTypes = {
   basePath: PropTypes.string.isRequired,
   routes: PropTypes.array
 };

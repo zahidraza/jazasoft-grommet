@@ -36,9 +36,12 @@ export const fetch = (config = {}, dispatch) => {
             }
           } else if (response.status == 403) {
             dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'Access Denied. You do not have enough privilege for this operation.', duration: 'long'}}});
-          } else if (response.status == 500) {
+          } else {
             if (response.data && response.data instanceof Object && response.data.message) {
               dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {message: response.data.message, status: 'critical'}}});
+            } 
+            if (!response.data || !(response.data instanceof Object) || !response.data.message) {
+              console.log(response);
             }
           }
         }

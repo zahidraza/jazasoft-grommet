@@ -11,7 +11,7 @@ class Dashboard extends Component {
   }
 }
 
-Dashboard.prototype = {
+Dashboard.propTypes = {
   appName: PropTypes.string.isRequired
 };
 

@@ -33,8 +33,8 @@ const MainRoute = ({resources = [], dashboard, ...restProps }) => {
   )
 };
 
-MainRoute.prototype ={
-  dashboard: PropTypes.element,
+MainRoute.propTypes ={
+  dashboard: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
   resources: PropTypes.array
 };
 

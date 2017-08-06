@@ -21,7 +21,7 @@ const GApp = ({
   appLayout,
   dashboard,
   children,
-  customReducers = {},
+  customReducers = [],
   customRoutes,
   history,
   restClient,
@@ -31,13 +31,15 @@ const GApp = ({
   loginPage,
   logoutButton,
   initialState,
-  onLogin
+  loading
 }) => {
-  //Props which should pass down to all components
+  //Props which will be passed down to all components
   const restProps = {restClient};
 
   const resources = React.Children.map(children, ({ props }) => props) || [];
   const links = resources.map(r => ({label: r.label, path: r.name}));
+  
+  //constructing reducers
   const reducers = {
     routing: routerReducer,
     auth: authReducer,
@@ -48,6 +50,9 @@ const GApp = ({
     if (resource.reducer) {
       reducers[resource.name] = resource.reducer;
     }
+  });
+  customReducers.forEach(r => {
+    reducers[r.name] = r.reducer;
   });
   const appReducer = combineReducers(reducers);
   const routerHistory = history || createHistory();
@@ -83,6 +88,7 @@ const GApp = ({
 
             <Protected path='/' isAuth={isAuth} component={appLayout} 
               dashboard={dashboard} 
+              loading={loading}
               links={links}  
               resources={resources}
               appName={appName}
@@ -106,7 +112,7 @@ GApp.propTypes = {
   appLayout: componentPropType,
   authClient: PropTypes.func,
   children: PropTypes.node,
-  customReducers: PropTypes.object,
+  customReducers: PropTypes.array,
   customRoutes: PropTypes.array,
   history: PropTypes.object,
   loginPage: componentPropType,
@@ -115,8 +121,18 @@ GApp.propTypes = {
   appName: PropTypes.string.isRequired,
   appShortName: PropTypes.string.isRequired,
   initialState: PropTypes.object,
-  onLogin: PropTypes.func,
-  abc: PropTypes.node
+  loading: componentPropType
 };
 
 export default GApp;
+
+/*
+Signature of custom reducer
+[
+  name: string
+  reducer: func
+]
+*/
+
+
+

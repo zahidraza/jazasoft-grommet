@@ -40,7 +40,16 @@ class GLayout extends Component {
   }
 
   render() {
-    const { resources, loading, links, appName, appShortName, authClient, authenticator, ...restProps } = this.props;
+    const { resources, loading, appName, appShortName, authClient, authenticator, ...restProps } = this.props;
+
+    //Create links based on authorization
+    let links = [];
+    resources.forEach(r => {
+      if (authenticator.authorize(r.name)) {
+        links.push({label: r.label, path: r.name})
+      }
+    });
+
     let header;
     if (this.props.location.pathname != '/login') {
       header = <AppHeader {...restProps} authClient={authClient} appName={appName} toggleMenu={this.toggleDrawer}/>;
@@ -102,8 +111,7 @@ GLayout.propTypes = {
   resources: PropTypes.array,
   loading: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
   appName: PropTypes.string.isRequired,
-  appShortName: PropTypes.string.isRequired,
-  links: PropTypes.array.isRequired
+  appShortName: PropTypes.string.isRequired
 };
 
 export default withRouter(GLayout);

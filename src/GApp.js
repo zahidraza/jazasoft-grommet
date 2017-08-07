@@ -9,6 +9,7 @@ import { routerReducer, authReducer, notificationReducer, errReducer, filterRedu
 import logger  from 'redux-logger';
 import thunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
+import { getRoles, getMasterLinks } from './utils/utility';
 
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
@@ -36,8 +37,7 @@ const GApp = ({
   const restProps = {restClient};
 
   const resources = React.Children.map(children, ({ props }) => props) || [];
-  const links = resources.map(r => ({label: r.label, path: r.name}));
-  
+
   //constructing reducers
   const reducers = {
     routing: routerReducer,
@@ -84,14 +84,13 @@ const GApp = ({
             )}/>
 
             <Protected path='/' authenticator={authenticator} component={appLayout} 
-              loading={loading}
-              links={links}  
+              loading={loading} 
               resources={resources}
               appName={appName}
               appShortName={appShortName}
               authClient={authClient}
               {...restProps}
-            />
+            /> 
           </Switch>
         </div>
       </ConnectedRouter>

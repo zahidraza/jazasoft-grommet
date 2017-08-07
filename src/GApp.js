@@ -29,7 +29,8 @@ const GApp = ({
   appShortName,
   loginPage,
   initialState,
-  loading
+  loading,
+  authenticator
 }) => {
   //Props which will be passed down to all components
   const restProps = {restClient};
@@ -61,20 +62,18 @@ const GApp = ({
     logger,
     routerMiddleware(routerHistory)
   );
-  //const store = createStore(appReducer, initialState, middleware);
   const store = createStore(appReducer, middleware);
   if (!appLayout) {
     appLayout = GLayout;
   }
 
-  var isAuth = () => (window.sessionStorage.authenticated == true || window.sessionStorage.authenticated == 'true') ? true : false;
   return (
     <Provider store={store}>
       <ConnectedRouter history={routerHistory}>
         <div>
           <Switch>
             <Route exact path='/login' render={(props) => (
-              !isAuth() ? (
+              !authenticator.authenticate() ? (
                 createElement(loginPage || Login, { appName, authClient, restClient }, null)
               ) : (
                 <Redirect to={{
@@ -84,7 +83,7 @@ const GApp = ({
               )
             )}/>
 
-            <Protected path='/' isAuth={isAuth} component={appLayout} 
+            <Protected path='/' authenticator={authenticator} component={appLayout} 
               loading={loading}
               links={links}  
               resources={resources}
@@ -117,7 +116,8 @@ GApp.propTypes = {
   appName: PropTypes.string.isRequired,
   appShortName: PropTypes.string.isRequired,
   initialState: PropTypes.object,
-  loading: componentPropType
+  loading: componentPropType,
+  authenticator: PropTypes.object
 };
 
 export default GApp;

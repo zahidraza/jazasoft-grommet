@@ -15,6 +15,7 @@ import FormFields from 'grommet/components/FormFields';
 import Button from 'grommet/components/Button';
 import Footer from 'grommet/components/Footer';
 import Spinning from 'grommet/components/icons/Spinning';
+import TSnackbar from './TSnackbar';
 
 class Login extends Component {
 
@@ -86,7 +87,7 @@ class Login extends Component {
               </Form>
             </Box>
           </Box>
-          
+          <TSnackbar />
         </Box>
       </App>
     );

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import createHistory from 'history/createHashHistory';
 import { BAD_REQUEST } from '../actions/errActions';
 import {SHOW_SNACKBAR, SHOW_NOTIFICATION} from '../actions/notificationActions';
 import {USER_LOGOUT, userLogout} from '../actions/authActions';
@@ -11,6 +12,8 @@ import {
     UPDATE,
     DELETE,
 } from './types';
+
+const history = createHistory();
 
 export const fetch = (config = {}, dispatch) => {
   const requestHeaders = config.headers || {
@@ -36,9 +39,11 @@ export const fetch = (config = {}, dispatch) => {
               dispatch({type: BAD_REQUEST, payload: { error: err}});
             }
           } else if (response.status == 401) {
-            // dispatch(userLogout());
-            // dispatch({type: '@@router/LOCATION_CHANGE'});
-            dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'Session Expired. Please Login Again.', duration: 'long'}}});
+            dispatch(userLogout());
+            history.push('/login');
+            setTimeout(() => {
+              dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'Session Expired. Please Login Again.', duration: 'long'}}});
+            }, 100);
           } else if (response.status == 403) {
             dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'Access Denied. You do not have enough privilege for this operation.', duration: 'long'}}});
           } else {

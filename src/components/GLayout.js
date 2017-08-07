@@ -40,7 +40,7 @@ class GLayout extends Component {
   }
 
   render() {
-    const { resources, loading, links, appName, appShortName, authClient, ...restProps } = this.props;
+    const { resources, loading, links, appName, appShortName, authClient, authenticator, ...restProps } = this.props;
     let header;
     if (this.props.location.pathname != '/login') {
       header = <AppHeader {...restProps} authClient={authClient} appName={appName} toggleMenu={this.toggleDrawer}/>;
@@ -73,7 +73,7 @@ class GLayout extends Component {
       <Box justify='between' >
         <Box> 
           {header}
-          <MainRoute {...restProps} resources={resources} /> 
+          <MainRoute {...restProps} authenticator={authenticator} resources={resources} /> 
         </Box>
       </Box>
     );

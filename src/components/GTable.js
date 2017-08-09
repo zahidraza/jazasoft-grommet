@@ -104,12 +104,12 @@ class GTable extends Component {
         </Table>
       );
     }
-    
+
     if (this.props.container == 'list') {
       const items = data.map((item, idx)=> {
         const cells = keys.map((key, i) => {
           return (
-            <Box basis='1/2' key={i}>{item[key]}</Box>
+            <Box basis='3/4' key={i}>{item[key]}</Box>
           );
         })
         return (

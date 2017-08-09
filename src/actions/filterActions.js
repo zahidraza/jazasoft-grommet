@@ -1,2 +1,3 @@
-export const APPLY_FILTER = 'APPLY_FILTER';
-export const CLEAR_FILTER = 'CLEAR_FILTER';
+export const FILTER_APPLY = 'FILTER_APPLY';
+export const FILTER_COUNT = 'FILTER_COUNT';
+export const FILTER_CLEAR = 'FILTER_CLEAR';

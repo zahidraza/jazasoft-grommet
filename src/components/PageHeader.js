@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import AddIcon from 'grommet/components/icons/base/Add';
 import Box from 'grommet/components/Box';
@@ -54,11 +55,11 @@ class PageHeader extends Component {
       addControl, 
       pathAdd,
       filterControl,
-      filteredTotal,
-      unfilteredTotal, 
       helpControl,
       match 
     } = this.props;
+
+    const { filteredTotal, unfilteredTotal } = this.props.filter;
 
     let searchItem, addItem, filterItem, helpItem;
     if (searchControl) {
@@ -127,4 +128,6 @@ PageHeader.defaultProps = {
   helpControl: false
 };
 
-export default withRouter(PageHeader);
+const select = (store) => ({filter: store.filter});
+
+export default withRouter(connect(select)(PageHeader));

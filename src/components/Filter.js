@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
-import { APPLY_FILTER, CLEAR_FILTER } from '../actions/filterActions';
+import {splitCamelCase} from '../utils/utility';
+import { FILTER_APPLY, FILTER_CLEAR } from '../actions/filterActions';
 
 import Button from 'grommet/components/Button';
 import CloseIcon from 'grommet/components/icons/base/Close';
@@ -32,7 +33,7 @@ class Filter extends Component {
   }
 
   _onClear () {
-    this.props.dispatch({ type: CLEAR_FILTER });
+    this.props.dispatch({ type: FILTER_CLEAR });
   }
 
   _onChange (name,event) {
@@ -52,7 +53,7 @@ class Filter extends Component {
         delete filter[name];
       }
     }
-    this.props.dispatch({type:APPLY_FILTER, payload: { filter }});
+    this.props.dispatch({type:FILTER_APPLY, payload: { filter }});
   }
 
   render() {
@@ -81,7 +82,7 @@ class Filter extends Component {
 
       return (
         <Section key={idx} pad={{ horizontal: 'large', vertical: 'small' }}>
-          <Heading tag='h3'>{item.label}</Heading>
+          <Heading tag='h3'>{splitCamelCase(item.label)}</Heading>
           <Select 
             inline={item.inline != undefined ? item.inline : true}  
             multiple={true} 

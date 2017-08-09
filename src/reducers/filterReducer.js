@@ -1,12 +1,16 @@
-import { APPLY_FILTER, CLEAR_FILTER } from '../actions/filterActions';
+import { FILTER_APPLY, FILTER_CLEAR, FILTER_COUNT } from '../actions/filterActions';
 
 const initialState = {
-  filter: {}
+  filter: {},
+  filteredTotal: 0,
+  unfilteredTotal: 0,
+  toggleCount: true  // toggle only when filter count changes
 };
 
 const handlers = { 
-  [APPLY_FILTER]: (_, action) => ({filter: action.payload.filter}),
-  [CLEAR_FILTER]: (_, action) => ({filter: {}})
+  [FILTER_APPLY]: (_, action) => ({filter: action.payload.filter}),
+  [FILTER_COUNT]: (_, action) => ({filteredTotal: action.payload.filteredTotal, unfilteredTotal: action.payload.unfilteredTotal, toggleCount: !_.toggleCount}),
+  [FILTER_CLEAR]: (_, action) => ({filter: {}, filteredTotal: 0, unfilteredTotal: 0})
 };
 
 export default function section (state = initialState, action) {

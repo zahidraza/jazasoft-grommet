@@ -1,8 +1,4 @@
-/**
- * This action type will be dispatched when your history
- * receives a location change.
- */
-export const LOCATION_CHANGE = '@@router/LOCATION_CHANGE'
+import { LOCATION_CHANGE } from '../actions/routerAction';
 
 const initialState = {
   locationBeforeTransitions: null

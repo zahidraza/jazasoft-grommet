@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import createHistory from 'history/createHashHistory';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter, routerMiddleware } from 'react-router-redux';
-import { routerReducer, authReducer, notificationReducer, errReducer, filterReducer } from './reducers';
+import { routerReducer, authReducer, notificationReducer, errReducer, filterReducer, formReducer } from './reducers';
 import logger  from 'redux-logger';
 import thunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
@@ -44,7 +44,8 @@ const GApp = ({
     auth: authReducer,
     nfn: notificationReducer,
     err: errReducer,
-    filter: filterReducer
+    filter: filterReducer,
+    form: formReducer
   };
   resources.forEach(resource => {
     if (resource.reducer) {

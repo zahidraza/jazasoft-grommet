@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 
 class GTableCell extends Component {
   render() {
+    const {children, ...rest} = this.props;
     return (
-      <td>
+      <td {...rest}>
         {this.props.children}
       </td>
     );

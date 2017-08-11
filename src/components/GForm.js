@@ -38,7 +38,7 @@ class GForm extends Component {
     this.state = {
       dialogActive: false,
       collection: {
-        value: 'Select',
+        value: '',
         items: [],
         selectedItems: []
       },
@@ -47,8 +47,13 @@ class GForm extends Component {
     };
   }
 
+  /*
+    When Component mounts: 
+    1. check if any form element is of type checkbox, if so initialize the value and send action
+    2. If collectionItems are there, initialize state with items and value
+  */
   componentWillMount() {
-    let {data, collectionItems, elements} = this.props;
+    let {data, collectionItems, elements, dialogPlaceholder} = this.props;
     let formData = {};
     data.forEach(fieldset => {
       fieldset.elements.forEach(element => {
@@ -73,10 +78,50 @@ class GForm extends Component {
         }
         return e;
       });
+      collection.value = dialogPlaceholder;
       this.setState({collection, elements});
     }    
   }
 
+  /*
+    call parent on submit
+  */
+  _onSubmit () {
+    if (this.props.onSubmit) {
+      this.props.onSubmit();
+    }
+  }
+
+  /*
+    call parent on cancel
+  */
+  _onCancel () {
+    if (this.props.onCancel) {
+      this.props.onCancel();
+    }
+  }
+
+  /*
+    start basic form related actions
+  */
+  _onToggleChange (name, event) {
+    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.target.checked}});
+  }
+
+  _onSelectChange (name, event) {
+    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.value}});
+  }
+
+  _onInputChange (name, event) {
+    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.target.value}});
+  }
+  /*
+    end basic form related actions
+  */
+
+  /*
+    start collection form related actions
+  */
   _onDInputChange (index, name, event) {
     let {dtElements} = this.state;
     dtElements[index].data.forEach(e => {
@@ -85,11 +130,10 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE, payload: {[this.props.collectionKey]: [...dtElements]}});
+    this.props.dispatch({type: FORM_CHANGE, payload: { collections: [...dtElements]}});
   }
 
   _onDToggleChange (index, name, event) {
-    
     let {dtElements} = this.state;
     dtElements[index].data.forEach(e => {
       if (e.name == name) {
@@ -97,11 +141,23 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE, payload: {[this.props.collectionKey]: [...dtElements]}});
+    this.props.dispatch({type: FORM_CHANGE, payload: { collections: [...dtElements]}});
   }
+  /*
+    end collection form related actions
+  */
 
+  /*
+    start collection dialog related actions
+  */
   _toggleDailog () {
     this.setState({dialogActive: !this.state.dialogActive});
+  }
+
+  _onDailogSelectChange (event) {
+    let {collection} = this.state;
+    collection.value = event.value;
+    this.setState({collection});
   }
 
   _onRemove (index) {
@@ -114,19 +170,19 @@ class GForm extends Component {
       if (i != index) return elements.push({...e});
     })
     this.setState({collection, dtElements: elements});
-    this.props.dispatch({type: FORM_CHANGE, payload: {[this.props.collectionKey]: [...elements]}});
+    this.props.dispatch({type: FORM_CHANGE, payload: { collections: [...elements]}});
   }
 
   _submitDailog (params) {
     let { collection, dtElements, elements } = this.state;
-    const { collectionItems } = this.props;
+    const { collectionItems, dialogPlaceholder } = this.props;
     let currItem;
-    if (! collection.value.includes('Select')) {  
+    if (! collection.value.includes(dialogPlaceholder)) {  
       collection.items = collection.items.filter(s => s != collection.value);
       collection.selectedItems = collectionItems.filter(s => (typeof s === 'string') ? !collection.items.includes(s)  : !collection.items.includes(s.name));
       currItem = collectionItems.find(c => (typeof c === 'string') ? c == collection.value : c.name == collection.value);
     }
-    collection.value = 'Select';
+    collection.value = dialogPlaceholder;
 
     //prepare elements for dynamic table
     // rowItem = [ data: elements array, ...restData]
@@ -137,38 +193,11 @@ class GForm extends Component {
     dtElements.push(rowItem);
     this.setState({collection, dialogActive: false, dtElements});
 
-    this.props.dispatch({type: FORM_CHANGE, payload: {[this.props.collectionKey]: [...dtElements]}});
+    this.props.dispatch({type: FORM_CHANGE, payload: { collections: [...dtElements]}});
   }
-
-  _onDailogSelectChange (event) {
-    let {collection} = this.state;
-    collection.value = event.value;
-    this.setState({collection});
-  }
-  
-  _onSubmit () {
-    if (this.props.onSubmit) {
-      this.props.onSubmit();
-    }
-  }
-
-  _onCancel () {
-    if (this.props.onCancel) {
-      this.props.onCancel();
-    }
-  }
-
-  _onToggleChange (name, event) {
-    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.target.checked}});
-  }
-
-  _onSelectChange (name, event) {
-    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.value}});
-  }
-
-  _onInputChange (name, event) {
-    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.target.value}});
-  }
+  /*
+    end collection dialog related actions
+  */
 
   render() {
     const {
@@ -179,12 +208,13 @@ class GForm extends Component {
       submitControl, 
       secondaryTitle,
       headers, 
-      collectionKey, 
+      container,
       form: {formData, toggleForm}, 
       err: { error, show}
     } = this.props;
 
     const {dialogActive, collection, dtElements } = this.state;
+
 
     let submit, cancel;
     if (!busy) {
@@ -192,6 +222,7 @@ class GForm extends Component {
       cancel = this._onCancel;
     }
 
+    //Basic Form related
     const fieldsets = data.map((fieldset, idx) => {
       let title;
       if (fieldset.title != undefined) {
@@ -241,6 +272,7 @@ class GForm extends Component {
       );
     })
 
+    //Footer common
     let footer;
     if (submitControl) {
       footer = (
@@ -251,6 +283,7 @@ class GForm extends Component {
       );
     }
 
+    //Collection related
     let collectionItem;
     if (dtElements != undefined) {
       const data = dtElements.map(e => e.data);
@@ -266,8 +299,7 @@ class GForm extends Component {
               elements={data}
               removeControl={true}
               onRemove={this._onRemove.bind(this)}
-              collectionKey={collectionKey}
-              container='list'
+              container={container}
             />
           </Box>
 
@@ -306,10 +338,12 @@ class GForm extends Component {
 }
 
 GForm.propTypes = {
-  width: PropTypes.string,
+  
   data: PropTypes.array,
   title: PropTypes.string.isRequired,
   busy: PropTypes.bool,
+
+  width: PropTypes.string,
   submitControl: PropTypes.bool,
   onSubmit: PropTypes.func,
   onCancel: PropTypes.func,
@@ -317,14 +351,17 @@ GForm.propTypes = {
   secondaryTitle: PropTypes.string,
   headers: PropTypes.arrayOf(String),
   elements: PropTypes.array,
-  collectionKey: PropTypes.string,
-  collectionItems: PropTypes.array
+  collectionItems: PropTypes.array,
+  container: PropTypes.oneOf(['table', 'list']),
+  dialogPlaceholder: PropTypes.string
 };
 
 GForm.defaultProps = {
   busy: false,
   submitControl: false,
-  width: 'large'
+  width: 'large',
+  dialogPlaceholder: 'Select',
+  container: 'table'
 };
 
 const select = (store) => {
@@ -334,6 +371,7 @@ const select = (store) => {
 export default connect(select)(GForm);
 
 /*
+  ///// Basic Form related props //////
   data: array of object
   [
     {
@@ -352,8 +390,15 @@ export default connect(select)(GForm);
       ]
     }
   ]
+  title: Main Form Title
+  busy: to show progress
 
-  collectionItems: It can be string or object {must have 'name' key}
-  elements: array of dynamic rows must contain first element of label type
+  ///// Basic Form related props //////
+  secondaryTitle: Collection Title
+  container: either Table or List
+  headers: table headers for collection if container is 'table'
+  collectionItems: It can be array of string or object {must have 'name' key}
+  elements: array of dynamic rows must contain first element of label type, required by DTable. see for spec
+  dialogPlaceholder: Placeholder for Dialog
   
 */

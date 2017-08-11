@@ -193,7 +193,6 @@ class DTable extends Component {
 const headerType = PropTypes.oneOfType([PropTypes.string, PropTypes.object]);
 
 DTable.propTypes = {
-  collectionKey: PropTypes.string.isRequired,
   headers: PropTypes.arrayOf(String),
   elements: PropTypes.array.isRequired,
   removeControl: PropTypes.bool,

@@ -207,6 +207,7 @@ class GForm extends Component {
       data, 
       submitControl, 
       secondaryTitle,
+      collectionItems,
       headers, 
       container,
       form: {formData, toggleForm}, 
@@ -285,7 +286,7 @@ class GForm extends Component {
 
     //Collection related
     let collectionItem;
-    if (dtElements != undefined) {
+    if (collectionItems != undefined) {
       const data = dtElements.map(e => e.data);
       collectionItem = (
         <div>
@@ -359,7 +360,7 @@ GForm.propTypes = {
 GForm.defaultProps = {
   busy: false,
   submitControl: false,
-  width: 'large',
+  width: 'medium',
   dialogPlaceholder: 'Select',
   container: 'table'
 };
@@ -385,7 +386,6 @@ export default connect(select)(GForm);
           defaultValue: string|boolean                    optional  - all
           placeholder: string optional                    optional  - input
           options: arrayOf(string) - if type is select    optional  - select
-          action: func 
         }
       ]
     }

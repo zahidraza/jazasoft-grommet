@@ -76,10 +76,10 @@ class GForm extends Component {
         coll.items = cData.collectionItems.map(c => (typeof c === 'string') ? c : c.name);
         elements[idx] = cData.elements.map(e => {
           if (e.type == 'input') {
-            e.action = this._onDInputChange;
+            e.action = this._onDInputChange.bind(this, idx);
           }
           if (e.type == 'checkbox') {
-            e.action = this._onDToggleChange;
+            e.action = this._onDToggleChange.bind(this, idx);
           }
           return e;
         });
@@ -131,9 +131,9 @@ class GForm extends Component {
   /*
     start collection form related actions
   */
-  _onDInputChange (index, name, event) {
+  _onDInputChange (row, col, name, event) {
     let {dtElements} = this.state;
-    dtElements[index].data.forEach(e => {
+    dtElements[row][col].data.forEach(e => {
       if (e.name == name) {
         e.value = event.target.value;
       }
@@ -142,9 +142,9 @@ class GForm extends Component {
     this.props.dispatch({type: FORM_CHANGE_BASIC, payload: { collections: [...dtElements]}});
   }
 
-  _onDToggleChange (index, name, event) {
+  _onDToggleChange (row, col, name, event) {
     let {dtElements} = this.state;
-    dtElements[index].data.forEach(e => {
+    dtElements[row][col].data.forEach(e => {
       if (e.name == name) {
         e.value = event.target.checked;
       }

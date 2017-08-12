@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
-import {FORM_CHANGE} from '../actions/formActions';
+import {FORM_CHANGE_BASIC, FORM_CHANGE_COLLECTION} from '../actions/formActions';
 
 import AddIcon from 'grommet/components/icons/base/Add';
 import Box from 'grommet/components/Box';
@@ -36,12 +36,13 @@ class GForm extends Component {
     this._onDToggleChange = this._onDToggleChange.bind(this);
 
     this.state = {
-      dialogActive: false,
-      collection: {
-        value: '',
-        items: [],
-        selectedItems: []
-      },
+      dialogActive: [],
+      // collection: {
+      //   value: '',
+      //   items: [],
+      //   selectedItems: []
+      // },
+      collection: [],
       elements: [],
       dtElements: []
     };
@@ -53,7 +54,7 @@ class GForm extends Component {
     2. If collectionItems are there, initialize state with items and value
   */
   componentWillMount() {
-    let {data, collectionItems, elements, dialogPlaceholder} = this.props;
+    let {data, collectionData, collectionItems, elements, dialogPlaceholder} = this.props;
     let formData = {};
     data.forEach(fieldset => {
       fieldset.elements.forEach(element => {
@@ -63,23 +64,31 @@ class GForm extends Component {
       })
     })
     if (Object.keys(formData).length != 0) {
-      this.props.dispatch({type: FORM_CHANGE, payload: {...formData}});
+      this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {...formData}});
     }
 
-    if (collectionItems != undefined) {
-      let {collection} = this.state;
-      collection.items = collectionItems.map(c => (typeof c === 'string') ? c : c.name);
-      elements = elements.map(e => {
-        if (e.type == 'input') {
-          e.action = this._onDInputChange;
-        }
-        if (e.type == 'checkbox') {
-          e.action = this._onDToggleChange;
-        }
-        return e;
+    if (collectionData != undefined) {
+      let collection = [];
+      let elements = [];
+      let dialogActive = [];
+      collectionData.forEach((cData, idx) => {
+        let coll = {};
+        coll.items = cData.collectionItems.map(c => (typeof c === 'string') ? c : c.name);
+        elements[idx] = cData.elements.map(e => {
+          if (e.type == 'input') {
+            e.action = this._onDInputChange;
+          }
+          if (e.type == 'checkbox') {
+            e.action = this._onDToggleChange;
+          }
+          return e;
+        });
+        coll.value = (cData.dialogPlaceholder != undefined) ? cData.dialogPlaceholder: 'Select';
+        collection.push(coll);
+        dialogActive.push(false);
       });
-      collection.value = dialogPlaceholder;
-      this.setState({collection, elements});
+
+      this.setState({collection, elements, dialogActive});
     }    
   }
 
@@ -105,15 +114,15 @@ class GForm extends Component {
     start basic form related actions
   */
   _onToggleChange (name, event) {
-    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.target.checked}});
+    this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {[name]: event.target.checked}});
   }
 
   _onSelectChange (name, event) {
-    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.value}});
+    this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {[name]: event.value}});
   }
 
   _onInputChange (name, event) {
-    this.props.dispatch({type: FORM_CHANGE, payload: {[name]: event.target.value}});
+    this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {[name]: event.target.value}});
   }
   /*
     end basic form related actions
@@ -130,7 +139,7 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE, payload: { collections: [...dtElements]}});
+    this.props.dispatch({type: FORM_CHANGE_BASIC, payload: { collections: [...dtElements]}});
   }
 
   _onDToggleChange (index, name, event) {
@@ -141,7 +150,7 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE, payload: { collections: [...dtElements]}});
+    this.props.dispatch({type: FORM_CHANGE_BASIC, payload: { collections: [...dtElements]}});
   }
   /*
     end collection form related actions
@@ -150,50 +159,72 @@ class GForm extends Component {
   /*
     start collection dialog related actions
   */
-  _toggleDailog () {
-    this.setState({dialogActive: !this.state.dialogActive});
+  _toggleDailog (index) {
+    let {dialogActive} = this.state;
+    dialogActive[index] = !dialogActive[index];
+    this.setState({dialogActive});
   }
 
-  _onDailogSelectChange (event) {
+  _onDailogSelectChange (index, event) {
     let {collection} = this.state;
-    collection.value = event.value;
+    collection[index].value = event.value;
     this.setState({collection});
   }
 
-  _onRemove (index) {
+  /*
+    row = collectionData index
+    col = specific collectionItem index within row'th collectionData
+  */
+  _onRemove (row, col) {
     let {collection, dtElements} = this.state;
-    let rItem = collection.selectedItems[index];
-    collection.selectedItems = collection.selectedItems.filter(s => (typeof s === 'string') ? s != rItem.name  : s.name != rItem.name);
-    collection.items.push(rItem.name);
+    let coll = collection[row];
+    let rItem = coll.selectedItems[col];
+    coll.selectedItems = coll.selectedItems.filter(s => (typeof s === 'string') ? s != rItem.name  : s.name != rItem.name);
+    coll.items.push(rItem.name);
     let elements = [];
-    dtElements.forEach((e, i) => {
-      if (i != index) return elements.push({...e});
+    dtElements[row].forEach((e, i) => {
+      if (i != col) return elements.push({...e});
     })
-    this.setState({collection, dtElements: elements});
-    this.props.dispatch({type: FORM_CHANGE, payload: { collections: [...elements]}});
+    dtElements[row] = elements
+    collection[row] = coll;
+    this.setState({collection, dtElements});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {index: row, collections: [...dtElements[row]]}});
   }
 
-  _submitDailog (params) {
-    let { collection, dtElements, elements } = this.state;
-    const { collectionItems, dialogPlaceholder } = this.props;
+  _submitDailog (index) {
+    let { collection, dtElements, elements, dialogActive } = this.state;
+    const { collectionData } = this.props;
     let currItem;
-    if (! collection.value.includes(dialogPlaceholder)) {  
-      collection.items = collection.items.filter(s => s != collection.value);
-      collection.selectedItems = collectionItems.filter(s => (typeof s === 'string') ? !collection.items.includes(s)  : !collection.items.includes(s.name));
-      currItem = collectionItems.find(c => (typeof c === 'string') ? c == collection.value : c.name == collection.value);
+    let coll = collection[index];
+
+    if (! coll.value.includes(collectionData[index].dialogPlaceholder)) {  
+      coll.items = coll.items.filter(s => s != coll.value);
+      coll.selectedItems = collectionData[index].collectionItems.filter(s => (typeof s === 'string') ? !coll.items.includes(s)  : !coll.items.includes(s.name));
+      currItem = collectionData[index].collectionItems.find(c => (typeof c === 'string') ? c == coll.value : c.name == coll.value);
     }
-    collection.value = dialogPlaceholder;
+    coll.value = collectionData[index].dialogPlaceholder;
+    collection[index] = coll;
 
     //prepare elements for dynamic table
     // rowItem = [ data: elements array, ...restData]
-    const data = elements.map(e => ({...e}));
-    const {name, ...restData} = currItem;
-    data[0].label = name;
-    const rowItem = {data, ...restData};
-    dtElements.push(rowItem);
-    this.setState({collection, dialogActive: false, dtElements});
-
-    this.props.dispatch({type: FORM_CHANGE, payload: { collections: [...dtElements]}});
+    let rowItem;
+    const data = elements[index].map(e => ({...e}));
+    if (typeof currItem === 'string') {
+      data[0].label = currItem;
+      rowItem = {data};
+    } else {
+      const {name, ...restData} = currItem;
+      data[0].label = name;
+      rowItem = {data, ...restData};
+    }
+    if (dtElements[index] != undefined) {
+      dtElements[index].push(rowItem);
+    } else {
+      dtElements[index] = [rowItem];
+    }
+    dialogActive[index] = false;
+    this.setState({collection, dialogActive, dtElements});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: { index, collections: [...dtElements[index]]}});
   }
   /*
     end collection dialog related actions
@@ -206,16 +237,12 @@ class GForm extends Component {
       busy, 
       data, 
       submitControl, 
-      secondaryTitle,
-      collectionItems,
-      headers, 
-      container,
+      collectionData,
       form: {formData, toggleForm}, 
       err: { error, show}
     } = this.props;
 
     const {dialogActive, collection, dtElements } = this.state;
-
 
     let submit, cancel;
     if (!busy) {
@@ -224,54 +251,106 @@ class GForm extends Component {
     }
 
     //Basic Form related
-    const fieldsets = data.map((fieldset, idx) => {
-      let title;
-      if (fieldset.title != undefined) {
-        title = (
-          <Box direction="row" justify="between">
-            <Heading tag="h3">{fieldset.title}</Heading>
-          </Box>
+    let basicForm;
+    if (data != undefined) {
+      const fieldsets = data.map((fieldset, idx) => {
+        let title;
+        if (fieldset.title != undefined) {
+          title = (
+            <Box direction="row" justify="between">
+              <Heading tag="h3">{fieldset.title}</Heading>
+            </Box>
+          );
+        }
+
+        const elements = fieldset.elements.map((e, i) => {
+          let element;
+          if (e.elementType == 'input') {
+            const type = (e.type != undefined) ? e.type : 'text';
+            element = (
+              <FormField key={i} label={e.label} error={error[e.name]}>
+                <input type={type} name={e.name} value={formData[e.name] == undefined ? '' : formData[e.name]} onChange={this._onInputChange.bind(this, e.name)} />
+              </FormField>
+            );
+          }
+          if (e.elementType == 'select') {
+            const type = (e.type != undefined) ? e.type : 'text';
+            const value = (formData[e.name] != undefined) ? formData[e.name] : e.placeholder;
+            element = (
+              <FormField key={i} label={e.label}>
+                <Select options={e.options} 
+                  value={value} onChange={this._onSelectChange.bind(this, e.name)} />
+              </FormField>
+            );
+          }
+          if (e.elementType == 'checkbox') {
+            element = (
+              <FormField key={i}>
+                <CheckBox label={e.label} checked={formData[e.name] == undefined ? false : formData[e.name]} toggle={true} onChange={this._onToggleChange.bind(this, e.name)}/>
+              </FormField>
+            );
+          }
+          return element;
+        });
+        
+
+        return (
+          <fieldset key={idx}>
+            {title}
+            {elements}
+          </fieldset>
         );
-      }
-
-      const elements = fieldset.elements.map((e, i) => {
-        let element;
-        if (e.elementType == 'input') {
-          const type = (e.type != undefined) ? e.type : 'text';
-          element = (
-            <FormField key={i} label={e.label} error={error[e.name]}>
-              <input type={type} name={e.name} value={formData[e.name] == undefined ? '' : formData[e.name]} onChange={this._onInputChange.bind(this, e.name)} />
-            </FormField>
-          );
-        }
-        if (e.elementType == 'select') {
-          const type = (e.type != undefined) ? e.type : 'text';
-          const value = (formData[e.name] != undefined) ? formData[e.name] : e.placeholder;
-          element = (
-            <FormField key={i} label={e.label}>
-              <Select options={e.options} 
-                value={value} onChange={this._onSelectChange.bind(this, e.name)} />
-            </FormField>
-          );
-        }
-        if (e.elementType == 'checkbox') {
-          element = (
-            <FormField key={i}>
-              <CheckBox label={e.label} checked={formData[e.name] == undefined ? false : formData[e.name]} toggle={true} onChange={this._onToggleChange.bind(this, e.name)}/>
-            </FormField>
-          );
-        }
-        return element;
-      })
-      
-
-      return (
-        <fieldset key={idx}>
-          {title}
-          {elements}
-        </fieldset>
+      });
+      basicForm = (
+        <Form plain={true}>
+          <FormHeader title={title} busy={busy} /> 
+          <FormFields>
+            {fieldsets}
+          </FormFields>
+          
+        </Form>
       );
-    })
+    }
+    
+    //Collection related
+    let collectionItems;
+    if (collectionData != undefined) {
+
+      collectionItems = collectionData.map((cData, idx) => {
+        const data = dtElements[idx] != undefined ? dtElements[idx].map(e => e.data): [];
+
+        const collectionItem = (
+          <div key={idx}>
+            <Box direction='row' justify='between' pad={{vertical: 'medium'}}>
+              <Box alignSelf='center'><Heading strong={true} tag='h3' >{cData.secondaryTitle}</Heading></Box>
+              <Button icon={<AddIcon />} onClick={this._toggleDailog.bind(this, idx)}/>
+            </Box>
+            <Box>
+              
+              <Table headers={cData.headers}
+                elements={data}
+                removeControl={true}
+                onRemove={this._onRemove.bind(this, idx)}
+                container={cData.container}
+              />
+            </Box>
+
+            <Dialog
+              title={cData.secondaryTitle}
+              active={dialogActive[idx]}
+              onCancel={this._toggleDailog.bind(this, idx)}
+              onSubmit={this._submitDailog.bind(this, idx)}
+            >
+    
+              <Select options={collection[idx].items} 
+                    value={collection[idx].value} onChange={this._onDailogSelectChange.bind(this, idx)} />
+              
+            </Dialog>
+          </div>
+        );
+        return collectionItem;
+      });
+    }
 
     //Footer common
     let footer;
@@ -284,52 +363,12 @@ class GForm extends Component {
       );
     }
 
-    //Collection related
-    let collectionItem;
-    if (collectionItems != undefined) {
-      const data = dtElements.map(e => e.data);
-      collectionItem = (
-        <div>
-          <Box direction='row' justify='between' pad={{vertical: 'medium'}}>
-            <Box alignSelf='center'><Heading strong={true} tag='h3' >{secondaryTitle}</Heading></Box>
-            <Button icon={<AddIcon />} onClick={this._toggleDailog}/>
-          </Box>
-          <Box>
-            
-            <Table headers={headers}
-              elements={data}
-              removeControl={true}
-              onRemove={this._onRemove.bind(this)}
-              container={container}
-            />
-          </Box>
-
-          <Dialog
-            title={secondaryTitle}
-            active={dialogActive}
-            onCancel={this._toggleDailog}
-            onSubmit={this._submitDailog}
-          >
-   
-            <Select options={collection.items} 
-                  value={collection.value} onChange={this._onDailogSelectChange} />
-            
-          </Dialog>
-        </div>
-      );
-    }
-
     return (
       <Box size={width} alignSelf='center' justify='center'>
-        <Form plain={true}>
-          <FormHeader title={title} busy={busy} /> 
-          <FormFields>
-            {fieldsets}
-          </FormFields>
-          
-        </Form>
+        
+        {basicForm}
 
-        {collectionItem}
+        {collectionItems}
 
         {footer}
 
@@ -341,7 +380,7 @@ class GForm extends Component {
 GForm.propTypes = {
   
   data: PropTypes.array,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   busy: PropTypes.bool,
 
   width: PropTypes.string,
@@ -349,20 +388,14 @@ GForm.propTypes = {
   onSubmit: PropTypes.func,
   onCancel: PropTypes.func,
 
-  secondaryTitle: PropTypes.string,
-  headers: PropTypes.arrayOf(String),
-  elements: PropTypes.array,
-  collectionItems: PropTypes.array,
-  container: PropTypes.oneOf(['table', 'list']),
-  dialogPlaceholder: PropTypes.string
+  collectionData: PropTypes.array
+
 };
 
 GForm.defaultProps = {
   busy: false,
   submitControl: false,
-  width: 'medium',
-  dialogPlaceholder: 'Select',
-  container: 'table'
+  width: 'medium'
 };
 
 const select = (store) => {
@@ -372,6 +405,14 @@ const select = (store) => {
 export default connect(select)(GForm);
 
 /*
+
+  secondaryTitle: PropTypes.string,
+  headers: PropTypes.arrayOf(String),
+  elements: PropTypes.array,
+  collectionItems: PropTypes.array,
+  container: PropTypes.oneOf(['table', 'list']),
+  dialogPlaceholder: PropTypes.string
+
   ///// Basic Form related props //////
   data: array of object
   [
@@ -394,11 +435,26 @@ export default connect(select)(GForm);
   busy: to show progress
 
   ///// Basic Form related props //////
+
+  Definition:
+
   secondaryTitle: Collection Title
   container: either Table or List
   headers: table headers for collection if container is 'table'
   collectionItems: It can be array of string or object {must have 'name' key}
   elements: array of dynamic rows must contain first element of label type, required by DTable. see for spec
   dialogPlaceholder: Placeholder for Dialog
+
+  actual data:
+  collectionData: [
+    {
+      secondaryTitle: 
+      container: 
+      headers: 
+      collectionItems: 
+      elements: 
+      dialogPlaceholder: 
+    }
+  ]
   
 */

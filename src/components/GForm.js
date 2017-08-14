@@ -54,7 +54,7 @@ class GForm extends Component {
     2. If collectionItems are there, initialize state with items and value
   */
   componentWillMount() {
-    let {data, collectionData, collectionItems, elements, dialogPlaceholder} = this.props;
+    let {data, collectionData} = this.props;
     let formData = {};
     data.forEach(fieldset => {
       fieldset.elements.forEach(element => {
@@ -139,7 +139,8 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE_BASIC, payload: { collections: [...dtElements]}});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {index: row, collections: [...dtElements[row]]}});
+    //this.props.dispatch({type: FORM_CHANGE_BASIC, payload: { collections: [...dtElements]}});
   }
 
   _onDToggleChange (row, col, name, event) {
@@ -150,7 +151,8 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE_BASIC, payload: { collections: [...dtElements]}});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {index: row, collections: [...dtElements[row]]}});
+    //this.props.dispatch({type: FORM_CHANGE_BASIC, payload: { collections: [...dtElements]}});
   }
   /*
     end collection form related actions
@@ -213,8 +215,11 @@ class GForm extends Component {
       data[0].label = currItem;
       rowItem = {data};
     } else {
-      const {name, ...restData} = currItem;
+      const {name, id, ...restData} = currItem;
       data[0].label = name;
+      if (id != undefined) {
+        data[0].value = id;
+      }
       rowItem = {data, ...restData};
     }
     if (dtElements[index] != undefined) {
@@ -383,7 +388,7 @@ GForm.propTypes = {
   title: PropTypes.string,
   busy: PropTypes.bool,
 
-  width: PropTypes.string,
+  width: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   submitControl: PropTypes.bool,
   onSubmit: PropTypes.func,
   onCancel: PropTypes.func,
@@ -441,7 +446,8 @@ export default connect(select)(GForm);
   secondaryTitle: Collection Title
   container: either Table or List
   headers: table headers for collection if container is 'table'
-  collectionItems: It can be array of string or object {must have 'name' key}
+          it can be string or object: {label: string, tooltip: string}
+  collectionItems: It can be array of string or object {must have 'name' key, and optional 'id'}
   elements: array of dynamic rows must contain first element of label type, required by DTable. see for spec
   dialogPlaceholder: Placeholder for Dialog
 

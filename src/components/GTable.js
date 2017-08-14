@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import {getArrayFromCsv} from '../utils/utility';
+import {getArrayFromCsv, splitCamelCase} from '../utils/utility';
 import { FILTER_COUNT } from '../actions/filterActions';
 
 import Box from 'grommet/components/Box';
@@ -13,6 +13,9 @@ import TableHeader from 'grommet/components/TableHeader';
 import TableCell from './GTableCell';
 import List from 'grommet/components/List';
 import ListItem from 'grommet/components/ListItem';
+
+import Tooltip from 'react-toolbox/lib/tooltip';
+const THeadTooltip = Tooltip('th');
 
 class GTable extends Component {
 
@@ -72,9 +75,20 @@ class GTable extends Component {
 
   render() {
     const { data, filteredTotal } = this.state;
+    const { headers } = this.props;
 
-    const tableHeaders = this.props.headers.map(h => (typeof h === 'string') ? h : h.label);
-    const keys = this.props.headers.map(h => (typeof h === 'string') ? h : h.key);
+    let tableHeaders = [], keys = [];
+    headers.forEach(h => {
+      if (typeof h === 'string') {
+        tableHeaders.push(h);
+        keys.push(h);
+      } else {
+        const {label, tooltip, key} = h;
+        tableHeaders.push({label, tooltip});
+        keys.push(key);
+      }
+    });
+
     let onMore;
     if (data.length < filteredTotal) {
       onMore = this._onMore;
@@ -82,6 +96,22 @@ class GTable extends Component {
 
     let contents;
     if (this.props.container == 'table') {
+
+      const header = tableHeaders.map((h, i)=> {
+        let result;
+        if (typeof h === 'string') {
+          result = (<th>{h}</th>);
+        } else {
+          const tooltip = h.tooltip;
+          if (tooltip != undefined) {
+            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} > {h.label}</THeadTooltip>);
+          } else {
+            result = (<th>{h.label}</th>);
+          }
+        }
+        return result;
+      })
+
       const items = data.map((item, idx)=> {
         const cells = keys.map((key, i) => {
           return (
@@ -97,7 +127,7 @@ class GTable extends Component {
 
       contents = (
         <Table onMore={onMore}>
-          <TableHeader labels={tableHeaders} />
+          <thead><tr>{header}</tr></thead>
           <tbody>
             {items}
           </tbody>
@@ -129,7 +159,7 @@ class GTable extends Component {
     }
 
     return (
-      <Box>
+      <Box size={this.props.width} alignSelf='center' justify='center'>
         {contents}
       </Box>
     );
@@ -142,12 +172,14 @@ GTable.propTypes = {
   headers: PropTypes.arrayOf(headerType).isRequired,
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   pageSize: PropTypes.number,
-  container: PropTypes.oneOf(['table','list'])
+  container: PropTypes.oneOf(['table','list']),
+  width: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 GTable.defaultProps = {
   pageSize: 15,
-  container: 'table'
+  container: 'table',
+  width: 'medium'
 };
 
 const select = (store) => ({filter: store.filter});
@@ -157,7 +189,7 @@ export default connect(select)(GTable);
 /*
 header: array of object {key,value} or array of key string
 [
-  {key: string, label: string} or key: string
+  {key: string, label: string, tooltip: string} or key: string
 ]
 
 

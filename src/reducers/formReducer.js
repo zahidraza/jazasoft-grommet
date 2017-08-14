@@ -18,8 +18,8 @@ const handlers = {
     collectionData[action.payload.index] = action.payload.collections;
     return {collectionData, toggleForm: !_.toggleForm};
   },
-  [FORM_CLEAR]: (_, action) => ({formData: {}, toggleForm: !_.toggleForm}),
-  [LOCATION_CHANGE]: (_, action) => ({formData: {}, toggleForm: !_.toggleForm})
+  [FORM_CLEAR]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm}),
+  [LOCATION_CHANGE]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm})
 };
 
 export default function section (state = initialState, action) {

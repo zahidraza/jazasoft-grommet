@@ -40,7 +40,7 @@ export function getCollectionData(collectionData) {
       const {data, ...restData} = p;
       let dynamicData = {};
       data.forEach((d,i) => {
-        if (i == 0) {
+        if (i == 0 && d.value == undefined) {
           dynamicData[d.name] = d.label;
         } else {
           dynamicData[d.name] = d.value;
@@ -70,4 +70,12 @@ export function denormalise(object) {
   }
   return list;
 }
+
+import React from 'react';
+import Tooltip from 'react-toolbox/lib/tooltip';
+
+const createTooltip = (element) => {
+  const e = (props) => React.createElement(element, {...props});
+  return Tooltip(e);
+};
 

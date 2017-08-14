@@ -14,6 +14,9 @@ import ListItem from 'grommet/components/ListItem';
 import TrashIcon from 'grommet/components/icons/base/Trash';
 import Dialog from './Dailog';
 
+import Tooltip from 'react-toolbox/lib/tooltip';
+const THeadTooltip = Tooltip('th');
+
 const cellWidth = {
   small: 100,
   medium: 150,
@@ -99,22 +102,24 @@ class DTable extends Component {
 
       let header;
       if (headers != undefined) {
+        header = headers.map((h, i) => {
+          let result;
+          if (typeof h === 'string') {
+            result = (<th>{h}</th>);
+          } else {
+            const tooltip = h.tooltip;
+            if (tooltip != undefined) {
+              result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} > {h.label}</THeadTooltip>);
+            } else {
+              result = (<th>{h.label}</th>);
+            }
+          }
+          return result;
+        });
+
+
         if (removeControl) {
-          header = (
-            <thead>
-              <tr>
-                {headers.map((h, i) => {
-                  let cell;
-                  if (i == (headers.length-1)) {
-                    cell = (<th key={i} style={{textAlign: 'right'}}>{h}</th>);
-                  } else {
-                    cell = (<th key={i} >{h}</th>);
-                  }
-                  return cell;
-                })}
-              </tr>
-            </thead>
-          )
+          
         } else {
           header = (<TableHeader labels={headers} />);
         }
@@ -123,7 +128,7 @@ class DTable extends Component {
       if (elements.length != 0) {
         contents = (
           <Table>
-            {header}
+            <thead><tr>{header}</tr></thead>
             <tbody>
               {rowItems}
             </tbody>
@@ -212,6 +217,7 @@ const select = (store) => {
 export default connect(select)(DTable);
 
 /*
+  headers: it can be of type string or object : {label: string, tooltip: string};
   elements: array of (array of Objects)
   [
     {

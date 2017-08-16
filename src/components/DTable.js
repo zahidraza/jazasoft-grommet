@@ -5,6 +5,7 @@ import {connect} from 'react-redux';
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
 import CheckBox from 'grommet/components/CheckBox';
+import DateTime from 'grommet/components/DateTime';
 import Table from 'grommet/components/Table';
 import TableRow from 'grommet/components/TableRow';
 import TableCell from './GTableCell';
@@ -49,6 +50,12 @@ class DTable extends Component {
     }
   }
 
+  _onDateChange (index, name, action, value) {
+    if (action) {
+      action(index, name, value);
+    }
+  }
+
   _onToggleChange (index, name, action, event) {
     if (action) {
       action(index, name, event);
@@ -57,11 +64,9 @@ class DTable extends Component {
 
   render() {
     const { headers, elements, removeControl, container } = this.props;
-
     let contents;
     if (container == 'table') {
       const rowItems = elements.map((rowItem, idx)=> {
-
         const colItems = rowItem.map((colItem, i) => {
           let cell;
           if (colItem.type == 'label') {
@@ -74,7 +79,7 @@ class DTable extends Component {
             let width = (colItem.width == undefined) ? cellWidth.medium : cellWidth[colItem.width];
             cell = (
               <TableCell key={i}>
-                <input type='text' name={colItem.name} value={colItem.value} style={{width}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
+                <input type='text' name={colItem.name} value={colItem.value == undefined ? '' : colItem.value} style={{width}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
               </TableCell>
             );
           }
@@ -86,13 +91,20 @@ class DTable extends Component {
               </TableCell>
             );
           }
+          if (colItem.type == 'date') {
+            let width = (colItem.width == undefined) ? cellWidth.medium : cellWidth[colItem.width];
+            cell = (
+              <TableCell key={i}>
+                <DateTime name={colItem.name} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
+              </TableCell>
+            );
+          }
           return cell;
         });
 
         if (removeControl) {
           colItems.push((<TableCell key={colItems.length} style={{textAlign: 'right'}} ><Button icon={<TrashIcon />} onClick={this._onRemove.bind(this, idx)}/> </TableCell>));
         }
-
         return (
           <TableRow key={idx}>
             {colItems}
@@ -105,24 +117,17 @@ class DTable extends Component {
         header = headers.map((h, i) => {
           let result;
           if (typeof h === 'string') {
-            result = (<th>{h}</th>);
+            result = (<th style={{fontWeight: 'bold'}}>{h}</th>);
           } else {
             const tooltip = h.tooltip;
             if (tooltip != undefined) {
-              result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} > {h.label}</THeadTooltip>);
+              result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{fontWeight: 'bold'}} > {h.label}</THeadTooltip>);
             } else {
-              result = (<th>{h.label}</th>);
+              result = (<th style={{fontWeight: 'bold'}}>{h.label}</th>);
             }
           }
           return result;
         });
-
-
-        if (removeControl) {
-          
-        } else {
-          header = (<TableHeader labels={headers} />);
-        }
       }
       
       if (elements.length != 0) {
@@ -161,6 +166,14 @@ class DTable extends Component {
             cell = (
               <Box key={i} basis={basis}  alignSelf='center' >
                 <CheckBox label={colItem.label} checked={colItem.value}  toggle={true} onChange={this._onToggleChange.bind(this, idx, colItem.name, colItem.action)}/>
+              </Box>
+            );
+          }
+          if (colItem.type == 'date') {
+            let basis = (colItem.width == undefined) ? cellBasis.medium : cellBasis[colItem.width];
+            cell = (
+              <Box key={i} basis={basis}  alignSelf='center' >
+                <DateTime name={colItem.name} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
               </Box>
             );
           }

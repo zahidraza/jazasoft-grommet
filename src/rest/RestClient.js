@@ -11,6 +11,7 @@ import {
     CREATE,
     UPDATE,
     DELETE,
+    UPDATE_MANY
 } from './types';
 
 const history = createHistory();
@@ -77,6 +78,11 @@ export default (apiUrl) => {
       break;
     case UPDATE:
       config.url = `${apiUrl}/${resource}/${options.id}`;
+      config.method = 'PUT';
+      config.data = JSON.stringify(options.data);
+      break;
+    case UPDATE_MANY:
+      config.url = `${apiUrl}/${resource}`;
       config.method = 'PUT';
       config.data = JSON.stringify(options.data);
       break;

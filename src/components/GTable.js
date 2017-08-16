@@ -13,12 +13,23 @@ import TableHeader from 'grommet/components/TableHeader';
 import TableCell from './GTableCell';
 import List from 'grommet/components/List';
 import ListItem from 'grommet/components/ListItem';
+import ViewIcon from 'grommet/components/icons/base/View';
+import EditIcon from 'grommet/components/icons/base/Edit';
+import TrashIcon from 'grommet/components/icons/base/Trash';
+import ArchiveIcon from 'grommet/components/icons/base/Archive';
 
 import Tooltip from 'react-toolbox/lib/tooltip';
 const THeadTooltip = Tooltip('th');
 
-class GTable extends Component {
+const cellWidth = {
+  small: 100,
+  medium: 150,
+  large: 200,
+  xlarge: 250
+};
 
+class GTable extends Component {
+ 
   constructor() {
     super();
     this.state = {
@@ -40,6 +51,12 @@ class GTable extends Component {
     const { data, filter: {filter, toggleCount}} = nextProps;
     if (this.props.filter.toggleCount == toggleCount) {
       this._loadData(data, filter, this.state.page);
+    }
+  }
+
+  _onClick (action, index, event) {
+    if (this.props.onClick) {
+      this.props.onClick(action, index, event);
     }
   }
   
@@ -75,7 +92,7 @@ class GTable extends Component {
 
   render() {
     const { data, filteredTotal } = this.state;
-    const { headers } = this.props;
+    const { headers, scope } = this.props;
 
     let tableHeaders = [], keys = [];
     headers.forEach(h => {
@@ -83,8 +100,8 @@ class GTable extends Component {
         tableHeaders.push(h);
         keys.push(h);
       } else {
-        const {label, tooltip, key} = h;
-        tableHeaders.push({label, tooltip});
+        const {label, tooltip, key, width} = h;
+        tableHeaders.push({label, tooltip, width});
         keys.push(key);
       }
     });
@@ -100,24 +117,44 @@ class GTable extends Component {
       const header = tableHeaders.map((h, i)=> {
         let result;
         if (typeof h === 'string') {
-          result = (<th>{h}</th>);
+          result = (<th key={i} style={{width: cellWidth.medium, fontWeight: 'bold'}} >{splitCamelCase(h)}</th>);
         } else {
+          let width = (h.width == undefined) ? cellWidth.medium : cellWidth[h.width];
           const tooltip = h.tooltip;
           if (tooltip != undefined) {
-            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} > {h.label}</THeadTooltip>);
+            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{width, fontWeight: 'bold'}} > {splitCamelCase(h.label)}</THeadTooltip>);
           } else {
-            result = (<th>{h.label}</th>);
+            result = (<th key={i} style={{width, fontWeight: 'bold'}} >{splitCamelCase(h.label)}</th>);
           }
         }
         return result;
       })
+      if (scope != 'none') {
+        header.push(<th key={tableHeaders.length}>Action</th>);
+      }
 
       const items = data.map((item, idx)=> {
-        const cells = keys.map((key, i) => {
+        let cells = keys.map((key, i) => {
           return (
-            <TableCell key={i}>{item[key]}</TableCell>
+            <TableCell key={i}  >{item[key]}</TableCell>
           );
         })
+        if (scope != 'none') {
+          let actions = [];
+          if (scope.includes('read')) {
+            actions.push(<Button key='1' icon={<ViewIcon />} onClick={this._onClick.bind(this, 'read', idx)} />);
+          }
+          if (scope.includes('update')) {
+            actions.push(<Button key='2' icon={<EditIcon />} onClick={this._onClick.bind(this, 'update', idx)} />);
+          }
+          if (scope.includes('archive')) {
+            actions.push(<Button key='3' icon={<ArchiveIcon />} onClick={this._onClick.bind(this, 'archive', idx)} />);
+          }
+          if (scope.includes('delete')) {
+            actions.push(<Button key='4' icon={<TrashIcon />} onClick={this._onClick.bind(this, 'delete', idx)} />);
+          }
+          cells.push(<TableCell key={keys.length} >{actions}</TableCell>);  
+        }
         return (
           <TableRow key={idx}>
             {cells}
@@ -159,7 +196,7 @@ class GTable extends Component {
     }
 
     return (
-      <Box size={this.props.width} alignSelf='center' justify='center'>
+      <Box full={this.props.full} colorIndex={this.props.colorIndex} size={this.props.width} alignSelf='center' justify='center'>
         {contents}
       </Box>
     );
@@ -173,13 +210,20 @@ GTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   pageSize: PropTypes.number,
   container: PropTypes.oneOf(['table','list']),
+  scope: PropTypes.string,
+  onClick: PropTypes.func,
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  full: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+  colorIndex: PropTypes.string
 };
 
 GTable.defaultProps = {
   pageSize: 15,
   container: 'table',
-  width: 'medium'
+  width: 'auto',
+  scope: 'none',
+  full: false,
+  colorIndex: 'light-1'
 };
 
 const select = (store) => ({filter: store.filter});
@@ -192,9 +236,9 @@ header: array of object {key,value} or array of key string
   {key: string, label: string, tooltip: string} or key: string
 ]
 
-
 data: array of objects
 [
   Object
 ]
+scope: none or comma separated [read,update,delete,archive]
 */

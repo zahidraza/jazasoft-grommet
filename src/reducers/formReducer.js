@@ -15,7 +15,15 @@ const handlers = {
   },
   [FORM_CHANGE_COLLECTION]: (_, action) => {
     let collectionData = [..._.collectionData];
-    collectionData[action.payload.index] = action.payload.collections;
+    const {row, col, item} = action.payload;
+    if (collectionData[row] == undefined) {
+      collectionData[row] = [];
+    }
+    if (col == undefined) {
+      collectionData[row].push(item);
+    } else {
+      collectionData[row][col] = item;
+    }
     return {collectionData, toggleForm: !_.toggleForm};
   },
   [FORM_CLEAR]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm}),

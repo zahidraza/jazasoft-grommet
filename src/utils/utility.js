@@ -36,17 +36,20 @@ export function getCsvFromArray (list) {
 export function getCollectionData(collectionData) {
   let collections = [];
   collectionData.forEach((cData) => {
-    const collection = cData.map(p => {
-      const {data, ...restData} = p;
-      let dynamicData = {};
-      data.forEach((d,i) => {
-        if (i == 0 && d.value == undefined) {
-          dynamicData[d.name] = d.label;
-        } else {
-          dynamicData[d.name] = d.value;
-        }
-      });
-      return {...restData, ...dynamicData};
+    let collection = [];
+    cData.forEach(p => {
+      if (p != undefined) {
+        const {data, ...restData} = p;
+        let dynamicData = {};
+        data.forEach((d,i) => {
+          if (i == 0 && d.value == undefined) {
+            dynamicData[d.name] = d.label;
+          } else {
+            dynamicData[d.name] = d.value;
+          }
+        });
+        collection.push({...restData, ...dynamicData});
+      }
     });
     collections.push(collection);
   });

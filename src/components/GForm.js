@@ -39,11 +39,6 @@ class GForm extends Component {
     this._onDDateChange = this._onDDateChange.bind(this);
     this.state = {
       dialogActive: [],
-      // collection: {
-      //   value: '',
-      //   items: [],
-      //   selectedItems: []
-      // },
       collection: [],
       elements: [],
       dtElements: []
@@ -57,12 +52,19 @@ class GForm extends Component {
   */
   componentWillMount() {
     let {data, collectionData} = this.props;
+
     if (data != undefined) {
       let formData = {};
       data.forEach(fieldset => {
         fieldset.elements.forEach(element => {
           if (element.elementType == 'checkbox') {
-            formData[element.name] = (element.defaultValue == undefined) ? false : element.defaultValue;
+            formData[element.name] = (element.value == undefined) ? false : element.value;
+          }
+          if (element.elementType == 'input') {
+            formData[element.name] = (element.value == undefined) ? '' : element.value;
+          }
+          if (element.elementType == 'select') {
+            formData[element.name] = (element.value == undefined) ? element.placeholder : element.value;
           }
         })
       })
@@ -76,7 +78,8 @@ class GForm extends Component {
       let elements = [];
       let dtElements = [];
       let dialogActive = [];
-      collectionData.forEach((cData, idx) => {
+      for (let idx = 0; idx < collectionData.length; idx++) {
+        const cData = collectionData[idx];
         let coll = {};
         coll.items = cData.collectionItems
                         .filter(e => ((typeof e === 'string') ? true : (e.selected == undefined ? true : !e.selected)))
@@ -123,10 +126,12 @@ class GForm extends Component {
             dtElements[idx] = [rowItem];
           }
         });
-
         collection.push(coll);
         dialogActive.push(false);
-      });
+        if (dtElements[idx] != undefined) {
+          this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row: idx, collection: [...dtElements[idx]]}});
+        }
+      }
 
       this.setState({collection, elements, dtElements, dialogActive});
     }    
@@ -183,7 +188,7 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row, col, item: {...dtElements[row][col]}}});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row, collection: [...dtElements[row]]}});
   }
 
   _onDDateChange (row, col, name, value) {
@@ -194,7 +199,7 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row, col, item: {...dtElements[row][col]}}});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row, collection: [...dtElements[row]]}});
   }
 
   _onDToggleChange (row, col, name, event) {
@@ -205,7 +210,7 @@ class GForm extends Component {
       }
     })
     this.setState({dtElements});
-    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row, col, item: {...dtElements[row][col]}}});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row, collection: [...dtElements[row]]}});
   }
   /*
     end collection form related actions
@@ -243,7 +248,7 @@ class GForm extends Component {
     dtElements[row] = elements
     collection[row] = coll;
     this.setState({collection, dtElements});
-    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {index: row, collections: [...dtElements[row]]}});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row, collection: [...dtElements[row]]}});
   }
 
   _submitDailog (index) {
@@ -289,7 +294,7 @@ class GForm extends Component {
     }
     dialogActive[index] = false;
     this.setState({collection, dialogActive, dtElements});
-    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row: index, item: rowItem}});
+    this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row: index, collection: [...dtElements[index]]}});
   }
 
   /*
@@ -339,7 +344,6 @@ class GForm extends Component {
             );
           }
           if (e.elementType == 'date') {
-            const type = (e.type != undefined) ? e.type : 'text';
             element = (
               <FormField key={i} label={e.label} error={error[e.name]}>
                 <DateTime name={e.name} format='MM/DD/YYYY' value={formData[e.name]} onChange={this._onDateChange.bind(this, e.name)}/>
@@ -347,12 +351,10 @@ class GForm extends Component {
             );
           }
           if (e.elementType == 'select') {
-            const type = (e.type != undefined) ? e.type : 'text';
-            const value = (formData[e.name] != undefined) ? formData[e.name] : e.placeholder;
             element = (
               <FormField key={i} label={e.label}>
                 <Select options={e.options} 
-                  value={value} onChange={this._onSelectChange.bind(this, e.name)} />
+                  value={formData[e.name]} onChange={this._onSelectChange.bind(this, e.name)} />
               </FormField>
             );
           }
@@ -400,6 +402,10 @@ class GForm extends Component {
             </Box>
           );
         }
+        const dialogContent = (collection[idx] == undefined) ? null : (
+          <Select options={collection[idx].items} 
+          value={collection[idx].value} onChange={this._onDailogSelectChange.bind(this, idx)} />
+        );
         const collectionItem = (
           <Box full='horizontal' key={idx}>
             {secondaryHeader}
@@ -414,14 +420,11 @@ class GForm extends Component {
 
             <Dialog
               title={cData.secondaryTitle}
-              active={dialogActive[idx]}
+              active={dialogActive[idx] == undefined? false: dialogActive[idx]}
               onCancel={this._toggleDailog.bind(this, idx)}
               onSubmit={this._submitDailog.bind(this, idx)}
             >
-    
-              <Select options={collection[idx].items} 
-                    value={collection[idx].value} onChange={this._onDailogSelectChange.bind(this, idx)} />
-              
+              {dialogContent}
             </Dialog>
           </Box>
         );
@@ -499,7 +502,7 @@ export default connect(select)(GForm);
           type: text|email|password   in case of input    optional  - input
           label: string,                                  required  - all
           name: string,                                   required  - all
-          defaultValue: string|boolean                    optional  - all
+          value: string|boolean                    optional  - all
           placeholder: string optional                    optional  - input
           options: arrayOf(string) - if type is select    optional  - select
         }

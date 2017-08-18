@@ -153,7 +153,8 @@ class GTable extends Component {
           if (scope.includes('delete')) {
             actions.push(<Button key='4' icon={<TrashIcon />} onClick={this._onClick.bind(this, 'delete', idx)} />);
           }
-          cells.push(<TableCell key={keys.length} >{actions}</TableCell>);  
+          let width = (actions.length == 1 ? cellWidth.small: (actions.length == 2 ? cellWidth.medium : (actions.length == 3) ? cellWidth.large: cellWidth.xlarge));
+          cells.push(<TableCell key={keys.length} style={{width}} >{actions}</TableCell>);  
         }
         return (
           <TableRow key={idx}>
@@ -176,9 +177,27 @@ class GTable extends Component {
       const items = data.map((item, idx)=> {
         const cells = keys.map((key, i) => {
           return (
-            <Box basis='3/4' key={i}>{item[key]}</Box>
+            <Box basis='3/4' key={i} alignSelf='center'>{item[key]}</Box>
           );
-        })
+        });
+
+        if (scope != 'none') {
+          let actions = [];
+          if (scope.includes('read')) {
+            actions.push(<Button key='1' icon={<ViewIcon />} onClick={this._onClick.bind(this, 'read', idx)} />);
+          }
+          if (scope.includes('update')) {
+            actions.push(<Button key='2' icon={<EditIcon />} onClick={this._onClick.bind(this, 'update', idx)} />);
+          }
+          if (scope.includes('archive')) {
+            actions.push(<Button key='3' icon={<ArchiveIcon />} onClick={this._onClick.bind(this, 'archive', idx)} />);
+          }
+          if (scope.includes('delete')) {
+            actions.push(<Button key='4' icon={<TrashIcon />} onClick={this._onClick.bind(this, 'delete', idx)} />);
+          }
+          cells.push(<Box direction='row' key={keys.length} basis='1/4' justify='end' >{actions}</Box>);  
+        }
+
         return (
           <ListItem key={idx}>
             <Box full='horizontal' alignSelf='center' direction='row' justify='between'>

@@ -21,7 +21,7 @@ class MenuItemLink extends Component {
   }
   render() {
     return (
-        <Anchor className={this.props.className} label={this.props.label} onClick={this.handleClick} />
+        <Anchor style={{color: '#ffffff'}} className={this.props.className} label={this.props.label} onClick={this.handleClick} />
     );
   }
 }

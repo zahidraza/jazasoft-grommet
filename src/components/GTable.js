@@ -130,7 +130,7 @@ class GTable extends Component {
         return result;
       })
       if (scope != 'none') {
-        header.push(<th key={tableHeaders.length}>Action</th>);
+        header.push(<th key={tableHeaders.length} style={{fontWeight: 'bold'}}>Action</th>);
       }
 
       const items = data.map((item, idx)=> {

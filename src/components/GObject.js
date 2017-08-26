@@ -59,7 +59,7 @@ class GObject extends Component {
         data.forEach((e, idx) => {
           let item = (
             <ListItem key={idx} justify="between" pad={{vertical:'small',horizontal:'small'}} >
-              <span> {e.key} </span>
+              <span style={{fontWeight: keyWeight}} > {e.key} </span>
               <span className="secondary">{e.value}</span>
             </ListItem>
           );

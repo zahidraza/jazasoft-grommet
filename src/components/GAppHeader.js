@@ -31,13 +31,13 @@ class GAppHeader extends Component {
 
   render() {
     return (
-      <Header size='large' justify='between' colorIndex='neutral-1-a' pad={{horizontal: 'medium'}}>
-        <Title>
+      <Header size='large' justify='between' style={{background: '#0b3c5d'}} pad={{horizontal: 'medium'}}>
+        <Title style={{color: '#ffffff'}}>
           <Button icon={<MenuIcon />} onClick={this._onClick}  /> {this.props.appName}
         </Title>
-        <Menu direction='row' align='center' responsive={false}>
-          <Anchor path='/profile'>{sessionStorage.name}</Anchor>
-          <Anchor path='/login' onClick={this._onLogout} >Logout</Anchor>
+        <Menu  direction='row' align='center' responsive={false}>
+          <Anchor style={{color: '#ffffff'}} path='/profile'>{sessionStorage.name}</Anchor>
+          <Anchor style={{color: '#ffffff'}} path='/login' onClick={this._onLogout} >Logout</Anchor>
         </Menu>
       </Header>
     );

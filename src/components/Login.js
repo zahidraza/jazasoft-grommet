@@ -17,6 +17,42 @@ import Footer from 'grommet/components/Footer';
 import Spinning from 'grommet/components/icons/Spinning';
 import TSnackbar from './TSnackbar';
 
+const draw = () => {
+  const htmlCanvas = document.getElementById('c');
+  const  context = htmlCanvas.getContext('2d');
+  
+ // Start listening to resize events and draw canvas.
+  initialize();
+
+  function initialize() {
+    window.addEventListener('resize', resizeCanvas, false);
+    resizeCanvas();
+  }
+
+  function redraw() {
+    context.globalAlpha = 0.9;
+    var lingrad = context.createLinearGradient(0, 0, window.innerWidth, window.innerHeight);
+    lingrad.addColorStop(0, '#FF7F50');
+    //lingrad.addColorStop(0.5, '#26C000');
+    lingrad.addColorStop(1, '#135058');
+    context.fillStyle = lingrad;
+    context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+    const rect = document.getElementById('loginBox').getBoundingClientRect();
+    const x = rect.left, y = rect.top;
+    const width = rect.right - rect.left;
+    const height = rect.bottom - rect.top;
+
+    context.clearRect(x, y,width,height);
+  }
+
+  function resizeCanvas() {
+    htmlCanvas.width = window.innerWidth;
+    htmlCanvas.height = window.innerHeight;
+    redraw();
+  }
+};
+
 class Login extends Component {
 
   constructor () {
@@ -29,6 +65,12 @@ class Login extends Component {
     this._onChange = this._onChange.bind(this);
     this._onLogin = this._onLogin.bind(this);
   }
+
+  
+  componentDidMount() {
+    draw();
+  }
+  
 
   componentWillReceiveProps(nextProps) {
     const {authProgress, loginSuccess, profileSuccess , authenticated, message} = nextProps.auth;
@@ -65,12 +107,14 @@ class Login extends Component {
     const { email, password, errorMsg } = this.state;
     const { authProgress } = this.props.auth;
     return (
-      <App>
-        <Box pad={{horizontal: 'large', vertical: 'large'}} wrap={true}  full='vertical'  >
-          <Box align='end' justify='end' pad={{'horizontal': 'large', vertical:'large', between:'large'}}>
-            <Box size='auto'  align='center' separator='all' justify='center' colorIndex='light-1' pad={{'horizontal': 'medium', vertical:'medium', between:'medium'}} >
-              <Heading tag='h2'>{this.props.appName}</Heading>
-              {authProgress ? <Spinning /> : null}
+      <App >
+        <canvas id='c' style={{position: 'absolute', left: 0, top: 0}} >
+        </canvas>
+        <Box  full='horizontal' margin={{vertical: 'large'}} >
+          <Box align='end' margin={{vertical: 'large'}} pad={{vertical: 'large'}} >
+            <Box id='loginBox' size='auto' separator='all' justify='end' margin={{vertical: 'large', horizontal: 'medium'}}  pad={{'horizontal': 'medium', vertical:'medium', between:'small'}} >
+              <Heading tag='h2' align='center'>{this.props.appName}</Heading>
+                {authProgress ? <Spinning /> : null}
               <Form>
                 <FormFields>
                   <FormField label='User Name'>
@@ -83,8 +127,12 @@ class Login extends Component {
                 <p style={{color:'red'}} >{errorMsg}</p>
                 <Footer pad={{'vertical': 'small'}}>
                   <Button label='Login' fill={true} primary={true}  onClick={this._onLogin} />
+                  
                 </Footer>
               </Form>
+              <Box alignSelf='center' margin='none'>
+                <Heading tag='h5'> Copyright (c) 2017 Jaza Software (OPC) Private Limited</Heading>
+              </Box>
             </Box>
           </Box>
           <TSnackbar />

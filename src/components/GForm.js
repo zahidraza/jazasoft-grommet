@@ -107,7 +107,7 @@ class GForm extends Component {
             data[0].label = e;
             rowItem = {data};
           } else {
-            const {id, ...restData} = e;
+            const {id, disabled, ...restData} = e;
             data.forEach((d,i) => {
               if (d.type == 'label') {
                 d.label = e[d.key];
@@ -116,6 +116,7 @@ class GForm extends Component {
                 }
               } else {
                 d.value = e[d.name];
+                d.disabled = disabled;
               }
             });
             rowItem = {data, ...restData};
@@ -274,7 +275,7 @@ class GForm extends Component {
       data[0].label = currItem;
       rowItem = {data};
     } else {
-      const {id, ...restData} = currItem;
+      const {id, disabled, ...restData} = currItem;
       data.forEach((d,i) => {
         if (d.type == 'label') {
           d.label = currItem[d.key];
@@ -283,6 +284,7 @@ class GForm extends Component {
           }
         } else {
           d.value = currItem[d.name];
+          d.disabled = disabled;
         }
       });
       rowItem = {data, ...restData};

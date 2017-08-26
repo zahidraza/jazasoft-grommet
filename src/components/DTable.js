@@ -79,7 +79,7 @@ class DTable extends Component {
             let width = (colItem.width == undefined) ? cellWidth.medium : cellWidth[colItem.width];
             cell = (
               <TableCell key={i}>
-                <input type='text' name={colItem.name} value={colItem.value == undefined ? '' : colItem.value} style={{width}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
+                <input type='text' disabled={colItem.disabled == undefined ? false : colItem.disabled}  name={colItem.name} value={colItem.value == undefined ? '' : colItem.value} style={{width}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
               </TableCell>
             );
           }
@@ -95,7 +95,7 @@ class DTable extends Component {
             let width = (colItem.width == undefined) ? cellWidth.medium : cellWidth[colItem.width];
             cell = (
               <TableCell key={i}>
-                <DateTime name={colItem.name} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
+                <DateTime name={colItem.name} disabled={colItem.disabled == undefined ? false : colItem.disabled} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
               </TableCell>
             );
           }
@@ -157,7 +157,7 @@ class DTable extends Component {
             let basis = (colItem.width == undefined) ? cellBasis.medium : cellBasis[colItem.width];
             cell = (
               <Box key={i} basis={basis} alignSelf='center'>
-                <input type='text' name={colItem.name} value={colItem.value} style={{width}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
+                <input type='text' disabled={colItem.disabled == undefined ? false : colItem.disabled} name={colItem.name} value={colItem.value} style={{width}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
               </Box>
             );
           }
@@ -173,7 +173,7 @@ class DTable extends Component {
             let basis = (colItem.width == undefined) ? cellBasis.medium : cellBasis[colItem.width];
             cell = (
               <Box key={i} basis={basis}  alignSelf='center' >
-                <DateTime name={colItem.name} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
+                <DateTime name={colItem.name} disabled={colItem.disabled == undefined ? false : colItem.disabled} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
               </Box>
             );
           }
@@ -240,6 +240,7 @@ export default connect(select)(DTable);
       label: string    for type label
       defaultValue:    for type checkbox|input
       action: func
+      disabled: bool
       width: small|medium|large|xlarge
     }
   ]

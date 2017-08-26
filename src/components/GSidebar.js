@@ -21,14 +21,14 @@ class GSidebar extends Component {
     var items = links.map((link, index) => {
       var value = (`/${link.path}` == location.pathname) ? 'active' : '';
       return (
-        <Link className={value} key={link.label} to={`/${link.path}`} label={link.label} />
+        <Link  className={value} key={link.label} to={`/${link.path}`} label={link.label} />
       );
     });
 
     return (
-      <Sidebar colorIndex='neutral-1' size='small' fixed={fixed}>
+      <Sidebar style={{background: '#082c44'}} size='small' fixed={fixed}>
         <Header pad='medium' justify='between' >
-          <Title>{this.props.appShortName}</Title>
+          <Title style={{color: '#ffffff'}} >{this.props.appShortName}</Title>
         </Header>
         <Menu fill={true} primary={true}>
           {items}

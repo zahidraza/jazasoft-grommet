@@ -26,9 +26,9 @@ export function getArrayFromCsv(csv) {
 
 export function getCsvFromArray (list) {
   let csv = '';
-  list.forEach(l => csv += l + ',');
-  if (csv.length > 0) {
-    csv = csv.substr(0, csv.length-1);
+  list.forEach(l => csv += l + ', ');
+  if (csv.length > 1) {
+    csv = csv.substr(0, csv.length-2);
   }
   return csv;
 }
@@ -74,11 +74,20 @@ export function denormalise(object) {
   return list;
 }
 
-import React from 'react';
-import Tooltip from 'react-toolbox/lib/tooltip';
+// import React from 'react';
+// import Tooltip from 'react-toolbox/lib/tooltip';
 
-const createTooltip = (element) => {
-  const e = (props) => React.createElement(element, {...props});
-  return Tooltip(e);
-};
+// const createTooltip = (element) => {
+//   const e = (props) => React.createElement(element, {...props});
+//   return Tooltip(e);
+// };
+
+export function getNDigitStringFromNumber (n, d = 2) {
+  let result = String(n);
+  let prefix = '';
+  for (let i = 0; i < (d - result.length); i++) {
+    prefix = prefix + '0';
+  }
+  return prefix + result;
+}
 

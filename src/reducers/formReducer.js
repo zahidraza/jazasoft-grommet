@@ -1,10 +1,11 @@
-import { FORM_CHANGE_BASIC, FORM_CHANGE_COLLECTION, FORM_CLEAR } from '../actions/formActions';
+import { FORM_CHANGE_BASIC, FORM_CHANGE_COLLECTION, FORM_CLEAR, OPERATION_COMPLETED } from '../actions/formActions';
 import { LOCATION_CHANGE } from '../actions/routerAction';
 
 const initialState = {
   formData: {},
   collectionData: [],
-  toggleForm: true  
+  toggleForm: true,
+  opCompleted: false  //Whether Ongoing Operation completed or not
 };
 
 const handlers = { 
@@ -19,7 +20,8 @@ const handlers = {
     return {collectionData, toggleForm: !_.toggleForm};
   },
   [FORM_CLEAR]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm}),
-  [LOCATION_CHANGE]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm})
+  [OPERATION_COMPLETED]: (_, action) => ({formData: {}, collectionData: [], opCompleted: true}),
+  [LOCATION_CHANGE]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm, opCompleted: false})
 };
 
 export default function section (state = initialState, action) {

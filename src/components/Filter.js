@@ -75,20 +75,20 @@ class Filter extends Component {
       } else {
         elements.unshift({label: 'All', value: undefined});
       }
-      let value = filter[item.label];
+      let value = filter[item.key];
       if (value == undefined && item.inline != undefined && !item.inline) {
         value = 'All';
       }
 
       return (
         <Section key={idx} pad={{ horizontal: 'large', vertical: 'small' }}>
-          <Heading tag='h3'>{splitCamelCase(item.label)}</Heading>
+          <Heading tag='h3'>{item.label}</Heading>
           <Select 
             inline={item.inline != undefined ? item.inline : true}  
             multiple={true} 
             options={elements} 
             value={value} 
-            onChange={this._onChange.bind(this,item.label)} />
+            onChange={this._onChange.bind(this,item.key)} />
         </Section>
       );
     });
@@ -129,6 +129,7 @@ export default connect(select)(Filter);
 /*
  {
    label: string,
+   key: string,     //Filter Key. Data being filtered must have this key in the object
    inline: deafault true
    elements: array of string or object
  } 

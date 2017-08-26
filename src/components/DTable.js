@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
+import moment from 'moment';
+
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
 import CheckBox from 'grommet/components/CheckBox';
@@ -63,23 +65,38 @@ class DTable extends Component {
   }
 
   render() {
-    const { headers, elements, removeControl, container } = this.props;
-    let contents;
+    const { headers, elements, removeControl, container, err: {errors} } = this.props;
+    let contents, error;
+    let autoFocusG = false;
     if (container == 'table') {
       const rowItems = elements.map((rowItem, idx)=> {
         const colItems = rowItem.map((colItem, i) => {
-          let cell;
+          let cell, cellContent;;
           if (colItem.type == 'label') {
             let width = (colItem.width == undefined) ? cellWidth.medium : cellWidth[colItem.width];
             cell = (
-              <TableCell key={i} ><h4 style={{marginTop: 15, width}}>{colItem.label}</h4></TableCell>
+              <TableCell key={i} ><h4 style={{marginTop: 15, width}}>{(typeof colItem.label !== 'string' || colItem.label.length == 0) ? ' - ' : colItem.label }</h4></TableCell>
             );
           }
           if (colItem.type == 'input') {
             let width = (colItem.width == undefined) ? cellWidth.medium : cellWidth[colItem.width];
+            let border, autoFocusL = false;
+            if (errors[idx] && errors[idx][colItem.name] && errors[idx][colItem.name].length != 0) {
+              border = '1px solid red';
+              if (!autoFocusG) {
+                autoFocusG = true;
+                autoFocusL = true;
+                error = errors[idx][colItem.name];
+              }
+            }
+            if (colItem.disabled && colItem.disabled == true) {
+              cellContent = <h4 style={{marginTop: 15, width}}>{colItem.value == undefined || colItem.value.length == 0 ? '-' : colItem.value}</h4>
+            } else {
+              cellContent = <input type='text' autoFocus={autoFocusL}  name={colItem.name} value={colItem.value == undefined ? '' : colItem.value} style={{width, border}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
+            }
             cell = (
               <TableCell key={i}>
-                <input type='text' disabled={colItem.disabled == undefined ? false : colItem.disabled}  name={colItem.name} value={colItem.value == undefined ? '' : colItem.value} style={{width}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
+                {cellContent}
               </TableCell>
             );
           }
@@ -93,9 +110,18 @@ class DTable extends Component {
           }
           if (colItem.type == 'date') {
             let width = (colItem.width == undefined) ? cellWidth.medium : cellWidth[colItem.width];
+            if (colItem.disabled && colItem.disabled == true) {
+              console.log(moment(colItem.value).format('DD MMM, YY'));
+              let v = (typeof colItem.value == 'undefined' ? '-' : (typeof colItem.value == 'string' ? colItem.value : moment(colItem.value).format('DD MMM, YY')));
+              cellContent = <h4 style={{marginTop: 15, width}}> {v} </h4>
+              //cellContent = 'Hello';
+            } else {
+              cellContent = <DateTime name={colItem.name} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
+              //cellContent = 'Hello World';
+            }
             cell = (
               <TableCell key={i}>
-                <DateTime name={colItem.name} disabled={colItem.disabled == undefined ? false : colItem.disabled} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
+                {cellContent}
               </TableCell>
             );
           }
@@ -155,9 +181,18 @@ class DTable extends Component {
           }
           if (colItem.type == 'input') {
             let basis = (colItem.width == undefined) ? cellBasis.medium : cellBasis[colItem.width];
+            let border, autoFocusL = false;
+            if (errors[idx] && errors[idx][colItem.name] && errors[idx][colItem.name].length != 0) {
+              border = '1px solid red';
+              if (!autoFocusG) {
+                autoFocusG = true;
+                autoFocusL = true;
+                error = errors[idx][colItem.name];
+              }
+            }
             cell = (
               <Box key={i} basis={basis} alignSelf='center'>
-                <input type='text' disabled={colItem.disabled == undefined ? false : colItem.disabled} name={colItem.name} value={colItem.value} style={{width}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
+                <input type='text' disabled={colItem.disabled == undefined ? false : colItem.disabled} name={colItem.name} value={colItem.value} style={{width, border}} onChange={this._onInputChange.bind(this, idx, colItem.name, colItem.action)}  />
               </Box>
             );
           }
@@ -202,6 +237,9 @@ class DTable extends Component {
 
     return (
       <Box>
+        <Box>
+          <p style={{color: 'red'}}>{error}</p>
+        </Box>
         {contents}
       </Box>
     );

@@ -52,11 +52,12 @@ export const userProfile = (restClient, username) => {
       if (response.status == 200) {
         sessionStorage.authenticated = true;
         const user = response.data;
+        sessionStorage.userId = user.id;
         sessionStorage.name = user.name;
         sessionStorage.email = user.email;
         sessionStorage.mobile = user.mobile;
         sessionStorage.authorities = JSON.stringify(user.authorities);
-        sessionStorage.permissions = JSON.stringify(user.permissions);
+        sessionStorage.resourcePermission = JSON.stringify(user.permissions);
         sessionStorage.company = JSON.stringify(user.company);
         dispatch({type: PROFILE_SUCCESS});
         dispatch({type: AUTH_SUCCESS});

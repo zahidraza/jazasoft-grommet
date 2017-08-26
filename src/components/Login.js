@@ -19,6 +19,7 @@ import TSnackbar from './TSnackbar';
 
 const draw = () => {
   const htmlCanvas = document.getElementById('c');
+  if (htmlCanvas == undefined) return;
   const  context = htmlCanvas.getContext('2d');
   
  // Start listening to resize events and draw canvas.
@@ -47,6 +48,7 @@ const draw = () => {
   }
 
   function resizeCanvas() {
+    if (!location.href.includes('login')) return;
     htmlCanvas.width = window.innerWidth;
     htmlCanvas.height = window.innerHeight;
     redraw();

@@ -113,64 +113,69 @@ class GTable extends Component {
 
     let contents;
     if (this.props.container == 'table') {
-
-      const header = tableHeaders.map((h, i)=> {
-        let result;
-        if (typeof h === 'string') {
-          result = (<th key={i} style={{width: cellWidth.medium, fontWeight: 'bold'}} >{splitCamelCase(h)}</th>);
-        } else {
-          let width = (h.width == undefined) ? cellWidth.medium : cellWidth[h.width];
-          const tooltip = h.tooltip;
-          if (tooltip != undefined) {
-            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{width, fontWeight: 'bold'}} > {splitCamelCase(h.label)}</THeadTooltip>);
+      if (data.length == 0) {
+        contents = (
+          <Box alignSelf='center' >No Data Available.</Box>
+        );
+      } else {
+        const header = tableHeaders.map((h, i)=> {
+          let result;
+          if (typeof h === 'string') {
+            result = (<th key={i} style={{width: cellWidth.medium, fontWeight: 'bold'}} >{splitCamelCase(h)}</th>);
           } else {
-            result = (<th key={i} style={{width, fontWeight: 'bold'}} >{splitCamelCase(h.label)}</th>);
+            let width = (h.width == undefined) ? cellWidth.medium : cellWidth[h.width];
+            const tooltip = h.tooltip;
+            if (tooltip != undefined) {
+              result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{width, fontWeight: 'bold'}} > {splitCamelCase(h.label)}</THeadTooltip>);
+            } else {
+              result = (<th key={i} style={{width, fontWeight: 'bold'}} >{splitCamelCase(h.label)}</th>);
+            }
           }
-        }
-        return result;
-      })
-      if (scope != 'none') {
-        header.push(<th key={tableHeaders.length} style={{fontWeight: 'bold'}}>Action</th>);
-      }
-
-      const items = data.map((item, idx)=> {
-        let cells = keys.map((key, i) => {
-          return (
-            <TableCell key={i}  >{item[key]}</TableCell>
-          );
+          return result;
         })
         if (scope != 'none') {
-          let actions = [];
-          if (scope.includes('read')) {
-            actions.push(<Button key='1' icon={<ViewIcon />} onClick={this._onClick.bind(this, 'read', idx)} />);
-          }
-          if (scope.includes('update')) {
-            actions.push(<Button key='2' icon={<EditIcon />} onClick={this._onClick.bind(this, 'update', idx)} />);
-          }
-          if (scope.includes('archive')) {
-            actions.push(<Button key='3' icon={<ArchiveIcon />} onClick={this._onClick.bind(this, 'archive', idx)} />);
-          }
-          if (scope.includes('delete')) {
-            actions.push(<Button key='4' icon={<TrashIcon />} onClick={this._onClick.bind(this, 'delete', idx)} />);
-          }
-          let width = (actions.length == 1 ? cellWidth.small: (actions.length == 2 ? cellWidth.medium : (actions.length == 3) ? cellWidth.large: cellWidth.xlarge));
-          cells.push(<TableCell key={keys.length} style={{width}} >{actions}</TableCell>);  
+          header.push(<th key={tableHeaders.length} style={{fontWeight: 'bold'}}>Action</th>);
         }
-        return (
-          <TableRow key={idx}>
-            {cells}
-          </TableRow>
-        );
-      });
 
-      contents = (
-        <Table onMore={onMore}>
-          <thead><tr>{header}</tr></thead>
-          <tbody>
-            {items}
-          </tbody>
-        </Table>
-      );
+        const items = data.map((item, idx)=> {
+          let cells = keys.map((key, i) => {
+            return (
+              <TableCell key={i}  >{(typeof item[key] !== 'string' || item[key].length == 0) ? '-' : item[key]}</TableCell>
+            );
+          })
+          if (scope != 'none') {
+            let actions = [];
+            if (scope.includes('read')) {
+              actions.push(<Button key='1' icon={<ViewIcon />} onClick={this._onClick.bind(this, 'read', idx)} />);
+            }
+            if (scope.includes('update')) {
+              actions.push(<Button key='2' icon={<EditIcon />} onClick={this._onClick.bind(this, 'update', idx)} />);
+            }
+            if (scope.includes('archive')) {
+              actions.push(<Button key='3' icon={<ArchiveIcon />} onClick={this._onClick.bind(this, 'archive', idx)} />);
+            }
+            if (scope.includes('delete')) {
+              actions.push(<Button key='4' icon={<TrashIcon />} onClick={this._onClick.bind(this, 'delete', idx)} />);
+            }
+            let width = (actions.length == 1 ? cellWidth.small: (actions.length == 2 ? cellWidth.medium : (actions.length == 3) ? cellWidth.large: cellWidth.xlarge));
+            cells.push(<TableCell key={keys.length} style={{width}} >{actions}</TableCell>);  
+          }
+          return (
+            <TableRow key={idx}>
+              {cells}
+            </TableRow>
+          );
+        });
+
+        contents = (
+          <Table onMore={onMore}>
+            <thead><tr>{header}</tr></thead>
+            <tbody>
+              {items}
+            </tbody>
+          </Table>
+        );
+      }
     }
 
     if (this.props.container == 'list') {

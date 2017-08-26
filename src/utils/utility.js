@@ -45,7 +45,7 @@ export function getCollectionData(collectionData) {
           if (i == 0 && d.value == undefined) {
             dynamicData[d.name] = d.label;
           } else {
-            dynamicData[d.name] = d.value;
+            dynamicData[d.name] = (typeof d.value === 'string') ? d.value.trim() : d.value;
           }
         });
         collection.push({...restData, ...dynamicData});

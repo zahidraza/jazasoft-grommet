@@ -6,13 +6,19 @@ import { LOCATION_CHANGE } from '../actions/routerAction';
 //2. get Profile
 const initialState = {
   show: false, //Whether to show error on bad request
-  error: {}
+  error: {},
+  errors: []
 };
 
 const handlers = { 
-  [BAD_REQUEST]: (_, action) => ({error: action.payload.error, show: true}),
+  [BAD_REQUEST]: (_, action) => {
+    let { error, errors } = action.payload;
+    if (!error) error = {};
+    if (!errors) errors = [];
+    return {error, errors, show: true};
+  },
   [CLEAR_ERROR]: (_, action) => ({error: {}, show: false}),
-  [LOCATION_CHANGE]: (_, action) => ({error: {}, show: false})
+  [LOCATION_CHANGE]: (_, action) => ({error: {}, errors: [], show: false})
 };
 
 export default function section (state = initialState, action) {

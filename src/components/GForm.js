@@ -409,9 +409,9 @@ class GForm extends Component {
           value={collection[idx].value} onChange={this._onDailogSelectChange.bind(this, idx)} />
         );
         const collectionItem = (
-          <Box full='horizontal' key={idx}>
+          <Box full='horizontal' key={idx} >
             {secondaryHeader}
-            <Box>
+            <Box >
               <Table headers={cData.headers}
                 elements={data}
                 removeControl={cData.removeControl == undefined ? true: cData.removeControl}

@@ -234,12 +234,14 @@ class DTable extends Component {
         </List>
       );
     }
+    let errorContent;
+    if (error) {
+      errorContent = (<Box><p style={{color: 'red'}}>{error}</p></Box>);
+    }
 
     return (
       <Box>
-        <Box>
-          <p style={{color: 'red'}}>{error}</p>
-        </Box>
+        {errorContent}
         {contents}
       </Box>
     );

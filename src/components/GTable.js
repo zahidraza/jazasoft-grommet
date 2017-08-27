@@ -140,7 +140,7 @@ class GTable extends Component {
         const items = data.map((item, idx)=> {
           let cells = keys.map((key, i) => {
             return (
-              <TableCell key={i}  >{(typeof item[key] !== 'string' || item[key].length == 0) ? '-' : item[key]}</TableCell>
+              <TableCell key={i}  >{(typeof item[key] === 'undefined' || (typeof item[key] === 'string' && item[key].length == 0)) ? '-' : item[key]}</TableCell>
             );
           })
           if (scope != 'none') {
@@ -213,14 +213,16 @@ class GTable extends Component {
       });
 
       contents = (
-        <List onMore={onMore}>
-          {items}
-        </List>
+        <Box alignSelf='center' size={this.props.width}>
+          <List onMore={onMore}>
+            {items}
+          </List>
+        </Box>
       );
     }
 
     return (
-      <Box full={this.props.full} colorIndex={this.props.colorIndex} size={this.props.width} alignSelf='center' justify='center'>
+      <Box full={this.props.full} colorIndex={this.props.colorIndex} size={this.props.width} pad={{horizontal: 'medium'}} align='center'>
         {contents}
       </Box>
     );

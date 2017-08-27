@@ -85,7 +85,7 @@ class PageHeader extends Component {
     }
 
     return (
-      <Header id="page-header" justify={justify} fixed={true} size='large' pad={{ horizontal: 'medium' }}>
+      <Header id="page-header" justify={justify} fixed={false} size='large' pad={{ horizontal: 'medium' }}>
         <Title responsive={false}> <span>{title}</span> </Title>
         {searchItem}
         <Box direction='row'>

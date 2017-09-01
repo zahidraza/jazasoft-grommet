@@ -30,9 +30,9 @@ class GAppHeader extends Component {
   }
 
   render() {
-    const {authenticator, authClient} = this.props;
+    const {authClient} = this.props;
     let logout;
-    if (authenticator && authClient) {
+    if (authClient) {
       logout = (<Anchor style={{color: '#ffffff'}} path='/login' onClick={this._onLogout} >Logout</Anchor>);
     }
     return (

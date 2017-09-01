@@ -11,7 +11,6 @@ import thunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
 import { getRoles, getMasterLinks } from './utils/utility';
 
-import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import Protected from './components/Protected';
 import GLayout from './components/GLayout';

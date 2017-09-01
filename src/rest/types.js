@@ -6,3 +6,4 @@ export const UPDATE = 'UPDATE';
 export const PATCH = 'PATCH';
 export const UPDATE_MANY = 'UPDATE_MANY';
 export const DELETE = 'DELETE';
+export const CUSTOM = 'CUSTOM';

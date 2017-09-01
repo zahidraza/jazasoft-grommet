@@ -28,11 +28,11 @@ class GObject extends Component {
 
   render() {
     const { data, collectionData, column, width, colorIndex, boldKey, backUrl, editUrl } = this.props;
-
+    const keyWeight = boldKey ? 'bold' : 'normal';
     let content1, content2;
     if (data != undefined) {
       let items = [];
-      const keyWeight = boldKey ? 'bold' : 'normal';
+      
       if (column > 1) {
         for (let i = 0; i < data.length; i += column) {
           let cells = [];
@@ -82,7 +82,7 @@ class GObject extends Component {
         let rows = [];
         let item = (
           <ListItem key={idx} justify="between" pad={{vertical:'small',horizontal:'small'}} >
-            <span> {e.key} </span>
+            <span style={{fontWeight: keyWeight}} > {e.key} </span>
             <span className="secondary"></span>
           </ListItem>
         );
@@ -166,7 +166,7 @@ export default withRouter(GObject);
 /*
   data: array of object: {key: string, value: string}
   collectionData: [
-    {key: string, values: [string]}
+    {key: string, values: string | {key: , value: }}
   ]
 
 */

@@ -4,7 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import SubRoute from './SubRoute';
 import Protected from './components/Protected';
 
-const MainRoute = ({resources = [], authenticator, ...restProps }) => {
+const MainRoute = ({resources = [], customRoutes = [], authenticator, ...restProps }) => {
   return (
     <Switch>
         {
@@ -20,6 +20,19 @@ const MainRoute = ({resources = [], authenticator, ...restProps }) => {
             } 
           })
         }
+        {
+          customRoutes.map((route, idx)=> {
+            return (
+              <Protected exact key={idx} 
+                path={`/${route.path}`} 
+                authenticator={authenticator}
+                component={route.component} 
+                {...restProps}
+                />
+            )
+          })
+        }
+        {/* Dashboard Route. Zeroth element of resorces is dashboard rute*/}
         <Route exact path='/' component={resources[0].routes[0].component} />
 
     </Switch>

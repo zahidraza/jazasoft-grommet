@@ -10,14 +10,18 @@ class Protected extends Component {
     return (
       <Route exact={ex} path={path} render={(props) => {
         let result;
-        if (authenticator.authenticate()) {
-          if (authenticator.authorize(path)) {
-            result = (React.createElement(component, { authenticator, ...props, ...restProps }));
+        if (authenticator) {
+          if (authenticator.authenticate()) {
+            if (authenticator.authorize(path)) {
+              result = (React.createElement(component, { authenticator, ...props, ...restProps }));
+            } else {
+              result = (<Redirect to='/' />);
+            }
           } else {
-            result = (<Redirect to='/' />);
+            result = (<Redirect to='/login' />);
           }
         } else {
-          result = (<Redirect to='/login' />);
+          result = (React.createElement(component, { authenticator, ...props, ...restProps }));
         }
         return result;
       }} />
@@ -27,7 +31,7 @@ class Protected extends Component {
 
 Protected.propTypes = {
   component: PropTypes.oneOfType([PropTypes.func,PropTypes.string]).isRequired,
-  authenticator: PropTypes.object.isRequired,
+  authenticator: PropTypes.object,
   path: PropTypes.string.isRequired
 };
 

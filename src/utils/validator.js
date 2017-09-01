@@ -12,9 +12,11 @@ export function validate (dispatch, objectData, arrayData) {
   let error = {};
   let errors = [];
   let collectionError = false;
-  objectData.forEach(e => {
-    error = validateItem(e, error);
-  });
+  if (objectData) {
+    objectData.forEach(e => {
+      error = validateItem(e, error);
+    });
+  }
   if (arrayData) {
     arrayData.forEach((e, idx) => {
       e.forEach((el => {

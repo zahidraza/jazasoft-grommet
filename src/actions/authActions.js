@@ -54,6 +54,7 @@ export const userProfile = (restClient, username) => {
         const user = response.data;
         sessionStorage.userId = user.id;
         sessionStorage.name = user.name;
+        sessionStorage.username = user.username;
         sessionStorage.email = user.email;
         sessionStorage.mobile = user.mobile;
         sessionStorage.authorities = JSON.stringify(user.authorities);

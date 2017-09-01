@@ -4,6 +4,8 @@ import {withRouter} from 'react-router-dom';
 import {connect} from 'react-redux';
 
 import { userLogin, userProfile } from '../actions/authActions';
+import { SHOW_SNACKBAR } from '../actions/notificationActions';
+import { CUSTOM } from '../rest/types';
 
 
 import App from 'grommet/components/App';
@@ -16,6 +18,8 @@ import Button from 'grommet/components/Button';
 import Footer from 'grommet/components/Footer';
 import Spinning from 'grommet/components/icons/Spinning';
 import TSnackbar from './TSnackbar';
+import Dailog from './Dailog';
+import GForm from './GForm';
 
 const draw = () => {
   const htmlCanvas = document.getElementById('c');
@@ -62,10 +66,14 @@ class Login extends Component {
     this.state = {
       email: '',
       password: '',
-      errorMsg: ''
+      errorMsg: '',
+      dialogActive: false,
+      busy: false
     };
     this._onChange = this._onChange.bind(this);
     this._onLogin = this._onLogin.bind(this);
+    this._toggleDialog = this._toggleDialog.bind(this);
+    this._resetPassword = this._resetPassword.bind(this);
   }
 
   
@@ -100,6 +108,41 @@ class Login extends Component {
     }
   }
 
+  _resetPassword(params) {
+    if (this.state.busy) return;
+    const {formData} = this.props.form;
+    if (formData.username.trim().length == 0) {
+      alert('Enter username/email');
+      return;
+    }
+    const url = 'users/forgotPassword';
+    const options = {
+      url,
+      method: 'PATCH',
+      params: {username: formData.username}
+    };
+    this.setState({busy: true});
+    this.props.restClient(CUSTOM, url, options)
+    .then(response => {
+      console.log(response);
+      if (response.status == 200 && response.data && response.data.message) {
+        this.props.dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: response.data.message}}});
+        this.setState({busy: false, dialogActive: false});
+      }
+    })
+    .catch(error => {
+      console.log(error.response);
+      if (error.response.status == 404) {
+        this.props.dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'User Not Found.'}}});
+      }
+      this.setState({busy: false, dialogActive: false});
+    });
+  }
+
+  _toggleDialog() {
+    this.setState({dialogActive: !this.state.dialogActive});
+  }
+
   _onLogin () {
     const {email, password} = this.state;
     this.props.dispatch(userLogin(this.props.authClient, this.state.email, this.state.password));
@@ -108,6 +151,24 @@ class Login extends Component {
   render() {
     const { email, password, errorMsg } = this.state;
     const { authProgress } = this.props.auth;
+
+    const data = [
+      {
+        elements: [
+          {
+            elementType: 'input',
+            name: 'username',
+            label: 'Username/Email'
+          }
+        ]
+      }
+    ];
+    const forgotPasswordConetent = (
+      <GForm title='Password Reset'
+        busy={this.state.busy}
+        data={data} />
+    );
+
     return (
       <App >
         <canvas id='c' style={{position: 'absolute', left: 0, top: 0}} >
@@ -126,6 +187,7 @@ class Login extends Component {
                     <input type='password' name='password' value={password} onChange={this._onChange} />
                   </FormField>
                 </FormFields>
+                <a style={{color:'blue'}} onClick={this._toggleDialog}>Forgot password?</a>
                 <p style={{color:'red'}} >{errorMsg}</p>
                 <Footer pad={{'vertical': 'small'}}>
                   <Button label='Login' fill={true} primary={true}  onClick={this._onLogin} />
@@ -133,10 +195,18 @@ class Login extends Component {
                 </Footer>
               </Form>
               <Box alignSelf='center' margin='none'>
-                <Heading tag='h5'> Copyright (c) 2017 Jaza Software (OPC) Private Limited</Heading>
+                <Heading tag='h5'> Copyright © 2017 Jaza Software (OPC) Private Limited</Heading>
               </Box>
             </Box>
           </Box>
+
+          <Dailog 
+            active={this.state.dialogActive}
+            onSubmit={this._resetPassword}
+            onCancel={this._toggleDialog} 
+            >
+            {forgotPasswordConetent}
+          </Dailog>
           <TSnackbar />
         </Box>
       </App>
@@ -151,7 +221,7 @@ Login.propTypes = {
 };
 
 let select = (store) => {
-  return {routing: store.routing, auth: store.auth};
+  return {routing: store.routing, auth: store.auth, form: store.form};
 };
 
 export default withRouter(connect(select)(Login));

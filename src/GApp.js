@@ -73,6 +73,7 @@ const GApp = ({
       <ConnectedRouter history={routerHistory}>
         <div>
           <Switch>
+            {authClient && authenticator &&
             <Route exact path='/login' render={(props) => (
               !authenticator.authenticate() ? (
                 createElement(loginPage || Login, { appName, authClient, restClient }, null)
@@ -82,11 +83,12 @@ const GApp = ({
                   state: { from: props.location }
                 }}/>
               )
-            )}/>
+            )}/>}
 
             <Protected path='/' authenticator={authenticator} component={appLayout} 
               loading={loading} 
               resources={resources}
+              customRoutes={customRoutes}
               appName={appName}
               appShortName={appShortName}
               authClient={authClient}
@@ -128,6 +130,11 @@ Signature of custom reducer
   name: string
   reducer: func
 ]
+customRoute: array of 
+{
+  path:
+  component:
+}
 */
 
 

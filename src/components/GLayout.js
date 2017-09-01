@@ -40,15 +40,20 @@ class GLayout extends Component {
   }
 
   render() {
-    const { resources, loading, appName, appShortName, authClient, authenticator, ...restProps } = this.props;
+    const { resources, customRoutes, loading, appName, appShortName, authClient, authenticator, ...restProps } = this.props;
 
     //Create links based on authorization
     let links = [];
-    resources.forEach(r => {
-      if (authenticator.authorize(r.name)) {
-        links.push({label: r.label, path: r.name})
-      }
-    });
+    if (authenticator) {
+      resources.forEach(r => {
+        if (authenticator.authorize(r.name)) {
+          links.push({label: r.label, path: r.name})
+        }
+      });
+    } else {
+      links = resources.map(({label, name}) => ({label, path: name}));
+    }
+    
 
     let header;
     if (this.props.location.pathname != '/login') {
@@ -82,7 +87,7 @@ class GLayout extends Component {
       <Box justify='between' >
         <Box> 
           {header}
-          <MainRoute {...restProps} authenticator={authenticator} resources={resources} /> 
+          <MainRoute {...restProps} authenticator={authenticator} resources={resources} customRoutes={customRoutes} /> 
         </Box>
       </Box>
     );
@@ -109,6 +114,7 @@ const componentPropType = PropTypes.oneOfType([
 
 GLayout.propTypes = {
   resources: PropTypes.array,
+  customRoutes: PropTypes.array,
   loading: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
   appName: PropTypes.string.isRequired,
   appShortName: PropTypes.string.isRequired

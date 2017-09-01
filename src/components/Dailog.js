@@ -10,12 +10,18 @@ import Layer from 'grommet/components/Layer';
 class Dailog extends Component {
   render() {
     const {active, title} = this.props;
+    let titleContent;
+    if (title) {
+      titleContent = (
+        <Box>
+          <Header><Heading tag='h3'>{title}</Heading></Header>
+        </Box>
+      );
+    }
     return (
       <Layer hidden={!active} flush={true} >
         <Box size='medium' margin={{vertical: 'small', horizontal:'medium'}}>
-          <Box>
-            <Header><Heading tag='h3'>{title}</Heading></Header>
-          </Box>
+          {titleContent}
           <Box>
             {this.props.children}
           </Box>
@@ -32,7 +38,7 @@ class Dailog extends Component {
 
 Dailog.propTypes = {
   active: PropTypes.bool.isRequired,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired
 };

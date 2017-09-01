@@ -30,6 +30,11 @@ class GAppHeader extends Component {
   }
 
   render() {
+    const {authenticator, authClient} = this.props;
+    let logout;
+    if (authenticator && authClient) {
+      logout = (<Anchor style={{color: '#ffffff'}} path='/login' onClick={this._onLogout} >Logout</Anchor>);
+    }
     return (
       <Header size='large' justify='between' style={{background: '#0b3c5d'}} pad={{horizontal: 'medium'}}>
         <Title style={{color: '#ffffff'}}>
@@ -37,7 +42,7 @@ class GAppHeader extends Component {
         </Title>
         <Menu  direction='row' align='center' responsive={false}>
           <Anchor style={{color: '#ffffff'}} path='/profile'>{sessionStorage.name}</Anchor>
-          <Anchor style={{color: '#ffffff'}} path='/login' onClick={this._onLogout} >Logout</Anchor>
+          {logout}
         </Menu>
       </Header>
     );

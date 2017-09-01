@@ -12,7 +12,8 @@ import {
     UPDATE,
     DELETE,
     UPDATE_MANY,
-    PATCH
+    PATCH,
+    CUSTOM
 } from './types';
 
 const history = createHistory();
@@ -100,6 +101,11 @@ export default (apiUrl) => {
     case DELETE:
       config.url = `${apiUrl}/${resource}/${options.id}`;
       config.method = 'DELETE';
+      break;
+    case CUSTOM:
+      config.url = `${apiUrl}/${options.url}`;
+      config.method = options.method;
+      config.data = JSON.stringify(options.data);
       break;
     default:
       throw new Error(`Unsupported fetch action type ${type}`);

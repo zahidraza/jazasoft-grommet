@@ -337,11 +337,12 @@ class GForm extends Component {
 
         const elements = fieldset.elements.map((e, i) => {
           let element;
+          const disabled = (e.disabled != undefined) ? e.disabled : false;
           if (e.elementType == 'input') {
             const type = (e.type != undefined) ? e.type : 'text';
             element = (
               <FormField key={i} label={e.label} error={error[e.name]}>
-                <input type={type} name={e.name} value={formData[e.name] == undefined ? '' : formData[e.name]} onChange={this._onInputChange.bind(this, e.name)} />
+                <input type={type} name={e.name} disabled={disabled} value={formData[e.name] == undefined ? '' : formData[e.name]} onChange={this._onInputChange.bind(this, e.name)} />
               </FormField>
             );
           }

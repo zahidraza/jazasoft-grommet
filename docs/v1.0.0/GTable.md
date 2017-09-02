@@ -2,14 +2,16 @@
 
 Following attributes can be used in GTable component.
 
-### attr: data, type: [{}] , required
+### attr: data, type: [Object] , required
 Data to be displayed in Table. It is an array of Objects. Which key of the object will be displayed is decided by key in header attribute.
 
-###  attr: headers, type: [String] | [{}],  required
+###  attr: headers, type: [String] | [Object],  required
 *suggestion. rename headers to header*
+
 It is an array of String or Object. 
 [String]: It serves to purpose. first, As header if container is table. second, As key of the data object which will be selected for displaying.
-[{}]: Object definition is {key: String, label: String, tooltip: String}
+[Object]: Object definition is {key: String, label: String, tooltip: String}
+
 Functions same as array of String but with additional customization. Here, key to be selected from data object and table header can be different. label is table header and key is the field to be selected from object. tooltip is addition info which is diplayed when mouse is hovered on header.
 
 ### attr: container, values: table|list, default: table

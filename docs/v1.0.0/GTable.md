@@ -16,7 +16,7 @@ It is an array of String or Object.
 
 Functions same as array of String but with additional customization. Here, key to be selected from data object and table header can be different. label is table header and key is the field to be selected from object. tooltip is addition info which is diplayed when mouse is hovered on header.
 
-#### attr: container, values: table,list, default: table
+#### attr: container, values: table|list, default: table
 table: contents will be displayed as table with header
 
 list: contents will be displayed as list without header
@@ -24,7 +24,7 @@ list: contents will be displayed as list without header
 #### attr: pageSize, type: number, default: 15
 Number of elements to be displayed at once it data is too large. rest data will be displayed as user scrolls down.
 
-#### attr: scope, values: none,read,update,delete,archive, default: none
+#### attr: scope, values: none|read|update|delete|archive, default: none
 *suggestion: rename scope to controls or actions, values can be none|view|edit|delete|archive*
 
 It adds Action icon for view or update ...
@@ -37,7 +37,7 @@ user function will get `action` performed (read|update|delete|archive) and `inde
 #### attr: width, type: String, default: auto
 String: small|medium|large|xlarge|xxlarge
 
-#### attr: full, values: true,false,horizontal,vertical, default: false
+#### attr: full, values: true|false|horizontal|vertical, default: false
 
 #### attr: colorIndex, values: Grommet color index, default: light-1
 

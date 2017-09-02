@@ -9,13 +9,16 @@ Data to be displayed in Table. It is an array of Objects. Which key of the objec
 *suggestion. rename headers to header*
 
 It is an array of String or Object. 
+
 [String]: It serves to purpose. first, As header if container is table. second, As key of the data object which will be selected for displaying.
+
 [Object]: Object definition is {key: String, label: String, tooltip: String}
 
 Functions same as array of String but with additional customization. Here, key to be selected from data object and table header can be different. label is table header and key is the field to be selected from object. tooltip is addition info which is diplayed when mouse is hovered on header.
 
 ### attr: container, values: table|list, default: table
 table: contents will be displayed as table with header
+
 list: contents will be displayed as list without header
 
 ### attr: pageSize, type: number, default: 15
@@ -23,6 +26,7 @@ Number of elements to be displayed at once it data is too large. rest data will 
 
 ### attr: scope, values: none|read|update|delete|archive, default: none
 *suggestion: rename scope to controls or actions, values can be none|view|edit|delete|archive*
+
 It adds Action icon for view or update ...
 
 ### attr: onClick, type: function, args: (action, index)  optional

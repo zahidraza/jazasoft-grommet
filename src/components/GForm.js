@@ -37,6 +37,7 @@ class GForm extends Component {
     this._onDInputChange = this._onDInputChange.bind(this);
     this._onDToggleChange = this._onDToggleChange.bind(this);
     this._onDDateChange = this._onDDateChange.bind(this);
+    this._loadCollectionData = this._loadCollectionData.bind(this);
     this.state = {
       dialogActive: [],
       collection: [],
@@ -51,6 +52,7 @@ class GForm extends Component {
     2. If collectionItems are there, initialize state with items and value
   */
   componentWillMount() {
+    console.log('GForm will mount');
     let {data, collectionData} = this.props;
 
     if (data != undefined) {
@@ -73,69 +75,84 @@ class GForm extends Component {
       }
     }
     
-    if (collectionData != undefined) {
-      let collection = [];
-      let elements = [];
-      let dtElements = [];
-      let dialogActive = [];
-      for (let idx = 0; idx < collectionData.length; idx++) {
-        const cData = collectionData[idx];
-        let coll = {};
-        coll.items = cData.collectionItems
-                        .filter(e => ((typeof e === 'string') ? true : (e.selected == undefined ? true : !e.selected)))
-                        .map(c => (typeof c === 'string') ? c : c.name);
-        elements[idx] = cData.elements.map(e => {
-          if (e.type == 'input') {
-            e.action = this._onDInputChange.bind(this, idx);
-          }
-          if (e.type == 'checkbox') {
-            e.action = this._onDToggleChange.bind(this, idx);
-          }
-          if (e.type == 'date') {
-            e.action = this._onDDateChange.bind(this, idx);
-          }
-          return e;
-        });
-        coll.value = (cData.dialogPlaceholder != undefined) ? cData.dialogPlaceholder: 'Select';
-        coll.selectedItems = cData.collectionItems.filter(s => (typeof s === 'string') ? !coll.items.includes(s)  : !coll.items.includes(s.name));
-        //create dtElements
-        coll.selectedItems.forEach(e => {
-          let rowItem;
-          const data = elements[idx].map(e => ({...e}));
-          
-          if (typeof e === 'string') {
-            data[0].label = e;
-            rowItem = {data};
-          } else {
-            const {id, disabled, ...restData} = e;
-            data.forEach((d,i) => {
-              if (d.type == 'label') {
-                d.label = e[d.key];
-                if (i == 0 && id != undefined) {
-                  d.value = id;
-                }
-              } else {
-                d.value = e[d.name];
-                d.disabled = disabled;
-              }
-            });
-            rowItem = {data, ...restData};
-          }
-          if (dtElements[idx] != undefined) {
-            dtElements[idx].push(rowItem);
-          } else {
-            dtElements[idx] = [rowItem];
-          }
-        });
-        collection.push(coll);
-        dialogActive.push(false);
-        if (dtElements[idx] != undefined) {
-          this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row: idx, collection: [...dtElements[idx]]}});
-        }
-      }
-
-      this.setState({collection, elements, dtElements, dialogActive});
+    if (collectionData) {
+      this._loadCollectionData(collectionData);
     }    
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const {collectionData} = nextProps;
+    if (this.props.collectionData != undefined && collectionData == undefined) {
+      this.setState({collection: [], elements: [], dtElements: [], dialogActive: []});
+    }
+    if ((this.props.collectionData == undefined && collectionData != undefined) || (this.props.collectionData != undefined && collectionData != undefined && this.props.collectionData.length != collectionData.length)) {
+      this._loadCollectionData(collectionData);
+    }
+  }
+  
+
+  _loadCollectionData (collectionData) {
+    let collection = [];
+    let elements = [];
+    let dtElements = [];
+    let dialogActive = [];
+    for (let idx = 0; idx < collectionData.length; idx++) {
+      const cData = collectionData[idx];
+      let coll = {};
+      coll.items = cData.collectionItems
+                      .filter(e => ((typeof e === 'string') ? true : (e.selected == undefined ? true : !e.selected)))
+                      .map(c => (typeof c === 'string') ? c : c.name);
+      elements[idx] = cData.elements.map(e => {
+        if (e.type == 'input') {
+          e.action = this._onDInputChange.bind(this, idx);
+        }
+        if (e.type == 'checkbox') {
+          e.action = this._onDToggleChange.bind(this, idx);
+        }
+        if (e.type == 'date') {
+          e.action = this._onDDateChange.bind(this, idx);
+        }
+        return e;
+      });
+      coll.value = (cData.dialogPlaceholder != undefined) ? cData.dialogPlaceholder: 'Select';
+      coll.selectedItems = cData.collectionItems.filter(s => (typeof s === 'string') ? !coll.items.includes(s)  : !coll.items.includes(s.name));
+      //create dtElements
+      coll.selectedItems.forEach(e => {
+        let rowItem;
+        const data = elements[idx].map(e => ({...e}));
+        
+        if (typeof e === 'string') {
+          data[0].label = e;
+          rowItem = {data};
+        } else {
+          const {id, disabled, ...restData} = e;
+          data.forEach((d,i) => {
+            if (d.type == 'label') {
+              d.label = e[d.key];
+              if (i == 0 && id != undefined) {
+                d.value = id;
+              }
+            } else {
+              d.value = e[d.name];
+              d.disabled = disabled;
+            }
+          });
+          rowItem = {data, ...restData};
+        }
+        if (dtElements[idx] != undefined) {
+          dtElements[idx].push(rowItem);
+        } else {
+          dtElements[idx] = [rowItem];
+        }
+      });
+      collection.push(coll);
+      dialogActive.push(false);
+      if (dtElements[idx] != undefined) {
+        this.props.dispatch({type: FORM_CHANGE_COLLECTION, payload: {row: idx, collection: [...dtElements[idx]]}});
+      }
+    }
+
+    this.setState({collection, elements, dtElements, dialogActive});
   }
 
   /*

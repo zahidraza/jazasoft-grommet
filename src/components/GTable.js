@@ -35,7 +35,8 @@ class GTable extends Component {
     this.state = {
       page: 1,
       data: [],
-      filteredTotal: 0
+      filteredTotal: 0,
+      searching: false
     };
 
     this._loadData = this._loadData.bind(this);
@@ -43,14 +44,21 @@ class GTable extends Component {
   }
 
   componentWillMount() {
-    const { data, headers, filter: {filter}} = this.props;
-    this._loadData(data, filter, this.state.page);
+    const { data, headers, filter: {filter, sort}} = this.props;
+    this._loadData(data, filter, sort, this.state.page);
   }
 
   componentWillReceiveProps(nextProps) {
-    const { data, filter: {filter, toggleCount}} = nextProps;
+    const { data, filter: {filter, sort, toggleCount, searchValue}} = nextProps;
+    //Do not do anything if component receives props because of filter total change
     if (this.props.filter.toggleCount == toggleCount) {
-      this._loadData(data, filter, this.state.page);
+      if (searchValue.trim().length != 0) {
+        this.setState({searching: true});
+        this._onSearch(data, searchValue, sort);
+      } else {
+        this.setState({searching: false});
+        this._loadData(data, filter, sort, this.state.page);
+      }
     }
   }
 
@@ -59,11 +67,26 @@ class GTable extends Component {
       this.props.onClick(action, index, event);
     }
   }
+
+  _onSearch (data, searchValue, sort) {
+    const {searchKeys} = this.props;
+
+    data = data.filter(e => {
+      let result = false;
+      searchKeys.forEach(k => {
+        if (e[k].toLowerCase().includes(searchValue.toLowerCase())) {
+          result = true;
+        }
+      });
+      return result;
+    });
+    this._loadData(data, {}, sort, 1);
+  }
   
   /*
     table data being filtered must have key in object which is same as key in filter reducer
   */
-  _loadData (data, filter, page) {
+  _loadData (data, filter, sort, page) {
     const unfilteredTotal = data.length;
     for (let key in filter) {
       if ({}.hasOwnProperty.call(filter, key)) {
@@ -78,6 +101,27 @@ class GTable extends Component {
         });
       }
     }
+    if (sort && sort.value) {
+      data = data.sort((a,b) => {
+        let result;
+        if (!sort.type || sort.type == 'STRING' || sort.type == 'NUMBER') {
+          if (sort.direction && sort.direction == 'desc') {
+            result = (a[sort.value] > b[sort.value]) ? -1 : 1;
+          } else {
+            result = (a[sort.value] < b[sort.value]) ? -1 : 1;
+          }
+        }
+        if (sort.type && sort.type == 'DATE') {
+          if (sort.direction && sort.direction == 'desc') {
+            result = (a[sort.value].getTime() > b[sort.value].getTime()) ? -1 : 1;
+          } else {
+            result = (a[sort.value].getTime() < b[sort.value].getTime()) ? -1 : 1;
+          }
+        }
+        return result;
+      });
+    }
+    
     const filteredTotal = data.length;
     data = data.slice(0, page * this.props.pageSize);
     this.setState({data, page, filteredTotal});
@@ -85,8 +129,13 @@ class GTable extends Component {
   }
 
   _onMore () {
-    const { data, filter: {filter}} = this.props;
-    this._loadData(data, filter, this.state.page+1);
+    const {page, searching, data: stateData} = this.state;
+    const { data, filter: {filter, sort}} = this.props;
+    if (searching) {
+      this._loadData(stateData, {}, sort, page+1);
+    } else {
+      this._loadData(data, filter, sort, page+1);
+    }
   }
   
 
@@ -238,6 +287,8 @@ GTable.propTypes = {
   container: PropTypes.oneOf(['table','list']),
   scope: PropTypes.string,
   onClick: PropTypes.func,
+  searchKeys: PropTypes.arrayOf(PropTypes.string),
+
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   full: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   colorIndex: PropTypes.string
@@ -267,4 +318,7 @@ data: array of objects
   Object
 ]
 scope: none or comma separated [read,update,delete,archive]
+searchKeys: array of Strings. It is used with PageHeader Component. When user types something in seacrh of pageHeader, 
+GTable receives that value via filterReducer and searches in the data available. 
+So, It is required to mention which field to search for.
 */

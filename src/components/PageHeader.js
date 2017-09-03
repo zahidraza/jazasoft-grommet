@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
+import {SEARCH} from '../actions/filterActions';
+
 import AddIcon from 'grommet/components/icons/base/Add';
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
@@ -22,10 +24,8 @@ class PageHeader extends Component {
     this._onHelp = this._onHelp.bind(this);
   }
 
-  _onSearch () {
-    if (this.props.onSearch) {
-      this.props.onSearch();
-    }
+  _onSearch (event) {
+    this.props.dispatch({type: SEARCH, payload: {searchValue: event.target.value}});
   }
 
   _onAdd () {
@@ -51,7 +51,6 @@ class PageHeader extends Component {
       justify, 
       searchControl, 
       searchPlaceholder, 
-      searchValue,
       addControl, 
       pathAdd,
       filterControl,
@@ -59,7 +58,7 @@ class PageHeader extends Component {
       match 
     } = this.props;
 
-    const { filteredTotal, unfilteredTotal } = this.props.filter;
+    const { filteredTotal, unfilteredTotal, searchValue } = this.props.filter;
 
     let searchItem, addItem, filterItem, helpItem;
     if (searchControl) {
@@ -102,9 +101,7 @@ PageHeader.propTypes = {
   title: PropTypes.string.isRequired,
   justify: PropTypes.string,
   searchControl: PropTypes.bool,
-  searchValue: PropTypes.string,
   searchPlaceholder: PropTypes.string,
-  onSearch: PropTypes.func,
   addControl: PropTypes.bool,
   pathAdd: PropTypes.string,
   filterControl: PropTypes.bool,
@@ -118,7 +115,6 @@ PageHeader.propTypes = {
 PageHeader.defaultProps = {
   justify: 'between',
   searchControl: false,
-  searchValue: '',
   searchPlaceholder: 'Search',
   addControl: false,
   pathAdd: 'add',

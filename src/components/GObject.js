@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
-import {splitCamelCase} from '../utils/utility';
+import {splitCamelCase, capitalize} from '../utils/utility';
 
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
@@ -40,7 +40,7 @@ class GObject extends Component {
 
             cells.push(
               <Box basis='3/4' key={10*j} style={{fontWeight: keyWeight}}>
-                { data[j] != undefined ? data[j].key : ''}
+                { data[j] != undefined ? capitalize(data[j].key) : ''}
               </Box>
             );
             cells.push(<Box basis='3/4' key={10*j+1}>{data[j] != undefined ? data[j].value : ''}</Box>)

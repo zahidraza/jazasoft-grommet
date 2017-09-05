@@ -69,7 +69,7 @@ function validateItem (item, errors) {
         const numberRegex = new RegExp(/^\d+$/);
         const v = item.value.trim();
         if (!numberRegex.test(v)) {
-          errors[item.key] = item.message;
+          errors[item.key] = 'Must be numeric.';
         }
         if (item.min && typeof item.min === 'number' && Number(v) < item.min) {
           errors[item.key] = item.message;

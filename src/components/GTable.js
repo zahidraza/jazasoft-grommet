@@ -94,9 +94,13 @@ class GTable extends Component {
         //handle case where data filter field has comma separated multiple values
         data = data.filter(d => {
           let result = false;
-          getArrayFromCsv(d[key]).forEach(item => {
-            if (selectedFilter.includes(item)) result = true;
-          })
+          if (typeof d[key] === 'string') {
+            getArrayFromCsv(d[key]).forEach(item => {
+              if (selectedFilter.includes(item)) result = true;
+            })
+          } else {
+            result = selectedFilter.includes(d[key]);
+          }
           return result;
         });
       }
@@ -189,7 +193,7 @@ class GTable extends Component {
         const items = data.map((item, idx)=> {
           let cells = keys.map((key, i) => {
             return (
-              <TableCell key={i}  >{(typeof item[key] === 'undefined' || (typeof item[key] === 'string' && item[key].length == 0)) ? '-' : item[key]}</TableCell>
+              <TableCell key={i} style={{color: item.color}}  >{(typeof item[key] === 'undefined' || (typeof item[key] === 'string' && item[key].length == 0)) ? '-' : item[key]}</TableCell>
             );
           })
           if (scope != 'none') {
@@ -315,7 +319,7 @@ header: array of object {key,value} or array of key string
 
 data: array of objects
 [
-  Object
+  {color: , ...other_data}
 ]
 scope: none or comma separated [read,update,delete,archive]
 searchKeys: array of Strings. It is used with PageHeader Component. When user types something in seacrh of pageHeader, 

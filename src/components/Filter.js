@@ -91,15 +91,19 @@ class Filter extends Component {
         } else {
           elements.unshift({label: 'All', value: undefined});
         }
+
         let value = filter[item.key];
         if (value == undefined && item.inline != undefined && !item.inline) {
-          value = 'All';
+          if (typeof item.elements[0] === 'string') {
+            value = 'All';
+          } else {
+            value = {label: 'All', value: undefined};
+          }
         }
-
         return (
           <Section key={idx} pad={{ horizontal: 'large', vertical: 'small' }}>
             <Heading tag='h3'>{item.label}</Heading>
-            <Select 
+            <Select key={idx} id={'s-'+idx}
               inline={item.inline != undefined ? item.inline : true}  
               multiple={true} 
               options={elements} 

@@ -74,6 +74,11 @@ export default (apiUrl) => {
       config.url = `${apiUrl}/${resource}`;
       break;
     }
+    case GET_MANY: {
+      config.method = 'get';
+      config.url = `${apiUrl}/${resource}`;
+      break;
+    }
     case GET_ONE:
       config.method = 'get';
       config.url = `${apiUrl}/${resource}/${options.id}`;

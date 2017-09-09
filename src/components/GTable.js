@@ -17,9 +17,14 @@ import ViewIcon from 'grommet/components/icons/base/View';
 import EditIcon from 'grommet/components/icons/base/Edit';
 import TrashIcon from 'grommet/components/icons/base/Trash';
 import ArchiveIcon from 'grommet/components/icons/base/Archive';
+import LinkNextIcon from 'grommet/components/icons/base/LinkNext';
 
 import Tooltip from 'react-toolbox/lib/tooltip';
 const THeadTooltip = Tooltip('th');
+const ButtonTooltip = Tooltip((props) => {
+  const {theme, ...restProps} = props;
+  return <Button {...restProps} />;
+});
 
 const cellWidth = {
   small: 100,
@@ -186,8 +191,8 @@ class GTable extends Component {
           }
           return result;
         })
-        if (scope != 'none') {
-          header.push(<th key={tableHeaders.length} style={{fontWeight: 'bold'}}>Action</th>);
+        if (scope && scope.length > 0) {
+          header.push(<th key={tableHeaders.length} style={{fontWeight: 'bold', textAlign: 'center'}}>Action</th>);
         }
 
         const items = data.map((item, idx)=> {
@@ -195,24 +200,39 @@ class GTable extends Component {
             return (
               <TableCell key={i} style={{color: item.color}}  >{(typeof item[key] === 'undefined' || (typeof item[key] === 'string' && item[key].length == 0)) ? '-' : item[key]}</TableCell>
             );
-          })
-          if (scope != 'none') {
+          });
+
+          if (scope && scope.length > 0) {
             let actions = [];
-            if (scope.includes('read')) {
-              actions.push(<Button key='1' icon={<ViewIcon />} onClick={this._onClick.bind(this, 'read', idx)} />);
-            }
-            if (scope.includes('update')) {
-              actions.push(<Button key='2' icon={<EditIcon />} onClick={this._onClick.bind(this, 'update', idx)} />);
-            }
-            if (scope.includes('archive')) {
-              actions.push(<Button key='3' icon={<ArchiveIcon />} onClick={this._onClick.bind(this, 'archive', idx)} />);
-            }
-            if (scope.includes('delete')) {
-              actions.push(<Button key='4' icon={<TrashIcon />} onClick={this._onClick.bind(this, 'delete', idx)} />);
-            }
+            scope.forEach((e, i) => {
+              let icon, tooltip, action;
+              if (typeof e === 'string') {
+                action = e;
+              } else {
+                action = e.value;
+                tooltip = e.tooltip;
+              }
+              if (action == 'read') {
+                icon = <ViewIcon />;
+              } else if (action == 'update') {
+                icon = <EditIcon />
+              } else if (action == 'archive') {
+                icon = <ArchiveIcon />
+              } else if (action == 'delete') {
+                icon = <TrashIcon />
+              } else if (action == 'next') {
+                icon = <LinkNextIcon />
+              }
+              if (tooltip) {
+                actions.push(<ButtonTooltip tooltip={tooltip} key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
+              } else {
+                actions.push(<Button key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
+              }
+            });
             let width = (actions.length == 1 ? cellWidth.small: (actions.length == 2 ? cellWidth.medium : (actions.length == 3) ? cellWidth.large: cellWidth.xlarge));
             cells.push(<TableCell key={keys.length} style={{width}} >{actions}</TableCell>);  
           }
+
           return (
             <TableRow key={idx}>
               {cells}
@@ -239,20 +259,33 @@ class GTable extends Component {
           );
         });
 
-        if (scope != 'none') {
+        if (scope) {
           let actions = [];
-          if (scope.includes('read')) {
-            actions.push(<Button key='1' icon={<ViewIcon />} onClick={this._onClick.bind(this, 'read', idx)} />);
-          }
-          if (scope.includes('update')) {
-            actions.push(<Button key='2' icon={<EditIcon />} onClick={this._onClick.bind(this, 'update', idx)} />);
-          }
-          if (scope.includes('archive')) {
-            actions.push(<Button key='3' icon={<ArchiveIcon />} onClick={this._onClick.bind(this, 'archive', idx)} />);
-          }
-          if (scope.includes('delete')) {
-            actions.push(<Button key='4' icon={<TrashIcon />} onClick={this._onClick.bind(this, 'delete', idx)} />);
-          }
+          scope.forEach((e, i) => {
+            let icon, tooltip, action;
+            if (typeof e === 'string') {
+              action = e;
+            } else {
+              action = e.value;
+              tooltip = e.tooltip;
+            }
+            if (action == 'read') {
+              icon = <ViewIcon />;
+            } else if (action == 'update') {
+              icon = <EditIcon />
+            } else if (action == 'archive') {
+              icon = <ArchiveIcon />
+            } else if (action == 'delete') {
+              icon = <TrashIcon />
+            } else if (action == 'next') {
+              icon = <LinkNextIcon />
+            }
+            if (tooltip) {
+              actions.push(<ButtonTooltip tooltip={tooltip} key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
+            } else {
+              actions.push(<Button key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
+            }
+          });
           cells.push(<Box direction='row' key={keys.length} basis='1/4' justify='end' >{actions}</Box>);  
         }
 
@@ -289,7 +322,7 @@ GTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   pageSize: PropTypes.number,
   container: PropTypes.oneOf(['table','list']),
-  scope: PropTypes.string,
+  scope: PropTypes.arrayOf(headerType),
   onClick: PropTypes.func,
   searchKeys: PropTypes.arrayOf(PropTypes.string),
 
@@ -302,7 +335,6 @@ GTable.defaultProps = {
   pageSize: 15,
   container: 'table',
   width: 'auto',
-  scope: 'none',
   full: false,
   colorIndex: 'light-1'
 };
@@ -321,7 +353,10 @@ data: array of objects
 [
   {color: , ...other_data}
 ]
-scope: none or comma separated [read,update,delete,archive]
+scope: array of string or object {value: , tooltip}
+values can be [read,update,delete,archive,next]
+
+
 searchKeys: array of Strings. It is used with PageHeader Component. When user types something in seacrh of pageHeader, 
 GTable receives that value via filterReducer and searches in the data available. 
 So, It is required to mention which field to search for.

@@ -46,7 +46,7 @@ class PageHeader extends Component {
   }
 
   render() {
-    const { 
+    let { 
       title,
       justify, 
       searchControl, 
@@ -54,17 +54,24 @@ class PageHeader extends Component {
       addControl, 
       pathAdd,
       filterControl,
+      filteredTotal,
+      unfilteredTotal,
       helpControl,
       match 
     } = this.props;
 
-    const { filteredTotal, unfilteredTotal, searchValue } = this.props.filter;
+    if (!filteredTotal) {
+      filteredTotal = this.props.filter.filteredTotal
+    }
+    if (!unfilteredTotal) {
+      unfilteredTotal = this.props.filter.unfilteredTotal
+    }
 
     let searchItem, addItem, filterItem, helpItem;
     if (searchControl) {
       searchItem = (
         <Search inline={true} fill={true} size='medium' placeHolder={searchPlaceholder}
-          value={searchValue} onDOMChange={this._onSearch} />
+          value={this.props.searchValue} onDOMChange={this._onSearch} />
       );
     }
     if (addControl) {
@@ -119,8 +126,6 @@ PageHeader.defaultProps = {
   addControl: false,
   pathAdd: 'add',
   filterControl: false,
-  filteredTotal: 0,
-  unfilteredTotal: 0,
   helpControl: false
 };
 

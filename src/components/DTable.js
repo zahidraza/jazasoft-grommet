@@ -274,7 +274,7 @@ export default connect(select)(DTable);
   elements: array of (array of Objects)
   [
     {
-      key: string
+      key: string    - for label. if type is label, display string is chosen from data with this key
       type: label|input|checkbox|date
       name: string                    required
       label: string    for type label

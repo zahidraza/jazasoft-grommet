@@ -29,9 +29,19 @@ class Filter extends Component {
 
   
   componentWillMount() {
-    const { sortOptions, filter: { sort } } = this.props;
+    const { sortOptions, filterItems, filter: { sort } } = this.props;
     if (!sort.value && sortOptions && sortOptions.length > 0) {
       this._onChangeSort({value: sortOptions[0].value, direction: sortOptions[0].direction});
+    }
+    let filter = {};
+    filterItems.forEach(e => {
+      const selectedFilter = e.elements.filter(e => e.selected && e.selected == true).map(e => e.value);
+      if (selectedFilter.length != 0) {
+        filter[e.key] = selectedFilter;
+      }
+    });
+    if (Object.keys(filter).length != 0) {
+      this.props.dispatch({type:FILTER_APPLY, payload: { filter }});
     }
   }
   
@@ -174,6 +184,7 @@ export default connect(select)(Filter);
     key: string,     //Filter Key. Data being filtered must have this key in the object
     inline: deafault true
     elements: array of string or object
+    selected: bool
   } 
   sortOptions: array of object {label: , value: , direction: , type: }
  */

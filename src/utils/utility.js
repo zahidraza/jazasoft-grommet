@@ -9,6 +9,21 @@ export const getRoles = () => {
   return [];
 }
 
+export const getResourcePermission = (resource) => {
+  if (sessionStorage.resourcePermission) {
+    const permissions = JSON.parse(sessionStorage.resourcePermission);
+    const res = permissions.find(e => e.resource == resource);
+    if (res) {
+      if (res.scopes.includes('full')) {
+        return 'full';
+      } else if (res.scopes.includes('read')) {
+        return 'read';
+      }
+    }
+  }
+  return 'forbidden';
+}
+
 export function capitalize(param) {
   return param.charAt(0).toUpperCase() + param.slice(1);
 }

@@ -81,7 +81,8 @@ class GLayout extends Component {
       <GSidebar {...restProps} 
         fixed={this.state.fixedSidebar} 
         links={links} 
-        appShortName={appShortName}  />
+        appShortName={appShortName}
+        toggleMenu={this.toggleDrawer}  />
     );
     var pane2 =  (
       <Box justify='between' >

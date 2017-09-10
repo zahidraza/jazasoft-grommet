@@ -13,6 +13,14 @@ import Link from './MenuItemLink';
 class GSidebar extends Component {
   constructor () {
     super();
+    this._onClick = this._onClick.bind(this);
+  }
+
+  _onClick () {
+    console.log('Side bar clicked');
+    if (this.props.toggleMenu) {
+      this.props.toggleMenu();
+    }
   }
 
   render() {
@@ -21,7 +29,7 @@ class GSidebar extends Component {
     var items = links.map((link, index) => {
       var value = (`/${link.path}` == location.pathname) ? 'active' : '';
       return (
-        <Link  className={value} key={link.label} to={`/${link.path}`} label={link.label} />
+        <Link  className={value} key={link.label} to={`/${link.path}`} label={link.label} onClick={this._onClick} />
       );
     });
 
@@ -41,7 +49,8 @@ class GSidebar extends Component {
 GSidebar.propTypes = {
   links: PropTypes.array.isRequired,
   appShortName: PropTypes.string.isRequired,
-  fixed: PropTypes.bool
+  fixed: PropTypes.bool,
+  toggleMenu: PropTypes.func
 };
 
 GSidebar.defaultProps = {

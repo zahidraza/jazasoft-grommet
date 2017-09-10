@@ -68,6 +68,9 @@ class GForm extends Component {
           if (element.elementType == 'select') {
             formData[element.name] = (element.value == undefined) ? element.placeholder : element.value;
           }
+          if (element.elementType == 'date') {
+            formData[element.name] = element.value;
+          }
         })
       })
       if (Object.keys(formData).length != 0) {

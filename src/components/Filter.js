@@ -133,7 +133,7 @@ class Filter extends Component {
       }
       sortContent = (
         <Section pad={{ horizontal: 'large', vertical: 'small' }}>
-          <Heading tag='h2'>Sort</Heading>
+          <Heading tag='h3'>Sort</Heading>
           <Sort options={sortOptions} value={value} direction={direction}
           onChange={this._onChangeSort} />
         </Section>
@@ -143,6 +143,7 @@ class Filter extends Component {
     return (
       <Layer hidden={!active} align='right' flush={true} closer={true} onClose={this._onClose}>
         <Sidebar size='large'>
+          <div>
             <Header size='large' justify='between' align='center'
               pad={{ horizontal: 'medium'}}
               margin={{vertical: 'medium'}}
@@ -151,11 +152,11 @@ class Filter extends Component {
               <Button icon={<ClearIcon />} label='Clear All' plain={true}
                 onClick={this._onClear} />
             </Header> 
-            
+            {sortContent}
+
             {filterContent}
 
-            {sortContent}
-            
+          </div>
         </Sidebar>
       </Layer>
     );

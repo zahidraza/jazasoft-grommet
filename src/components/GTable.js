@@ -69,7 +69,8 @@ class GTable extends Component {
 
   _onClick (action, index, event) {
     if (this.props.onClick) {
-      this.props.onClick(action, index, event);
+      const id = this.state.data[index].id;
+      this.props.onClick(action, id, event);
     }
   }
 
@@ -170,88 +171,87 @@ class GTable extends Component {
     }
 
     let contents;
-    if (this.props.container == 'table') {
-      if (data.length == 0) {
-        contents = (
-          <Box alignSelf='center' >No Data Available.</Box>
-        );
-      } else {
-        const header = tableHeaders.map((h, i)=> {
-          let result;
-          if (typeof h === 'string') {
-            result = (<th key={i} style={{width: cellWidth.medium, fontWeight: 'bold'}} >{splitCamelCase(h)}</th>);
+    if (data.length == 0) {
+      contents = (
+        <Box alignSelf='center' >No Data Available.</Box>
+      );
+    } 
+    if (this.props.container == 'table' && data.length > 0) {
+      const header = tableHeaders.map((h, i)=> {
+        let result;
+        if (typeof h === 'string') {
+          result = (<th key={i} style={{width: cellWidth.medium, fontWeight: 'bold'}} >{splitCamelCase(h)}</th>);
+        } else {
+          let width = (h.width == undefined) ? cellWidth.medium : cellWidth[h.width];
+          const tooltip = h.tooltip;
+          if (tooltip != undefined) {
+            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{width, fontWeight: 'bold'}} > {splitCamelCase(h.label)}</THeadTooltip>);
           } else {
-            let width = (h.width == undefined) ? cellWidth.medium : cellWidth[h.width];
-            const tooltip = h.tooltip;
-            if (tooltip != undefined) {
-              result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{width, fontWeight: 'bold'}} > {splitCamelCase(h.label)}</THeadTooltip>);
-            } else {
-              result = (<th key={i} style={{width, fontWeight: 'bold'}} >{splitCamelCase(h.label)}</th>);
-            }
+            result = (<th key={i} style={{width, fontWeight: 'bold'}} >{splitCamelCase(h.label)}</th>);
           }
-          return result;
-        })
-        if (scope && scope.length > 0) {
-          header.push(<th key={tableHeaders.length} style={{fontWeight: 'bold', textAlign: 'center'}}>Action</th>);
         }
+        return result;
+      })
+      if (scope && scope.length > 0) {
+        header.push(<th key={tableHeaders.length} style={{fontWeight: 'bold', textAlign: 'center'}}>Action</th>);
+      }
 
-        const items = data.map((item, idx)=> {
-          let cells = keys.map((key, i) => {
-            return (
-              <TableCell key={i} style={{color: item.color}}  >{(typeof item[key] === 'undefined' || (typeof item[key] === 'string' && item[key].length == 0)) ? '-' : item[key]}</TableCell>
-            );
-          });
-
-          if (scope && scope.length > 0) {
-            let actions = [];
-            scope.forEach((e, i) => {
-              let icon, tooltip, action;
-              if (typeof e === 'string') {
-                action = e;
-              } else {
-                action = e.value;
-                tooltip = e.tooltip;
-              }
-              if (action == 'read') {
-                icon = <ViewIcon />;
-              } else if (action == 'update') {
-                icon = <EditIcon />
-              } else if (action == 'archive') {
-                icon = <ArchiveIcon />
-              } else if (action == 'delete') {
-                icon = <TrashIcon />
-              } else if (action == 'next') {
-                icon = <LinkNextIcon />
-              }
-              if (tooltip) {
-                actions.push(<ButtonTooltip tooltip={tooltip} key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
-              } else {
-                actions.push(<Button key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
-              }
-            });
-            let width = (actions.length == 1 ? cellWidth.small: (actions.length == 2 ? cellWidth.medium : (actions.length == 3) ? cellWidth.large: cellWidth.xlarge));
-            cells.push(<TableCell key={keys.length} style={{width}} >{actions}</TableCell>);  
-          }
-
+      const items = data.map((item, idx)=> {
+        let cells = keys.map((key, i) => {
           return (
-            <TableRow key={idx}>
-              {cells}
-            </TableRow>
+            <TableCell key={i} style={{color: item.color}}  >{(typeof item[key] === 'undefined' || (typeof item[key] === 'string' && item[key].length == 0)) ? '-' : item[key]}</TableCell>
           );
         });
 
-        contents = (
-          <Table onMore={onMore}>
-            <thead><tr>{header}</tr></thead>
-            <tbody>
-              {items}
-            </tbody>
-          </Table>
+        if (scope && scope.length > 0) {
+          let actions = [];
+          scope.forEach((e, i) => {
+            let icon, tooltip, action;
+            if (typeof e === 'string') {
+              action = e;
+            } else {
+              action = e.value;
+              tooltip = e.tooltip;
+            }
+            if (action == 'read') {
+              icon = <ViewIcon />;
+            } else if (action == 'update') {
+              icon = <EditIcon />
+            } else if (action == 'archive') {
+              icon = <ArchiveIcon />
+            } else if (action == 'delete') {
+              icon = <TrashIcon />
+            } else if (action == 'next') {
+              icon = <LinkNextIcon />
+            }
+            if (tooltip) {
+              actions.push(<ButtonTooltip tooltip={tooltip} key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
+            } else {
+              actions.push(<Button key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
+            }
+          });
+          let width = (actions.length == 1 ? cellWidth.small: (actions.length == 2 ? cellWidth.medium : (actions.length == 3) ? cellWidth.large: cellWidth.xlarge));
+          cells.push(<TableCell key={keys.length} style={{width}} >{actions}</TableCell>);  
+        }
+
+        return (
+          <TableRow key={idx}>
+            {cells}
+          </TableRow>
         );
-      }
+      });
+
+      contents = (
+        <Table onMore={onMore}>
+          <thead><tr>{header}</tr></thead>
+          <tbody>
+            {items}
+          </tbody>
+        </Table>
+      );
     }
 
-    if (this.props.container == 'list') {
+    if (this.props.container == 'list' && data.length > 0) {
       const items = data.map((item, idx)=> {
         const cells = keys.map((key, i) => {
           return (
@@ -360,4 +360,6 @@ values can be [read,update,delete,archive,next]
 searchKeys: array of Strings. It is used with PageHeader Component. When user types something in seacrh of pageHeader, 
 GTable receives that value via filterReducer and searches in the data available. 
 So, It is required to mention which field to search for.
+
+if scope is used, data must contain key id, as the value of id will be passed to onClick method
 */

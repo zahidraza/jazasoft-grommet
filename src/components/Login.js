@@ -195,7 +195,7 @@ class Login extends Component {
                 </Footer>
               </Form>
               <Box alignSelf='center' margin='none'>
-                <Heading tag='h5'> Copyright © 2017 Jaza Software (OPC) Private Limited</Heading>
+                <Heading tag='h5'> Copyright (c) 2017 Jaza Software (OPC) Private Limited</Heading>
               </Box>
             </Box>
           </Box>

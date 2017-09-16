@@ -20,7 +20,7 @@ const history = createHistory();
 
 export const fetch = (config = {}, dispatch) => {
   const requestHeaders = config.headers || {
-    'Accept': 'application/json',
+    'Accept': 'application/json'
   };
   if (config && config.data) {
     requestHeaders['Content-Type'] = 'application/json';
@@ -67,6 +67,9 @@ export default (apiUrl) => {
   const convertRESTRequestToHTTP = (type, resource, options) => {
     const config = {};
     config.params = options.params || {};
+    if (options.headers) {
+      config.headers = options.headers;
+    }
 
     switch (type) {
     case GET_LIST: {
@@ -110,7 +113,9 @@ export default (apiUrl) => {
     case CUSTOM:
       config.url = `${apiUrl}/${options.url}`;
       config.method = options.method;
-      config.data = JSON.stringify(options.data);
+      if (options.data) {
+        config.data = JSON.stringify(options.data);
+      }
       break;
     default:
       throw new Error(`Unsupported fetch action type ${type}`);

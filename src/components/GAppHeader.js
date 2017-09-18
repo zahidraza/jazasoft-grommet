@@ -10,6 +10,13 @@ import Header from 'grommet/components/Header';
 import Menu from 'grommet/components/Menu';
 import MenuIcon from 'grommet/components/icons/base/Menu';
 import Title from 'grommet/components/Title';
+import SyncIcon from 'grommet/components/icons/base/Sync';
+import Tooltip from 'react-toolbox/lib/tooltip';
+
+const ButtonTooltip = Tooltip((props) => {
+  const {theme, ...restProps} = props;
+  return <Button {...restProps} />;
+});
 
 class GAppHeader extends Component {
 
@@ -17,6 +24,7 @@ class GAppHeader extends Component {
     super();
     this._onClick = this._onClick.bind(this);
     this._onLogout = this._onLogout.bind(this);
+    this.refreshApp = this.refreshApp.bind(this);
   }
 
   _onClick () {
@@ -27,6 +35,10 @@ class GAppHeader extends Component {
 
   _onLogout() {
     this.props.dispatch(userLogout(this.props.authClient));
+  }
+
+  refreshApp () {
+    this.props.dispatch({type: 'REFRESH_APP'});
   }
 
   render() {
@@ -41,6 +53,7 @@ class GAppHeader extends Component {
           <Button icon={<MenuIcon />} onClick={this._onClick}  /> {this.props.appName}
         </Title>
         <Menu  direction='row' align='center' responsive={false}>
+          <ButtonTooltip icon={<SyncIcon colorIndex='light-1' />} tooltip='Refresh Application' onClick={this.refreshApp} />
           <Anchor style={{color: '#ffffff'}} path='/profile'>{sessionStorage.name}</Anchor>
           {logout}
         </Menu>

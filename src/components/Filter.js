@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
 import {splitCamelCase} from '../utils/utility';
-import { FILTER_APPLY, FILTER_CLEAR, SORT_APPLY } from '../actions/filterActions';
+import { FILTER_APPLY, FILTER_CLEAR, SORT_APPLY, RANGE_CHANGE } from '../actions/filterActions';
 
 import Button from 'grommet/components/Button';
 import CloseIcon from 'grommet/components/icons/base/Close';
@@ -15,6 +15,10 @@ import Select from 'grommet/components/Select';
 import Sidebar from 'grommet/components/Sidebar';
 import Sort from 'grommet-addons/components/Sort';
 import ClearIcon from 'grommet/components/icons/base/ClearOption';
+import Form from 'grommet/components/Form';
+import FormFields from 'grommet/components/FormFields';
+import FormField from 'grommet/components/FormField';
+import DateTime from 'grommet/components/DateTime';
 
 
 class Filter extends Component {
@@ -24,12 +28,13 @@ class Filter extends Component {
     this._onClose = this._onClose.bind(this);
     this._onChange = this._onChange.bind(this);
     this._onClear = this._onClear.bind(this);
+    this._onRangeChange = this._onRangeChange.bind(this);
     this._onChangeSort = this._onChangeSort.bind(this);
   }
 
   
   componentWillMount() {
-    const { sortOptions, filterItems, filter: { sort } } = this.props;
+    const { sortOptions, filterItems, rangeItems, filter: { sort } } = this.props;
     if (!sort.value && sortOptions && sortOptions.length > 0) {
       this._onChangeSort({value: sortOptions[0].value, direction: sortOptions[0].direction});
     }
@@ -43,9 +48,19 @@ class Filter extends Component {
     if (Object.keys(filter).length != 0) {
       this.props.dispatch({type:FILTER_APPLY, payload: { filter }});
     }
+    let range = {};
+    if (rangeItems) {
+      rangeItems.forEach(e => {
+        if (e.start || e.end) {
+          range[e.key] = {start: e.start, end: e.end};
+        }
+      });
+    }
+    if (Object.keys(range).length > 0) {
+      this.props.dispatch({type: RANGE_CHANGE, payload: {range}});
+    }
   }
   
-
   _onClose () {
     if (this.props.onClose) {
       this.props.onClose();
@@ -54,6 +69,26 @@ class Filter extends Component {
 
   _onClear () {
     this.props.dispatch({ type: FILTER_CLEAR });
+  }
+
+  /**
+   * 
+   * @param {*} elementType type of element. e.g- date
+   * @param {*} key Object key
+   * @param {*} type start|end
+   * @param {*} event event generated. if input type is DateTime, event = value of date
+   * @return {*} void
+   */
+  _onRangeChange (elementType, key, type, event) {
+    let range = this.props.filter.range;
+    if (elementType == 'date') {
+      if (range[key]) {
+        range[key][type] = new Date(event);
+      } else {
+        range[key] = {[type]: new Date(event)};
+      }
+    }
+    this.props.dispatch({type: RANGE_CHANGE, payload: {range}});
   }
 
   _onChange (name,event) {
@@ -81,8 +116,36 @@ class Filter extends Component {
   }
 
   render() {
-    const { active, filterItems, sortOptions, filter: { filter, sort } } = this.props;
-    let onClose;
+    const { active, filterItems, rangeItems, sortOptions, filter: { filter, range, sort } } = this.props;
+
+    let rangeContent;
+    if (rangeItems) {
+      rangeContent = rangeItems.map((item, idx) => {
+        if (item.type == 'date') {
+          return (  
+            <Section key={idx} pad={{horizontal: 'medium', vertical: 'small'}}>
+              <Heading tag='h3'>{item.label}</Heading>
+              <Form>
+                <FormFields>
+                  <FormField label='from'>
+                    <DateTime
+                      format='MM/DD/YYYY'
+                      value={(range[item.key] && range[item.key].start) ||  item.start}
+                      onChange={this._onRangeChange.bind(this, 'date', item.key, 'start')} />
+                  </FormField>
+                  <FormField label="to">
+                    <DateTime 
+                      format='MM/DD/YYYY'
+                      value={(range[item.key] && range[item.key].end) || item.end}
+                      onChange={this._onRangeChange.bind(this, 'date', item.key, 'end')} />
+                  </FormField>
+                </FormFields>
+              </Form>
+            </Section>
+          );
+        }
+      });
+    }
 
     let filterContent;
     if (filterItems) {
@@ -111,7 +174,7 @@ class Filter extends Component {
           }
         }
         return (
-          <Section key={idx} pad={{ horizontal: 'large', vertical: 'small' }}>
+          <Section key={idx} pad={{ horizontal: 'medium', vertical: 'small' }}>
             <Heading tag='h3'>{item.label}</Heading>
             <Select key={idx} id={'s-'+idx}
               inline={item.inline != undefined ? item.inline : true}  
@@ -132,7 +195,7 @@ class Filter extends Component {
         direction = sortOptions[0].direction;
       }
       sortContent = (
-        <Section pad={{ horizontal: 'large', vertical: 'small' }}>
+        <Section pad={{ horizontal: 'medium', vertical: 'small' }}>
           <Heading tag='h3'>Sort</Heading>
           <Sort options={sortOptions} value={value} direction={direction}
           onChange={this._onChangeSort} />
@@ -152,6 +215,8 @@ class Filter extends Component {
               <Button icon={<ClearIcon />} label='Clear All' plain={true}
                 onClick={this._onClear} />
             </Header> 
+            {rangeContent}
+
             {sortContent}
 
             {filterContent}
@@ -165,8 +230,10 @@ class Filter extends Component {
 
 Filter.propTypes = {
   active: PropTypes.bool.isRequired,
-  filterItems: PropTypes.array,
-  sortOptions: PropTypes.array
+  onClose: PropTypes.func,
+  filterItems: PropTypes.arrayOf(PropTypes.object),
+  rangeItems: PropTypes.arrayOf(PropTypes.object),
+  sortOptions: PropTypes.arrayOf(PropTypes.object)
 };
 
 Filter.defaultProps = {
@@ -187,6 +254,14 @@ export default connect(select)(Filter);
     elements: array of string or object
     selected: bool
   } 
+  rangeItems: array of objects
+  {
+    type: date,
+    label: string,
+    key: string,
+  }
+
   sortOptions: array of object {label: , value: , direction: , type: }
+
  */
 

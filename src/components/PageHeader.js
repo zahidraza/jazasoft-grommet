@@ -10,9 +10,13 @@ import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
 import FilterControl from 'grommet-addons/components/FilterControl';
 import Header from 'grommet/components/Header';
+import Heading from 'grommet/components/Heading';
 import HelpIcon from 'grommet/components/icons/base/Help';
 import Title from 'grommet/components/Title';
 import Search from 'grommet/components/Search';
+import Spinning from 'grommet/components/icons/Spinning';
+import SyncIcon from 'grommet/components/icons/base/Sync';
+import TooltipButton from './TooltipButton';
 
 class PageHeader extends Component {
 
@@ -22,6 +26,7 @@ class PageHeader extends Component {
     this._onAdd = this._onAdd.bind(this);
     this._onFilter = this._onFilter.bind(this);
     this._onHelp = this._onHelp.bind(this);
+    this._onRefresh = this._onRefresh.bind(this);
   }
 
   _onSearch (event) {
@@ -45,6 +50,12 @@ class PageHeader extends Component {
     }
   }
 
+  _onRefresh () {
+    if (this.props.onRefresh) {
+      this.props.onRefresh();
+    }
+  }
+
   render() {
     let { 
       title,
@@ -57,6 +68,8 @@ class PageHeader extends Component {
       filteredTotal,
       unfilteredTotal,
       helpControl,
+      loading,
+      refreshControl,
       match 
     } = this.props;
 
@@ -67,7 +80,7 @@ class PageHeader extends Component {
       unfilteredTotal = this.props.filter.unfilteredTotal
     }
 
-    let searchItem, addItem, filterItem, helpItem;
+    let searchItem, addItem, filterItem, helpItem, refreshItem, loadingItem;
     if (searchControl) {
       searchItem = (
         <Search inline={true} fill={true} size='medium' placeHolder={searchPlaceholder}
@@ -90,14 +103,24 @@ class PageHeader extends Component {
       helpItem = (<Button icon={<HelpIcon />} onClick={this._onHelp}/>);
     }
 
+    if (refreshControl) {
+      refreshItem = (<TooltipButton tooltip='Refresh Page' icon={<SyncIcon />} onClick={this._onHelp} onClick={this._onRefresh}/>);
+    }
+
+    if (loading) {
+      loadingItem = (<Box size='xsmall' align='end' alignSelf='center'><Spinning /></Box>);
+    }
+
     return (
-      <Header id="page-header" justify={justify} fixed={false} size='large' pad={{ horizontal: 'medium' }}>
-        <Title responsive={false}> <span>{title}</span> </Title>
+      <Header justify={justify} pad={{ horizontal: 'medium' }} >
+        <Title><Heading tag='h3' strong={true}> {title}</Heading></Title>
         {searchItem}
         <Box direction='row'>
           {addItem}
           {filterItem}
           {helpItem}
+          {refreshItem}
+          {loadingItem}
         </Box>
       </Header>
     );
@@ -116,7 +139,10 @@ PageHeader.propTypes = {
   filteredTotal: PropTypes.number,
   unfilteredTotal: PropTypes.number,
   helpControl: PropTypes.bool,
-  onHelp: PropTypes.func
+  onHelp: PropTypes.func,
+  loading: PropTypes.bool,
+  refreshControl: PropTypes.bool,
+  onRefresh: PropTypes.func
 };
 
 PageHeader.defaultProps = {
@@ -126,7 +152,9 @@ PageHeader.defaultProps = {
   addControl: false,
   pathAdd: 'add',
   filterControl: false,
-  helpControl: false
+  helpControl: false,
+  loading: false,
+  refreshControl: false
 };
 
 const select = (store) => ({filter: store.filter});

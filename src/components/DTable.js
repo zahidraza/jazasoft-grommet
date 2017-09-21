@@ -110,13 +110,23 @@ class DTable extends Component {
           }
           if (colItem.type == 'date') {
             let width = (colItem.width == undefined) ? cellWidth.medium : cellWidth[colItem.width];
+            let border, autoFocusL = false;
+            if (errors[idx] && errors[idx][colItem.name] && errors[idx][colItem.name].length != 0) {
+              border = '1px solid red';
+              if (!autoFocusG) {
+                autoFocusG = true;
+                autoFocusL = true;
+                error = errors[idx][colItem.name];
+              }
+            }
+
             if (colItem.disabled && colItem.disabled == true) {
               console.log(moment(colItem.value).format('DD MMM, YY'));
               let v = (typeof colItem.value == 'undefined' ? '-' : (typeof colItem.value == 'string' ? colItem.value : moment(colItem.value).format('DD MMM, YY')));
               cellContent = <h4 style={{marginTop: 15, width}}> {v} </h4>
               //cellContent = 'Hello';
             } else {
-              cellContent = <DateTime name={colItem.name} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
+              cellContent = <DateTime name={colItem.name} autoFocus={autoFocusL} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)} style={{border}}/>
               //cellContent = 'Hello World';
             }
             cell = (
@@ -206,9 +216,18 @@ class DTable extends Component {
           }
           if (colItem.type == 'date') {
             let basis = (colItem.width == undefined) ? cellBasis.medium : cellBasis[colItem.width];
+            let border, autoFocusL = false;
+            if (errors[idx] && errors[idx][colItem.name] && errors[idx][colItem.name].length != 0) {
+              border = '1px solid red';
+              if (!autoFocusG) {
+                autoFocusG = true;
+                autoFocusL = true;
+                error = errors[idx][colItem.name];
+              }
+            }
             cell = (
               <Box key={i} basis={basis}  alignSelf='center' >
-                <DateTime name={colItem.name} disabled={colItem.disabled == undefined ? false : colItem.disabled} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)}/>
+                <DateTime name={colItem.name} autoFocus={autoFocusL} disabled={colItem.disabled == undefined ? false : colItem.disabled} format='DD MMM, YY' value={colItem.value} onChange={this._onDateChange.bind(this, idx, colItem.name, colItem.action)} style={{border}}/>
               </Box>
             );
           }

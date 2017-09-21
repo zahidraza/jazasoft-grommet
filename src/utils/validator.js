@@ -1,5 +1,6 @@
 import { BAD_REQUEST } from '../actions/errActions';
 import { SHOW_SNACKBAR } from '../actions/notificationActions';
+import moment from 'moment';
 
 export const STRING = 'STRING';
 export const NUMBER = 'NUMBER';
@@ -86,13 +87,23 @@ function validateItem (item, errors) {
     }
     break;
   case DATE:
-    if (item.optional == undefined || item.optional == false) {
-      console.log('is date = ' + item.value instanceof Date);
-      if (item.value instanceof Date) {
-        
-      } else {
-        errors[item.key] = 'Cannot be Blank.';
+    if (item.value instanceof Date) {
+      if (item.max && item.max instanceof Date) {
+        let max = item.max;
+        max.setHours(0,0,0,0);
+        if (item.value.getTime() > max.getTime()) {
+          errors[item.key] = 'Enter date value on or before ' + moment(max).format('DD MMM, YY');
+        }
       }
+      if (item.min && item.min instanceof Date) {
+        let min = item.min;
+        min.setHours(0,0,0,0);
+        if (item.value.getTime() < min.getTime()) {
+          errors[item.key] = 'Enter date value on or after ' + moment(min).format('DD MMM, YY');
+        }
+      }
+    } else if (!item.optional || item.optional == false) {
+      errors[item.key] = 'Cannot be Blank.';
     }
     break;
   default:

@@ -231,7 +231,7 @@ class GTable extends Component {
             }
           });
           let width = (actions.length == 1 ? cellWidth.small: (actions.length == 2 ? cellWidth.medium : (actions.length == 3) ? cellWidth.large: cellWidth.xlarge));
-          cells.push(<TableCell key={keys.length} style={{width}} >{actions}</TableCell>);  
+          cells.push(<TableCell key={keys.length} style={{width, textAlign: 'center'}} >{actions}</TableCell>);  
         }
 
         return (

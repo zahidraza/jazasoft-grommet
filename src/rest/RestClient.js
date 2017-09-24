@@ -48,7 +48,12 @@ export const fetch = (config = {}, dispatch) => {
               dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'Session Expired. Please Login Again.', duration: 'long'}}});
             }, 100);
           } else if (response.status == 403) {
-            dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'Access Denied. You do not have enough privilege for this operation.', duration: 'long'}}});
+            if (response.data && response.data.message) {
+              dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: response.data.message, duration: 'long'}}});
+            } else {
+              dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'Access Denied. You do not have enough privilege for this operation.', duration: 'long'}}});
+            }
+            
           } else {
             if (response.data && response.data instanceof Object && response.data.message) {
               dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {message: response.data.message, status: 'critical'}}});

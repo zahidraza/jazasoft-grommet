@@ -1,7 +1,7 @@
 import {AUTH_LOGIN}  from '../rest/authTypes';
 import { GET_ONE, GET_LIST } from '../rest/types';
 
-import { CLEAR_SNACKBAR } from './notificationActions';
+import { SHOW_NOTIFICATION } from './notificationActions';
 
 export const USER_LOGIN = 'USER_LOGIN';
 export const AUTH_PROGRESS = 'AUTH_PROGRESS';
@@ -66,8 +66,14 @@ export const userProfile = (restClient, username) => {
     })
     .catch(error => {
       if (error.response.status == 403) {
-        dispatch({type: AUTH_FAILURE, payload:{ message: 'Access Denied. Contact Administrator.'}});
-        dispatch({type: CLEAR_SNACKBAR});
+        console.log(error.response);
+        const resp = error.response;
+        if (resp && resp.data && (resp.data.status == 'PRODUCT_LICENSE_NOT_ACTIVATED' || resp.data.status == 'PRODUCT_LICENSE_EXPIRED')) {
+          dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {message: resp.data.message, status: 'warning'}}});
+          dispatch({type: AUTH_FAILURE, payload:{ message: ''}});
+        } else {
+          dispatch({type: AUTH_FAILURE, payload:{ message: 'Access Denied. Contact Administrator.'}});
+        }
       } else {
         dispatch({type: AUTH_FAILURE, payload:{ message: 'Some Error occured. Try again later!'}});
       }

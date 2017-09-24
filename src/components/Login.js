@@ -18,6 +18,7 @@ import Button from 'grommet/components/Button';
 import Footer from 'grommet/components/Footer';
 import Spinning from 'grommet/components/icons/Spinning';
 import TSnackbar from './TSnackbar';
+import GNotification from './GNotification';
 import Dailog from './Dailog';
 import GForm from './GForm';
 
@@ -208,6 +209,7 @@ class Login extends Component {
             {forgotPasswordConetent}
           </Dailog>
           <TSnackbar />
+          <GNotification />
         </Box>
       </App>
     );

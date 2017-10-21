@@ -2,16 +2,16 @@
  * @return {Array}  returns array of roles
  */
 export const getRoles = () => {
-  if (sessionStorage.authorities) {
-    const authorities = JSON.parse(sessionStorage.authorities);
+  if (localStorage.authorities) {
+    const authorities = JSON.parse(localStorage.authorities);
     return authorities.map(a => a.authority);
   }
   return [];
 }
 
 export const getResourcePermission = (resource) => {
-  if (sessionStorage.resourcePermission) {
-    const permissions = JSON.parse(sessionStorage.resourcePermission);
+  if (localStorage.resourcePermission) {
+    const permissions = JSON.parse(localStorage.resourcePermission);
     const res = permissions.find(e => e.resource == resource);
     if (res) {
       if (res.scopes.includes('full')) {

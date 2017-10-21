@@ -6,7 +6,7 @@ import { AUTH_LOGIN, AUTH_LOGOUT } from './authTypes';
 export const fetch = (config = {}, dispatch) => {
   const requestHeaders = config.headers || {
     'Accept': 'application/json',
-    'Authorization': 'Basic ' + sessionStorage.clientToken
+    'Authorization': 'Basic ' + localStorage.clientToken
   };
 
   return axios({headers: requestHeaders, ...config});

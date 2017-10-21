@@ -36,7 +36,7 @@ class TSnackbar extends Component {
 
   render() {
     const { active, message, duration } = this.state;
-    const timeout = (duration == 'short') ? 2000 : 5000;
+    const timeout = (duration == 'short') ? 5000 : 10000;
     return (
       <Snackbar
           action='Dismiss'

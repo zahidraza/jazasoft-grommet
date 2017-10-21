@@ -10,8 +10,8 @@ export const fetchJson = (url, options = {}) => {
   if (options && options.body) {
     requestHeaders.set('Content-Type', 'application/json');
   }
-  if (sessionStorage.authenticated && sessionStorage.accessToken) {
-    requestHeaders.set('Authorization', 'Bearer ' + sessionStorage.accessToken);
+  if (localStorage.authenticated && localStorage.accessToken) {
+    requestHeaders.set('Authorization', 'Bearer ' + localStorage.accessToken);
   }
 
   return fetch(url, { ...options, headers: requestHeaders })

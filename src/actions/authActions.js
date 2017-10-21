@@ -24,10 +24,10 @@ export const userLogin = (authClient, username, password) => {
     authClient(AUTH_LOGIN, options)
     .then(response => {
       if (response.status == 200) {
-        sessionStorage.username = username;
+        localStorage.username = username;
         const resp = response.data;
-        sessionStorage.accessToken = resp.access_token;
-        sessionStorage.refreshToken = resp.refresh_token;
+        localStorage.accessToken = resp.access_token;
+        localStorage.refreshToken = resp.refresh_token;
         dispatch({type: LOGIN_SUCCESS});
       }
     })
@@ -50,22 +50,24 @@ export const userProfile = (restClient, username) => {
     .then(response => {
       console.log(response);
       if (response.status == 200) {
-        sessionStorage.authenticated = true;
+        localStorage.authenticated = true;
         const user = response.data;
-        sessionStorage.userId = user.id;
-        sessionStorage.name = user.name;
-        sessionStorage.username = user.username;
-        sessionStorage.email = user.email;
-        sessionStorage.mobile = user.mobile;
-        sessionStorage.authorities = JSON.stringify(user.authorities);
-        sessionStorage.resourcePermission = JSON.stringify(user.permissions);
-        sessionStorage.company = JSON.stringify(user.company);
+        localStorage.userId = user.id;
+        localStorage.name = user.name;
+        localStorage.username = user.username;
+        localStorage.email = user.email;
+        localStorage.mobile = user.mobile;
+        localStorage.authorities = JSON.stringify(user.authorities);
+        localStorage.resourcePermission = JSON.stringify(user.permissions);
+        localStorage.company = JSON.stringify(user.company);
+        localStorage.loggedInNow = 'true';
         dispatch({type: PROFILE_SUCCESS});
         dispatch({type: AUTH_SUCCESS});
       }
     })
     .catch(error => {
-      if (error.response.status == 403) {
+      console.log(error);
+      if (error.response && error.response.status == 403) {
         console.log(error.response);
         const resp = error.response;
         if (resp && resp.data && (resp.data.status == 'PRODUCT_LICENSE_NOT_ACTIVATED' || resp.data.status == 'PRODUCT_LICENSE_EXPIRED')) {
@@ -85,14 +87,14 @@ export const userProfile = (restClient, username) => {
 export const userLogout = (authClient) => {
 
   return (dispatch) => {
-    delete sessionStorage.authenticated;
-    delete sessionStorage.accessToken;
-    delete sessionStorage.refreshToken;
-    delete sessionStorage.name;
-    delete sessionStorage.email;
-    delete sessionStorage.mobile;
-    delete sessionStorage.authorities;
-    delete sessionStorage.permissions;
+    delete localStorage.authenticated;
+    delete localStorage.accessToken;
+    delete localStorage.refreshToken;
+    delete localStorage.name;
+    delete localStorage.email;
+    delete localStorage.mobile;
+    delete localStorage.authorities;
+    delete localStorage.permissions;
 
     dispatch({type: USER_LOGOUT});
   };

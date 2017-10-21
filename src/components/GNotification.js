@@ -23,7 +23,6 @@ class GNotification extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.nfn.showNotification) {
       const nfn  = nextProps.nfn.notification;
-      console.log(nfn);
       let status = 'unknown';
       if (nfn.status) {
         status = nfn.status;

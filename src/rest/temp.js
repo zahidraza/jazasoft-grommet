@@ -124,7 +124,7 @@
 //     case AUTH_LOGIN:
 //       url = `${authUrl}/token?${queryParameters(params)}`;
 //       options.method = 'POST';
-//       options.headers = new Headers({Authorization: 'Basic ' + sessionStorage.clientToken});
+//       options.headers = new Headers({Authorization: 'Basic ' + localStorage.clientToken});
 //       break;
 //     default:
 //       throw new Error(`Unsupported authentication type - ${type}`);

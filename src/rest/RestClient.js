@@ -25,8 +25,8 @@ export const fetch = (config = {}, dispatch) => {
   if (config && config.data) {
     requestHeaders['Content-Type'] = 'application/json';
   }
-  if (sessionStorage.accessToken) {
-    requestHeaders['Authorization'] = 'Bearer ' + sessionStorage.accessToken;
+  if (localStorage.accessToken) {
+    requestHeaders['Authorization'] = 'Bearer ' + localStorage.accessToken;
   }
 
   return axios({headers: requestHeaders, ...config})

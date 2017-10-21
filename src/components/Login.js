@@ -91,7 +91,7 @@ class Login extends Component {
     }
     if (authProgress && loginSuccess && !profileSuccess) {
       console.log('get profile');
-      this.props.dispatch(userProfile(this.props.restClient, sessionStorage.username));
+      this.props.dispatch(userProfile(this.props.restClient, localStorage.username));
     }
     if (this.props.auth.authProgress && !authProgress && !authenticated) {
       console.log('auth failure');

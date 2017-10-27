@@ -1,9 +1,11 @@
-import { FORM_CHANGE_BASIC, FORM_CHANGE_COLLECTION, FORM_CLEAR, OPERATION_COMPLETED } from '../actions/formActions';
+import { fromJS } from 'immutable';
+import { FORM_CHANGE_BASIC, FORM_CHANGE_COLLECTION, FORM_CLEAR, OPERATION_COMPLETED, TILE_FORM_CHANGE } from '../actions/formActions';
 import { LOCATION_CHANGE } from '../actions/routerAction';
 
 const initialState = {
   formData: {},
   collectionData: [],
+  tileData: fromJS([]),
   toggleForm: true,
   opCompleted: false  //Whether Ongoing Operation completed or not
 };
@@ -19,9 +21,10 @@ const handlers = {
     collectionData[action.payload.row] = action.payload.collection;
     return {collectionData, toggleForm: !_.toggleForm};
   },
+  [TILE_FORM_CHANGE]: (_, action) => ({tileData: action.payload.data, toggleForm: !_.toggleForm}),
   [FORM_CLEAR]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm}),
-  [OPERATION_COMPLETED]: (_, action) => ({formData: {}, collectionData: [], opCompleted: true}),
-  [LOCATION_CHANGE]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm, opCompleted: false})
+  [OPERATION_COMPLETED]: (_, action) => ({formData: {}, collectionData: [], tileData: fromJS([]), opCompleted: true}),
+  [LOCATION_CHANGE]: (_, action) => ({formData: {}, collectionData: [], tileData: fromJS([]), toggleForm: !_.toggleForm, opCompleted: false})
 };
 
 export default function section (state = initialState, action) {

@@ -13,7 +13,8 @@ import {
     DELETE,
     UPDATE_MANY,
     PATCH,
-    CUSTOM
+    CUSTOM,
+    UPLOAD
 } from './types';
 
 const history = createHistory();
@@ -22,7 +23,7 @@ export const fetch = (config = {}, dispatch) => {
   const requestHeaders = config.headers || {
     'Accept': 'application/json'
   };
-  if (config && config.data) {
+  if (config && config.data && !('Content-Type' in requestHeaders)) {
     requestHeaders['Content-Type'] = 'application/json';
   }
   if (localStorage.accessToken) {
@@ -70,7 +71,7 @@ export const fetch = (config = {}, dispatch) => {
 export default (apiUrl) => {
 
   const convertRESTRequestToHTTP = (type, resource, options) => {
-    const config = {};
+    let config = {};
     config.params = options.params || {};
     if (options.headers) {
       config.headers = options.headers;
@@ -121,6 +122,12 @@ export default (apiUrl) => {
       if (options.data) {
         config.data = JSON.stringify(options.data);
       }
+      break;
+    case UPLOAD:
+      config = {...config, ...options};
+      config.url = `${apiUrl}/${resource}`;
+      config.method = options.method || 'post';
+      console.log(config);
       break;
     default:
       throw new Error(`Unsupported fetch action type ${type}`);

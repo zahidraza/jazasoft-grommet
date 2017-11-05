@@ -185,9 +185,9 @@ class GTable extends Component {
           let width = (h.width == undefined) ? cellWidth.medium : cellWidth[h.width];
           const tooltip = h.tooltip;
           if (tooltip != undefined) {
-            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{width, fontWeight: 'bold'}} > {splitCamelCase(h.label)}</THeadTooltip>);
+            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{width, fontWeight: 'bold'}} > {h.label}</THeadTooltip>);
           } else {
-            result = (<th key={i} style={{width, fontWeight: 'bold'}} >{splitCamelCase(h.label)}</th>);
+            result = (<th key={i} style={{width, fontWeight: 'bold'}} >{h.label}</th>);
           }
         }
         return result;
@@ -346,7 +346,7 @@ export default connect(select)(GTable);
 /*
 header: array of object {key,value} or array of key string
 [
-  {key: string, label: string, tooltip: string} or key: string
+  {key: string, label: string, tooltip: string, width: string} or key: string
 ]
 
 data: array of objects

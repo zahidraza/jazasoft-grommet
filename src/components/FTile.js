@@ -80,7 +80,6 @@ class FTile extends Component {
   }
 
   render() {
-    console.log('render: FTile');
     const {formData: fData, headerData, addControl, addLabel, removeControl, removeLabel} = this.props;
     const formData = fData.toJS();
     let content;
@@ -90,9 +89,9 @@ class FTile extends Component {
           let cellItem;
           if (cell.elementType === 'input') {
             cellItem = (
-              <Box key={j} basis={cell.basis}>
+              <Box key={j} basis={cell.basis} >
 
-                <FormField label={cell.label} error={cell.error}>
+                <FormField label={cell.label} error={cell.error} >
                   <input type='text' name={cell.name} value={cell.value == undefined ? '' : cell.value} onChange={this._onFormChange.bind(this, 'input', i, j)} />
                 </FormField>
                   
@@ -151,7 +150,7 @@ class FTile extends Component {
     return (
       <Box colorIndex='light-2'>
         
-        <Box colorIndex='unknown' direction='row' pad='small' justify='between' >
+        <Box colorIndex='unknown' direction='row' pad='none' justify='between' >
           <Box pad={{horizontal: 'small'}} alignSelf='center'> {headerData.label} {headerData.index != undefined ? ' ' + (headerData.index + 1) : ''}</Box>
 
           <Box direction='row' justify='end' pad={{between: 'small'}}>

@@ -34,6 +34,9 @@ class TileForm extends Component {
     const newData = data.delete(idx);
     this.props.dispatch({type: TILE_FORM_CHANGE, payload: {data: newData}});
     this.setState({filteredOptions: newFilteredOptions});
+    if (this.props.onRemove) {
+      this.props.onRemove(idx);
+    }
   }
 
   _onAdd (idx) {
@@ -45,6 +48,9 @@ class TileForm extends Component {
     const newData = data.insert(idx+1, tmp);
     this.props.dispatch({type: TILE_FORM_CHANGE, payload: {data: newData}});
     this.setState({filteredOptions: newFilteredOptions});
+    if (this.props.onAdd) {
+      this.props.onAdd(idx);
+    }
   }
 
   _onFormChange (idx, row, col, value) {
@@ -151,7 +157,9 @@ class TileForm extends Component {
 }
 
 TileForm.propTypes = {
-  data: PropTypes.object
+  data: PropTypes.object,
+  onAdd: PropTypes.func,
+  onRemove: PropTypes.func
 };
 
 TileForm.defaultProps = {

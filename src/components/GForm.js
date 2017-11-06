@@ -377,6 +377,7 @@ class GForm extends Component {
             element = (
               <FormField key={i} label={e.label}>
                 <Select options={e.options} 
+                  placeHolder={e.placeholder}
                   value={formData[e.name]} onChange={this._onSelectChange.bind(this, e.name)} />
               </FormField>
             );

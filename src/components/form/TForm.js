@@ -36,6 +36,7 @@ class TForm extends Component {
   }
 
   componentWillMount() {
+    console.log('TForm will mount');
     const {data, header, name} = this.props;
     this.setState({header, data});
     this._init(name, data);
@@ -50,7 +51,10 @@ class TForm extends Component {
         if (col.type == 'select') {
           filteredOptions = this._initFilteredOptions(filteredOptions, col.options, i, col.name, col.searchString);
         }
-        if (col.value) {
+        if (col.value != undefined) {
+          if (typeof col.value === 'number') {
+            item[col.name] = String(col.value);
+          }
           if (typeof col.value === 'string') {
             item[col.name] = col.value;
           } else if (typeof col.value === 'object') {
@@ -121,7 +125,7 @@ class TForm extends Component {
         filteredOptions = this._initFilteredOptions(filteredOptions, e.options, data.length, e.name, e.searchString);
         lastRow.push(fromJS(e).toJS());
       } else {
-        lastRow.push(fromJS(e).toJS());
+        lastRow.push(fromJS({...e, value: undefined}).toJS());
       }
     });
     data.push(lastRow);
@@ -167,7 +171,12 @@ class TForm extends Component {
 
   render() {
     const {header, data, filteredOptions} = this.state;
-    const {name, rows, cols, controls, dynamicRow, dynamicCol, form: {tableData}, cellStyle} = this.props;
+    const {name, rows, cols, controls, dynamicRow, dynamicCol, form: {tableData}, cellStyle, size} = this.props;
+
+    let style = {...defaultCellStyle};
+    if (cellStyle) {
+      style = {...style, ...cellStyle};
+    }
 
     let formData = tableData[name];
     if (formData == undefined) {
@@ -191,26 +200,31 @@ class TForm extends Component {
       head.push(<th key={header.length+1}><AddIcon size='xsmall' onClick={this._onColAdd}/></th>);
     }
 
-    let style = {...defaultCellStyle};
-    if (cellStyle) {
-      style = {...style, ...cellStyle};
-    }
-
     const body = data.map((row, i) => {
       const colItems = row.map((col, j) => {
         let cell;
         if (col.type === 'label') {
-          cell = (<td key={j} style={{...style, background: undefined}}>{col.value || ''}</td>);
+          let value;
+          if (col.value != undefined) {
+            value = typeof col.value == 'number' ? String(col.value) : col.value;
+          }
+          cell = (<td key={j} style={{...style, background: undefined}}>{value || ''}</td>);
         } else if (col.type == 'link') {
           cell = (<td key={j} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name)}>{col.value || ''}</a></td>);
         } else if (col.type === 'input') {
+          let value;
+          if (formData[i] && formData[i][col.name] != undefined) {
+            value = typeof formData[i][col.name] == 'number' ? String(formData[i][col.name]) : formData[i][col.name];
+          } else if (col.value != undefined) {
+            value = typeof col.value == 'number' ? String(col.value) : col.value;
+          }
           cell = (
             <td key={j} style={{padding: 5}}>
               <input style={style} 
                 type='text' 
                 disabled={col.disabled || false}
                 placeholder={col.placeholder} 
-                value={formData[i][col.name] || col.value || ''} 
+                value={value || ''} 
                 onChange={this._onChange.bind(this, 'input', i, col.name)} 
                 />
             </td>
@@ -249,8 +263,8 @@ class TForm extends Component {
     }
 
     return (
-      <Box alignSelf='center'>
-        <table>
+      <Box alignSelf='center' size={size}>
+        <table style={{width: '100%'}}>
           <thead><tr>{head}</tr></thead>
           <tbody>{body}</tbody>
         </table>
@@ -285,7 +299,8 @@ TForm.propTypes = {
   dynamicRow: PropTypes.bool,
   dynamicCol: PropTypes.bool,
   cellStyle: PropTypes.object,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  size: PropTypes.oneOf(['xsmall','small','large','xlarge','xxlarge'])
 };
 
 TForm.defaultProps = {

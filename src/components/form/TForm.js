@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import { fromJS } from 'immutable';
 
-import {TABLE_FORM_CHANGE} from '../actions/formActions';
+import {TABLE_FORM_CHANGE} from '../../actions/formActions';
 
 import Box from 'grommet/components/Box';
 import Tooltip from 'react-toolbox/lib/tooltip';
@@ -200,7 +200,7 @@ class TForm extends Component {
       const colItems = row.map((col, j) => {
         let cell;
         if (col.type === 'label') {
-          cell = (<td key={j} style={style}>{col.value || ''}</td>);
+          cell = (<td key={j} style={{...style, background: undefined}}>{col.value || ''}</td>);
         } else if (col.type == 'link') {
           cell = (<td key={j} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name)}>{col.value || ''}</a></td>);
         } else if (col.type === 'input') {

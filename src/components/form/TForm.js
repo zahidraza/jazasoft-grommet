@@ -171,7 +171,7 @@ class TForm extends Component {
 
   render() {
     const {header, data, filteredOptions} = this.state;
-    const {name, rows, cols, controls, dynamicRow, dynamicCol, form: {tableData}, cellStyle, size} = this.props;
+    const {name, rows, cols, controls, dynamicRow, dynamicCol, form: {tableData}, cellStyle, size, id, style: tableStyle} = this.props;
 
     let style = {...defaultCellStyle};
     if (cellStyle) {
@@ -208,9 +208,9 @@ class TForm extends Component {
           if (col.value != undefined) {
             value = typeof col.value == 'number' ? String(col.value) : col.value;
           }
-          cell = (<td key={j} style={{...style, background: undefined}}>{value || ''}</td>);
+          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{...style, background: undefined}}>{value || ''}</td>);
         } else if (col.type == 'link') {
-          cell = (<td key={j} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name)}>{col.value || ''}</a></td>);
+          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name)}>{col.value || ''}</a></td>);
         } else if (col.type === 'input') {
           let value;
           if (formData[i] && formData[i][col.name] != undefined) {
@@ -219,7 +219,7 @@ class TForm extends Component {
             value = typeof col.value == 'number' ? String(col.value) : col.value;
           }
           cell = (
-            <td key={j} style={{padding: 5}}>
+            <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5}}>
               <input style={style} 
                 type='text' 
                 disabled={col.disabled || false}
@@ -231,7 +231,7 @@ class TForm extends Component {
           );
         } else if (col.type === 'select') {
           cell = (
-            <td key={j} style={{padding: 5}}>
+            <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5}}>
               <Select options={filteredOptions[i][col.name]} 
                 placeHolder={col.placeholder}
                 disabled={col.disabled || false}
@@ -243,7 +243,7 @@ class TForm extends Component {
           );
         } else if (col.type === 'checkbox') {
           cell = (
-            <td key={j} style={{padding: 5}}>
+            <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5}}>
               <CheckBox 
                 disabled={col.disabled || false}
                 checked={formData[i][col.name] || col.value || false}  
@@ -262,9 +262,10 @@ class TForm extends Component {
       body.push(<tr key={data.length+1}><td><AddIcon size='xsmall' onClick={this._onRowAdd}/></td></tr>)
     }
 
+
     return (
       <Box alignSelf='center' size={size}>
-        <table style={{width: '100%'}}>
+        <table id={id} style={{width: '100%', ...tableStyle}}>
           <thead><tr>{head}</tr></thead>
           <tbody>{body}</tbody>
         </table>
@@ -293,7 +294,9 @@ TForm.propTypes = {
     placeholder: PropTypes.string,
     options: PropTypes.array,
     searchString: PropTypes.string,    //applicable for select type
-    disabled: PropTypes.bool
+    disabled: PropTypes.bool,
+    rowspan: PropTypes.number,
+    colspan: PropTypes.number
   }))).isRequired,
   controls: PropTypes.oneOf(['add','remove']),
   dynamicRow: PropTypes.bool,

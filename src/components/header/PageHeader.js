@@ -18,7 +18,6 @@ import Spinning from 'grommet/components/icons/Spinning';
 import SyncIcon from 'grommet/components/icons/base/Sync';
 import DownloadIcon from 'grommet/components/icons/base/Download';
 import UploadIcon from 'grommet/components/icons/base/Upload';
-import PlayIcon from 'grommet/components/icons/base/Play';
 import CirclePlayIcon from 'grommet/components/icons/base/CirclePlay';
 import TooltipButton from '../TooltipButton';
 

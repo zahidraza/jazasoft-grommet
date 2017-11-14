@@ -33,6 +33,11 @@ const cellWidth = {
   xlarge: 250
 };
 
+const defaultCellStyle = {
+  color: 'black',
+  width: 150
+};
+
 class GTable extends Component {
  
   constructor() {
@@ -151,7 +156,12 @@ class GTable extends Component {
 
   render() {
     const { data, filteredTotal } = this.state;
-    const { headers, scope } = this.props;
+    const { headers, scope, cellStyle } = this.props;
+
+    let style = defaultCellStyle;
+    if (cellStyle) {
+      style = {...style, ...cellStyle};
+    }
 
     let tableHeaders = [], keys = [];
     headers.forEach(h => {
@@ -180,26 +190,25 @@ class GTable extends Component {
       const header = tableHeaders.map((h, i)=> {
         let result;
         if (typeof h === 'string') {
-          result = (<th key={i} style={{width: cellWidth.medium, fontWeight: 'bold'}} >{splitCamelCase(h)}</th>);
+          result = (<th key={i} style={{...style, fontWeight: 'bold'}} >{splitCamelCase(h)}</th>);
         } else {
-          let width = (h.width == undefined) ? cellWidth.medium : cellWidth[h.width];
           const tooltip = h.tooltip;
           if (tooltip != undefined) {
-            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{width, fontWeight: 'bold'}} > {h.label}</THeadTooltip>);
+            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{...style, fontWeight: 'bold'}} > {h.label}</THeadTooltip>);
           } else {
-            result = (<th key={i} style={{width, fontWeight: 'bold'}} >{h.label}</th>);
+            result = (<th key={i} style={{...style, fontWeight: 'bold'}} >{h.label}</th>);
           }
         }
         return result;
       })
       if (scope && scope.length > 0) {
-        header.push(<th key={tableHeaders.length} style={{fontWeight: 'bold', textAlign: 'center'}}>Action</th>);
+        header.push(<th key={tableHeaders.length} style={{...style, fontWeight: 'bold', textAlign: 'center'}}>Action</th>);
       }
 
       const items = data.map((item, idx)=> {
         let cells = keys.map((key, i) => {
           return (
-            <TableCell key={i} style={{color: item.color}}  >{(typeof item[key] === 'undefined' || (typeof item[key] === 'string' && item[key].length == 0)) ? '-' : item[key]}</TableCell>
+            <TableCell key={i} style={style}  >{(typeof item[key] === 'undefined' || (typeof item[key] === 'string' && item[key].length == 0)) ? '-' : item[key]}</TableCell>
           );
         });
 
@@ -230,8 +239,8 @@ class GTable extends Component {
               actions.push(<Button key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
             }
           });
-          let width = (actions.length == 1 ? cellWidth.small: (actions.length == 2 ? cellWidth.medium : (actions.length == 3) ? cellWidth.large: cellWidth.xlarge));
-          cells.push(<TableCell key={keys.length} style={{width, textAlign: 'center'}} >{actions}</TableCell>);  
+          let width = (actions.length == 1 ? 100: (actions.length == 2 ? 150 : (actions.length == 3) ? 200: 250));
+          cells.push(<TableCell key={keys.length} style={{...style, textAlign: 'center', width}} >{actions}</TableCell>);  
         }
 
         return (
@@ -328,7 +337,8 @@ GTable.propTypes = {
 
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   full: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
-  colorIndex: PropTypes.string
+  colorIndex: PropTypes.string,
+  cellStyle: PropTypes.object
 };
 
 GTable.defaultProps = {

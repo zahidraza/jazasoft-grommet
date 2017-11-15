@@ -15,13 +15,22 @@ const initialState = {
 const handlers = { 
   [FORM_CHANGE]: (_, action) => {
     let formData = _.formData;
-    const {name, key, value} = action.payload;
+    const {name, key, value, data} = action.payload;
     if (name) {
-      let tmp = formData[name] || {};
-      tmp[key] = value;
-      formData[name] = tmp;
+      if (data) {
+        formData[name] = {...data};
+      } else {
+        let tmp = formData[name] || {};
+        tmp[key] = value;
+        formData[name] = tmp;
+      }
+
     } else {
-      formData[key] = value;
+      if (data) {
+        formData = {...formData, ...data};
+      } else {
+        formData[key] = value;
+      }
     }
     return {formData, toggleForm: !_.toggleForm};
   },

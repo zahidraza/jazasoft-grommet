@@ -36,11 +36,16 @@ export const fetch = (config = {}, dispatch) => {
           const response = error.response;
           if (response.status == 400) {
             if (response.data instanceof Array) {
-              let err = {};
+              let message = '';
               response.data.forEach(e => {
-                err[e.field] = e.message;
+                message += '[ ' + e.field + ': \t' + e.message + ' ],'; 
               });
-              dispatch({type: BAD_REQUEST, payload: { error: err}});
+              dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {message, status: 'critical'}}});
+              // let err = {};
+              // response.data.forEach(e => {
+              //   err[e.field] = e.message;
+              // });
+              // dispatch({type: BAD_REQUEST, payload: { error: err}});
             }
           } else if (response.status == 401) {
             dispatch(userLogout());

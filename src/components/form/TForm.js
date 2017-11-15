@@ -36,7 +36,6 @@ class TForm extends Component {
   }
 
   componentWillMount() {
-    console.log('TForm will mount');
     const {data, header, name} = this.props;
     this.setState({header, data});
     this._init(name, data);
@@ -54,11 +53,8 @@ class TForm extends Component {
         if (col.value != undefined) {
           if (typeof col.value === 'number') {
             item[col.name] = String(col.value);
-          }
-          if (typeof col.value === 'string') {
+          } else {
             item[col.name] = col.value;
-          } else if (typeof col.value === 'object') {
-            item[col.name] = col.value.value;
           }
         } else {
           item[col.name] = '';
@@ -110,6 +106,9 @@ class TForm extends Component {
       row.push({name: newKey, value: undefined, ...rest});
     });
     this.setState({header, data});
+    if (this.props.onColAdd) {
+      this.props.onColAdd(this.props.name);
+    }
   }
 
   _onRowAdd () {
@@ -135,6 +134,9 @@ class TForm extends Component {
     let temp = tableData[name];
     temp.push({});
     this.props.dispatch({type: TABLE_FORM_CHANGE, payload: {name, data: temp}});
+    if (this.props.onRowAdd) {
+      this.props.onRowAdd(this.props.name);
+    }
   }
   
   _onChange (type, row, key, event) {
@@ -170,6 +172,7 @@ class TForm extends Component {
   }
 
   render() {
+    console.log('render TForm');
     const {header, data, filteredOptions} = this.state;
     const {name, rows, cols, controls, dynamicRow, dynamicCol, form: {tableData}, cellStyle, size, id, style: tableStyle} = this.props;
 
@@ -201,7 +204,8 @@ class TForm extends Component {
     }
 
     const body = data.map((row, i) => {
-      const colItems = row.map((col, j) => {
+      let colItems = [];
+      row.forEach((col, j) => {
         let cell;
         if (col.type === 'label') {
           let value;
@@ -252,7 +256,7 @@ class TForm extends Component {
             </td>
           );
         }
-        return cell;
+        colItems.push(cell);
       });
       return (
         <tr key={i}>{colItems}</tr>
@@ -284,7 +288,7 @@ TForm.propTypes = {
     })
   ])).isRequired,
   data: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({
-    type: PropTypes.oneOf(['label','link','input','select','checkbox']).isRequired,
+    type: PropTypes.oneOf(['label','link','input','select','checkbox','hidden']).isRequired,
     name: PropTypes.string.isRequired,
     value: PropTypes.oneOfType([
       PropTypes.string, 
@@ -303,6 +307,8 @@ TForm.propTypes = {
   dynamicCol: PropTypes.bool,
   cellStyle: PropTypes.object,
   onChange: PropTypes.func,
+  onRowAdd: PropTypes.func,
+  onColAdd: PropTypes.func,
   size: PropTypes.oneOf(['xsmall','small','large','xlarge','xxlarge'])
 };
 

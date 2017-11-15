@@ -18,17 +18,22 @@ class Dailog extends Component {
         </Box>
       );
     }
+    let submitItem;
+    if (this.props.onSubmit) {
+      submitItem = (<Box><Button label='Submit' plain={true} onClick={this.props.onSubmit} /></Box>);
+    }
     return (
       <Layer hidden={!active} flush={true} >
-        <Box size='medium' margin={{vertical: 'small', horizontal:'medium'}}>
+        <Box size={this.props.size} margin={{vertical: 'small', horizontal:'medium'}}>
           {titleContent}
-          <Box>
+          
+          <Box style={{height: 500, overflow: 'auto'}}>
             {this.props.children}
           </Box>
 
           <Box pad={{vertical: 'medium'}} direction='row' justify='end'>
             <Box><Button label='Cancel' plain={true} onClick={this.props.onCancel} /></Box>
-            <Box><Button label='Submit' plain={true} onClick={this.props.onSubmit} /></Box>
+            {submitItem}
           </Box>
         </Box>
       </Layer>
@@ -39,8 +44,13 @@ class Dailog extends Component {
 Dailog.propTypes = {
   active: PropTypes.bool.isRequired,
   title: PropTypes.string,
-  onSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired
+  onSubmit: PropTypes.func,
+  onCancel: PropTypes.func.isRequired,
+  size: PropTypes.oneOf(['small','medium','large','xlarge','xxlarge'])
+};
+
+Dailog.defaultProps = {
+  size: 'medium'
 };
 
 export default Dailog;

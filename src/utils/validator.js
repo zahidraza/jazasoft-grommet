@@ -7,6 +7,11 @@ export const NUMBER = 'NUMBER';
 export const DATE = 'DATE';
 export const EMAIL = 'EMAIL';
 
+//Validate Normal Form Data
+export const validateForm = (dispatch, data) => {
+
+};
+
 //Return true if no errors, false if some errors
 //Is data valid ?  true : if no errors, false: if any errors
 export function validate (dispatch, objectData, arrayData) {

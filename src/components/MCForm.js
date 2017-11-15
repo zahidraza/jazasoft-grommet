@@ -17,6 +17,17 @@ class MCForm extends Component {
     super();
   }
 
+  componentWillMount() {
+    const {data} = this.props;
+    let formData = {};
+    data.forEach((row) => {
+      row.forEach((cell) => {
+        formData[cell.name] = cell.value;
+      });
+    });
+    this.props.dispatch({type: FORM_CHANGE, payload: {name: this.props.name, data: formData}});
+  }
+  
   _onChange (elementType, name, event) {
     let payload, value;
     if (elementType == 'input') {
@@ -51,6 +62,7 @@ class MCForm extends Component {
               <FormField label={cell.label} error={error[cell.name]} >
                 <input type='text' 
                   placeholder={cell.placeholder}
+                  disabled={cell.disabled || false}
                   name={cell.name} value={formData[cell.name] || cell.value || ''} 
                   onChange={this._onChange.bind(this, 'input', cell.name)} />
               </FormField>
@@ -64,6 +76,7 @@ class MCForm extends Component {
               <FormField label={cell.label} error={error[cell.name]} >
                 <Select options={cell.options} 
                   placeholder={cell.placeholder}
+                  disabled={cell.disabled || false}
                   value={formData[cell.name] || cell.value || ''} 
                   onChange={this._onChange.bind(this, 'select', cell.name)} />
               </FormField>
@@ -114,6 +127,7 @@ data: array of array of
       placeholder: String,
       options: if type is select,
       value: 
+      disabled: bool
     }
 
 e.g

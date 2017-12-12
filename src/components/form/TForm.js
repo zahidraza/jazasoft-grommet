@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 import {connect} from 'react-redux';
 import { fromJS } from 'immutable';
 
@@ -13,9 +14,16 @@ import CheckBox from 'grommet/components/CheckBox';
 
 const THeadTooltip = Tooltip('th');
 
+const cellWidth = {
+  xsmall: 50,
+  small: 100,
+  medium: 150,
+  large: 200,
+  xlarge: 250
+};
+
 const defaultCellStyle = {
   padding: 0,
-  width: 100,
   textAlign: 'center'
 };
 
@@ -139,7 +147,7 @@ class TForm extends Component {
     }
   }
   
-  _onChange (type, row, key, event) {
+  _onChange (type, row, key, path, event) {
     let value;
     if (type === 'input') {
       value = event.target.value;
@@ -149,6 +157,9 @@ class TForm extends Component {
       value = event.target.checked;
     } else if (type == 'link') {
       event.preventDefault();
+      if (path) {
+        this.props.history.push(path);
+      }
     }
     this.props.dispatch({type: TABLE_FORM_CHANGE, payload: {name: this.props.name, row, key, value}});
     if (this.props.onChange) {
@@ -172,7 +183,6 @@ class TForm extends Component {
   }
 
   render() {
-    console.log('render TForm');
     const {header, data, filteredOptions} = this.state;
     const {name, rows, cols, controls, dynamicRow, dynamicCol, form: {tableData}, cellStyle, size, id, style: tableStyle} = this.props;
 
@@ -188,13 +198,20 @@ class TForm extends Component {
  
     let head = header.map((e, i) => {
       let item;
+      let width = cellWidth.medium;
+      if (e.width && typeof e.width == 'number') {
+        width = e.width;
+      } else if (e.width && typeof e.width == 'string') {
+        width = cellWidth[e.width];
+      }
       if (typeof e === 'string') {
-        item = (<th key={i} style={{padding: 5}}>{e}</th>);
+        item = (<th key={i} style={{padding: 5, width}}>{e}</th>);
       } else if (typeof e === 'object') {
+        
         if (e.tooltip) {
-          item = (<THeadTooltip key={i} tooltip={e.tooltip} style={{padding: 5}}>{e.label}</THeadTooltip>);
+          item = (<THeadTooltip key={i} tooltip={e.tooltip} style={{padding: 5, width}}>{e.label}</THeadTooltip>);
         } else {
-          item = (<th key={i} style={{padding: 5}}>{e.label}</th>);
+          item = (<th key={i} style={{padding: 5, width}}>{e.label}</th>);
         }
       }
       return item;
@@ -214,7 +231,7 @@ class TForm extends Component {
           }
           cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{...style, background: undefined}}>{value || ''}</td>);
         } else if (col.type == 'link') {
-          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name)}>{col.value || ''}</a></td>);
+          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name, col.path)}>{col.value || ''}</a></td>);
         } else if (col.type === 'input') {
           let value;
           if (formData[i] && formData[i][col.name] != undefined) {
@@ -229,7 +246,7 @@ class TForm extends Component {
                 disabled={col.disabled || false}
                 placeholder={col.placeholder} 
                 value={value || ''} 
-                onChange={this._onChange.bind(this, 'input', i, col.name)} 
+                onChange={this._onChange.bind(this, 'input', i, col.name, undefined)} 
                 />
             </td>
           );
@@ -240,7 +257,7 @@ class TForm extends Component {
                 placeHolder={col.placeholder}
                 disabled={col.disabled || false}
                 value={formData[i][col.name] || col.value || ''} 
-                onChange={this._onChange.bind(this, 'select', i, col.name)}
+                onChange={this._onChange.bind(this, 'select', i, col.name, undefined)}
                 onSearch={this._onSearch.bind(this, i, col.options)}
                 style={style} />
             </td>
@@ -252,7 +269,7 @@ class TForm extends Component {
                 disabled={col.disabled || false}
                 checked={formData[i][col.name] || col.value || false}  
                 toggle={col.toggle || false} 
-                onChange={this._onChange.bind(this, 'checkbox', i, col.name)}/>
+                onChange={this._onChange.bind(this, 'checkbox', i, col.name, undefined)}/>
             </td>
           );
         }
@@ -269,7 +286,7 @@ class TForm extends Component {
 
     return (
       <Box alignSelf='center' size={size}>
-        <table id={id} style={{width: '100%', ...tableStyle}}>
+        <table id={id} style={{width: '100%',marginTop: 20, ...tableStyle}}>
           <thead><tr>{head}</tr></thead>
           <tbody>{body}</tbody>
         </table>
@@ -284,7 +301,8 @@ TForm.propTypes = {
     PropTypes.string,
     PropTypes.shape({
       label: PropTypes.string.isRequired,
-      tooltip: PropTypes.string
+      tooltip: PropTypes.string,
+      width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['xsmall','small','medium','large','xlarge'])])
     })
   ])).isRequired,
   data: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({
@@ -293,10 +311,12 @@ TForm.propTypes = {
     value: PropTypes.oneOfType([
       PropTypes.string, 
       PropTypes.shape({label: PropTypes.string.isRequired, value: PropTypes.string.isRequired}),
-      PropTypes.number
+      PropTypes.number,
+      PropTypes.node
     ]),
     placeholder: PropTypes.string,
     options: PropTypes.array,
+    path: PropTypes.string,  //applicable for link
     searchString: PropTypes.string,    //applicable for select type
     disabled: PropTypes.bool,
     rowspan: PropTypes.number,
@@ -322,5 +342,5 @@ const select = (store) => {
   return {form: store.form, err: store.err};
 };
 
-export default connect(select)(TForm);
+export default withRouter(connect(select)(TForm));
 

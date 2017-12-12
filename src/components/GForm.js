@@ -17,6 +17,7 @@ import Footer from 'grommet/components/Footer';
 import FormHeader from './FormHeader';
 import Heading from 'grommet/components/Heading';
 import Select from 'grommet/components/Select';
+import TextInput from 'grommet/components/TextInput';
 import Table from './DTable';
 import Dialog from './Dailog';
 
@@ -189,6 +190,10 @@ class GForm extends Component {
 
   _onInputChange (name, event) {
     this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {[name]: event.target.value}});
+  }
+
+  _onSuggestionSelect (name, event,c) {
+    this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {[name]: event.suggestion}});
   }
 
   _onDateChange (name, value) {
@@ -365,15 +370,24 @@ class GForm extends Component {
                 <input type={type} name={e.name} disabled={disabled} value={formData[e.name] == undefined ? '' : formData[e.name]} onChange={this._onInputChange.bind(this, e.name)} />
               </FormField>
             );
-          }
-          if (e.elementType == 'date') {
+          } else if (e.elementType == 'text-input') {
+            element = (
+              <FormField key={i} label={e.label} error={error[e.name]}>
+                <TextInput name={e.name} 
+                  value={formData[e.name]} 
+                  onDOMChange={this._onInputChange.bind(this, e.name)}
+                  onSelect={this._onSuggestionSelect.bind(this, e.name)}
+                  suggestions={e.suggestions || []}
+                  />
+              </FormField>
+            );
+          } else if (e.elementType == 'date') {
             element = (
               <FormField key={i} label={e.label} error={error[e.name]}>
                 <DateTime name={e.name} format='MM/DD/YYYY' value={formData[e.name]} onChange={this._onDateChange.bind(this, e.name)}/>
               </FormField>
             );
-          }
-          if (e.elementType == 'select') {
+          } else if (e.elementType == 'select') {
             element = (
               <FormField key={i} label={e.label}>
                 <Select options={e.options} 
@@ -381,8 +395,7 @@ class GForm extends Component {
                   value={formData[e.name]} onChange={this._onSelectChange.bind(this, e.name)} />
               </FormField>
             );
-          }
-          if (e.elementType == 'checkbox') {
+          } else if (e.elementType == 'checkbox') {
             element = (
               <FormField key={i}>
                 <CheckBox label={e.label} checked={formData[e.name] == undefined ? false : formData[e.name]} toggle={true} onChange={this._onToggleChange.bind(this, e.name)}/>
@@ -522,13 +535,14 @@ export default connect(select)(GForm);
       title: optional String
       elements: [
         {
-          elementType: input|select|checkbox,             required  - all 
+          elementType: input|select|checkbox|radio|text-input,             required  - all 
           type: text|email|password   in case of input    optional  - input
           label: string,                                  required  - all
           name: string,                                   required  - all
           value: string|boolean                    optional  - all
           placeholder: string optional                    optional  - input
           options: arrayOf(string) - if type is select    optional  - select
+          suggestions: array of string
         }
       ]
     }

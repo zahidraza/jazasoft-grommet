@@ -29,6 +29,7 @@ class PageHeader extends Component {
   }
 
   _onClick (type, idx, path, event) {
+    console.log({type,idx,path,event});
     if (type == 'search') {
       this.props.dispatch({type: SEARCH, payload: {searchValue: event.target.value}});
     }
@@ -58,7 +59,7 @@ class PageHeader extends Component {
       if (control.type == 'search') {
         searchItem = (
           <Search key={idx} inline={true} fill={true} size='medium' placeHolder={control.placeholder || 'Seacrh'}
-            value={this.props.filter.searchValue} onDOMChange={this._onClick.bind(this, 'seacrh', idx, undefined)} />
+            value={this.props.filter.searchValue} onDOMChange={this._onClick.bind(this, 'search', idx, undefined)} />
         );
       } else if (control.type == 'filter') {
         item = (

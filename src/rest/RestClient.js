@@ -122,6 +122,7 @@ export default (apiUrl) => {
       config.method = 'DELETE';
       break;
     case CUSTOM:
+      config = {...config, ...options};
       config.url = `${apiUrl}/${options.url}`;
       config.method = options.method;
       if (options.data) {

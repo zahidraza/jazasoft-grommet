@@ -75,7 +75,7 @@ class GTable extends Component {
   _onClick (action, index, event) {
     if (this.props.onClick) {
       const id = this.state.data[index].id;
-      this.props.onClick(action, id, event);
+      this.props.onClick(action, id, index, event);
     }
   }
 
@@ -85,7 +85,7 @@ class GTable extends Component {
     data = data.filter(e => {
       let result = false;
       searchKeys.forEach(k => {
-        if (e[k].toLowerCase().includes(searchValue.toLowerCase())) {
+        if (e[k] && searchValue && e[k].toLowerCase().includes(searchValue.toLowerCase())) {
           result = true;
         }
       });

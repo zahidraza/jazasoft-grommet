@@ -41,7 +41,7 @@ export function getArrayFromCsv(csv) {
 
 export function getCsvFromArray (list) {
   let csv = '';
-  list.forEach(l => csv += l + ', ');
+  list.forEach(l => csv += l.trim() + ', ');
   if (csv.length > 1) {
     csv = csv.substr(0, csv.length-2);
   }

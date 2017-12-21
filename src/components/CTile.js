@@ -9,7 +9,6 @@ import CaretUpIcon from 'grommet/components/icons/base/Up';
 import CaretDownIcon from 'grommet/components/icons/base/Down';
 import Button from 'grommet/components/Button';
 import Select from 'grommet/components/Select';
-import ClearOptionIcon from 'grommet/components/icons/base/ClearOption';
 import TooltipButton from './TooltipButton';
 
 /**
@@ -19,7 +18,6 @@ class CTile extends Component {
 
   constructor () {
     super();
-    this._onClearOptions = this._onClearOptions.bind(this);
     this._toggleCollapse = this._toggleCollapse.bind(this);
     this._onSearch = this._onSearch.bind(this);
     this._onChange = this._onChange.bind(this);
@@ -31,15 +29,11 @@ class CTile extends Component {
   }
 
   componentWillMount() {
-    const {collapsed, options} = this.props;
-    this.setState({collapsed, filteredOptions: options});
-  }
-
-  _onClearOptions (name, event) {
-    this.props.dispatch({type: FORM_CHANGE, payload: {key: name, value: undefined}});
-    if (this.props.onClear) {
-      this.props.onClear(name, event);
+    let {collapsed, options} = this.props;
+    if (options) {
+      options.unshift({label: 'No Value', value: undefined});
     }
+    this.setState({collapsed, filteredOptions: options});
   }
   
   _toggleCollapse () {
@@ -85,11 +79,6 @@ class CTile extends Component {
 
           <Box direction='row' justify='end' pad={{between: 'small'}}>
             {options && 
-            <Box alignSelf='center' >
-              <TooltipButton tooltip='Clear Option' icon={<ClearOptionIcon colorIndex='light-1' />}  onClick={this._onClearOptions.bind(this, name)} />
-            </Box>
-            }
-            {options && 
             <Box colorIndex='light-1' alignSelf='center' size='medium'>
               <Select placeHolder={placeholder}
                 onSearch={this._onSearch}
@@ -98,6 +87,7 @@ class CTile extends Component {
                 onChange={this._onChange.bind(this, name)} />
             </Box>
             }
+            {!options && value && <Box pad={{horizontal: 'large'}} alignSelf='center'> {value}</Box>}
             <Box alignSelf='center'>{icon}</Box>
           </Box>
         </Box>
@@ -118,8 +108,7 @@ CTile.propTypes = {
   name: PropTypes.string,
   placeholder: PropTypes.string,
   value: PropTypes.string,
-  onChange: PropTypes.func,
-  onClear: PropTypes.func
+  onChange: PropTypes.func
 };
 
 CTile.defaultProps = {

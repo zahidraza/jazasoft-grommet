@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { node } from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import {connect} from 'react-redux';
 import { fromJS } from 'immutable';
@@ -167,15 +167,15 @@ class TForm extends Component {
     }
   }
 
-  _onSearch (name, options, event) {
+  _onSearch (row, name, options, event) {
     let {filteredOptions} = this.state;
     const value = event.target.value;
-    filteredOptions[name] = options.filter(e => {
+    filteredOptions[row][name] = options.filter(e => {
       let result;
       if (typeof e === 'string') {
         result = e.toLowerCase().includes(value.toLowerCase());
-      } else {
-        result = e.toLowerCase().includes(value.toLowerCase());
+      } else if (typeof e === 'object') {
+        result = e.label.toLowerCase().includes(value.toLowerCase());
       }
       return result;
     });
@@ -207,8 +207,9 @@ class TForm extends Component {
       if (typeof e === 'string') {
         item = (<th key={i} style={{padding: 5, width}}>{e}</th>);
       } else if (typeof e === 'object') {
-        
-        if (e.tooltip) {
+        if (e.type) { //react element
+          item = <th key={i}> {e} </th>;
+        } else if (e.tooltip) {
           item = (<THeadTooltip key={i} tooltip={e.tooltip} style={{padding: 5, width}}>{e.label}</THeadTooltip>);
         } else {
           item = (<th key={i} style={{padding: 5, width}}>{e.label}</th>);
@@ -251,14 +252,19 @@ class TForm extends Component {
             </td>
           );
         } else if (col.type === 'select') {
+          let options = filteredOptions[i][col.name];
+          if (options.length > 0 && ((typeof options[0] == 'object' && options[0].value != undefined) || (typeof options[0] == 'string' && options[0] != 'No Value'))) {
+            options.unshift({label: 'No Value', value: undefined});
+          }
+          
           cell = (
             <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5}}>
-              <Select options={filteredOptions[i][col.name]} 
+              <Select options={options} 
                 placeHolder={col.placeholder}
                 disabled={col.disabled || false}
                 value={formData[i][col.name] || col.value || ''} 
                 onChange={this._onChange.bind(this, 'select', i, col.name, undefined)}
-                onSearch={this._onSearch.bind(this, i, col.options)}
+                onSearch={this._onSearch.bind(this, i, col.name, col.options)}
                 style={style} />
             </td>
           );
@@ -303,7 +309,8 @@ TForm.propTypes = {
       label: PropTypes.string.isRequired,
       tooltip: PropTypes.string,
       width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['xsmall','small','medium','large','xlarge'])])
-    })
+    }),
+    PropTypes.node
   ])).isRequired,
   data: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({
     type: PropTypes.oneOf(['label','link','input','select','checkbox','hidden']).isRequired,

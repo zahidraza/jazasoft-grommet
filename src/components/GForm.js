@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { element } from 'prop-types';
 import {connect} from 'react-redux';
 import moment from 'moment';
 
@@ -33,17 +33,21 @@ class GForm extends Component {
     this._onSubmit = this._onSubmit.bind(this);
     this._onCancel = this._onCancel.bind(this);
     this._onSelectChange = this._onSelectChange.bind(this);
+    this._onSelectSearch = this._onSelectSearch.bind(this);
     this._onToggleChange = this._onToggleChange.bind(this);
     this._onInputChange = this._onInputChange.bind(this);
     this._onDInputChange = this._onDInputChange.bind(this);
     this._onDToggleChange = this._onDToggleChange.bind(this);
     this._onDDateChange = this._onDDateChange.bind(this);
     this._loadCollectionData = this._loadCollectionData.bind(this);
+
     this.state = {
       dialogActive: [],
       collection: [],
       elements: [],
-      dtElements: []
+      dtElements: [],
+      suggestions: {},
+      filteredOptions:{}
     };
   }
 
@@ -55,6 +59,7 @@ class GForm extends Component {
   componentWillMount() {
     console.log('GForm will mount');
     let {data, collectionData} = this.props;
+    let suggestions = {}, filteredOptions = {};
 
     if (data != undefined) {
       let formData = {};
@@ -66,14 +71,19 @@ class GForm extends Component {
           if (element.elementType == 'input') {
             formData[element.name] = (element.value == undefined) ? '' : element.value;
           }
+          if (element.elementType == 'text-input') {
+            suggestions[element.name] = element.suggestions;
+          }
           if (element.elementType == 'select') {
-            formData[element.name] = (element.value == undefined) ? element.placeholder : element.value;
+            formData[element.name] = element.value;
+            filteredOptions[element.name] = element.options;
           }
           if (element.elementType == 'date') {
             formData[element.name] = element.value;
           }
         })
-      })
+      });
+      this.setState({suggestions, filteredOptions});
       if (Object.keys(formData).length != 0) {
         this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {...formData}});
       }
@@ -188,7 +198,31 @@ class GForm extends Component {
     this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {[name]: event.value}});
   }
 
-  _onInputChange (name, event) {
+  _onSelectSearch (name, options, event) {
+    const value = event.target.value;
+    let {filteredOptions} = this.state;
+    filteredOptions[name] = options.filter(e => {
+      let result;
+      if (typeof e === 'object') {
+        result = e.label.toLowerCase().includes(value.toLowerCase());
+      } else {
+        result = e.toLowerCase().includes(value.toLowerCase());
+      }
+      return result;
+    });
+    this.setState({filteredOptions});
+  }
+
+  _onInputChange (type, name, event) {
+    if (type == 'text-input') {
+      let {suggestions} = this.state;
+      const value = event.target.value;
+      let suggestion = suggestions[name];
+      if (suggestion) {
+        suggestions[name] = suggestion.filter(e => e.toLowerCase().includes(value.toLowerCase()));
+        this.setState({suggestions});
+      }
+    }
     this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {[name]: event.target.value}});
   }
 
@@ -340,7 +374,7 @@ class GForm extends Component {
       err: { error, show}
     } = this.props;
 
-    const {dialogActive, collection, dtElements } = this.state;
+    const {dialogActive, collection, dtElements, suggestions, filteredOptions} = this.state;
     let submit, cancel;
     if (!busy) {
       submit = this._onSubmit;
@@ -367,7 +401,11 @@ class GForm extends Component {
             const type = (e.type != undefined) ? e.type : 'text';
             element = (
               <FormField key={i} label={e.label} error={error[e.name]}>
-                <input type={type} name={e.name} disabled={disabled} value={formData[e.name] == undefined ? '' : formData[e.name]} onChange={this._onInputChange.bind(this, e.name)} />
+                <input type={type} 
+                  name={e.name} 
+                  disabled={disabled} 
+                  value={formData[e.name] == undefined ? '' : formData[e.name]} 
+                  onChange={this._onInputChange.bind(this,e.elementType, e.name)} />
               </FormField>
             );
           } else if (e.elementType == 'text-input') {
@@ -375,9 +413,9 @@ class GForm extends Component {
               <FormField key={i} label={e.label} error={error[e.name]}>
                 <TextInput name={e.name} 
                   value={formData[e.name]} 
-                  onDOMChange={this._onInputChange.bind(this, e.name)}
+                  onDOMChange={this._onInputChange.bind(this, e.elementType, e.name)}
                   onSelect={this._onSuggestionSelect.bind(this, e.name)}
-                  suggestions={e.suggestions || []}
+                  suggestions={suggestions[e.name] || []}
                   />
               </FormField>
             );
@@ -388,11 +426,22 @@ class GForm extends Component {
               </FormField>
             );
           } else if (e.elementType == 'select') {
+            let options = filteredOptions[e.name];
+            if (options && options.length > 0) {
+              const item = options[0];
+              if (typeof item === 'object' && item.value != undefined) {
+                options.unshift({label: 'No Value', value: undefined});
+              } else if (typeof item === 'string' && item != 'No Value') {
+                options.unshift('No Value');
+              }
+            }
             element = (
               <FormField key={i} label={e.label}>
-                <Select options={e.options} 
+                <Select options={options} 
                   placeHolder={e.placeholder}
-                  value={formData[e.name]} onChange={this._onSelectChange.bind(this, e.name)} />
+                  value={formData[e.name]} 
+                  onChange={this._onSelectChange.bind(this, e.name)}
+                  onSearch={this._onSelectSearch.bind(this, e.name, e.options)} />
               </FormField>
             );
           } else if (e.elementType == 'checkbox') {

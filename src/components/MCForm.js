@@ -6,6 +6,7 @@ import {FORM_CHANGE} from '../actions/formActions';
 
 import Box from 'grommet/components/Box';
 import FormField from 'grommet/components/FormField';
+import RadioButton from 'grommet/components/RadioButton';
 import Select from 'grommet/components/Select';
 
 /**
@@ -22,7 +23,14 @@ class MCForm extends Component {
     let formData = {};
     data.forEach((row) => {
       row.forEach((cell) => {
-        formData[cell.name] = cell.value;
+        if (cell.elementType == 'radio-button' && cell.options) {
+          const item = cell.options.filter(e => e.checked == true);
+          if (item.length > 0) {
+            formData[cell.name] = item[0].label;
+          }
+        } else {
+          formData[cell.name] = cell.value;
+        }
       });
     });
     this.props.dispatch({type: FORM_CHANGE, payload: {name: this.props.name, data: formData}});
@@ -34,6 +42,9 @@ class MCForm extends Component {
       value = event.target.value
     } else if (elementType == 'select') {
       value = event.value;
+    } else if (elementType == 'radio-button') {
+      //here event contains value selected
+      value = event;
     }
 
     if (this.props.name) {
@@ -56,6 +67,7 @@ class MCForm extends Component {
       let rowItem = row.map((cell, j) => {
         let cellItem;
         if (cell.elementType === 'input') {
+          const value = (formData[cell.name] != undefined) ? formData[cell.name] : (cell.value != undefined ? cell.value : '');
           cellItem = (
             <Box key={j} basis={cell.basis} >
 
@@ -63,13 +75,15 @@ class MCForm extends Component {
                 <input type='text' 
                   placeholder={cell.placeholder}
                   disabled={cell.disabled || false}
-                  name={cell.name} value={formData[cell.name] || cell.value || ''} 
+                  name={cell.name} 
+                  value={value} 
                   onChange={this._onChange.bind(this, 'input', cell.name)} />
               </FormField>
                 
             </Box>
           );
         } else if (cell.elementType === 'select') {
+          e.options.unshift({label: 'No Value', value: undefined});
           cellItem = (
             <Box key={j} basis={cell.basis} >
 
@@ -81,6 +95,23 @@ class MCForm extends Component {
                   onChange={this._onChange.bind(this, 'select', cell.name)} />
               </FormField>
                 
+            </Box>
+          );
+        } else if (cell.elementType === 'radio-button') {
+          const radioItems = cell.options.map((e, i) => {
+            return (
+              <RadioButton id={cell.name + i} key={i}
+                name={cell.name + i}
+                label={e.label}
+                checked={formData[cell.name] == e.label}
+                onChange={this._onChange.bind(this, 'radio-button', cell.name, e.label)} />
+            );
+          });
+          cellItem = (
+            <Box key={j} basis={cell.basis} >
+              <FormField>
+                {radioItems}
+              </FormField>
             </Box>
           );
         }
@@ -120,7 +151,7 @@ export default connect(select)(MCForm);
 name: Parameter name with which data should be sent Form Reducer
 data: array of array of 
     {
-      elementType: input|select,
+      elementType: input|select|radio-button,
       label: String,
       name: parameter name,
       basis: '1/3',
@@ -129,6 +160,8 @@ data: array of array of
       value: 
       disabled: bool
     }
+for radio-button: 
+options: [{label: string , checked: boolean}]
 
 e.g
  const data = [

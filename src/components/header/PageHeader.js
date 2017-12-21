@@ -29,7 +29,7 @@ class PageHeader extends Component {
   }
 
   _onClick (type, idx, path, event) {
-    console.log({type,idx,path,event});
+    //console.log({type,idx,path,event});
     if (type == 'search') {
       this.props.dispatch({type: SEARCH, payload: {searchValue: event.target.value}});
     }
@@ -40,7 +40,7 @@ class PageHeader extends Component {
     }
 
     if (this.props.onClick) {
-      this.props.onClick(idx, event);
+      this.props.onClick(idx, type, event);
     }
   }
 
@@ -124,6 +124,7 @@ PageHeader.propTypes = {
   })),
   justify: PropTypes.string,
   loading: PropTypes.bool,
+  onClick: PropTypes.func
 };
 
 PageHeader.defaultProps = {

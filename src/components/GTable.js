@@ -18,6 +18,7 @@ import EditIcon from 'grommet/components/icons/base/Edit';
 import TrashIcon from 'grommet/components/icons/base/Trash';
 import ArchiveIcon from 'grommet/components/icons/base/Archive';
 import LinkNextIcon from 'grommet/components/icons/base/LinkNext';
+import CirclePlayIcon from 'grommet/components/icons/base/CirclePlay';
 
 import Tooltip from 'react-toolbox/lib/tooltip';
 const THeadTooltip = Tooltip('th');
@@ -232,6 +233,8 @@ class GTable extends Component {
               icon = <TrashIcon />
             } else if (action == 'next') {
               icon = <LinkNextIcon />
+            } else if (action == 'run') {
+              icon = <CirclePlayIcon />
             }
             if (tooltip) {
               actions.push(<ButtonTooltip tooltip={tooltip} key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);

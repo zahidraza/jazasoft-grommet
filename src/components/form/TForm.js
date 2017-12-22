@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes, { node } from 'prop-types';
+import PropTypes, { node, element } from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import {connect} from 'react-redux';
 import { fromJS } from 'immutable';
@@ -46,71 +46,78 @@ class TForm extends Component {
   componentWillMount() {
     const {data, header, name} = this.props;
     this.setState({header, data});
-    this._init(name, data);
-  }
+    this._init(name, data, header);
+  }  
 
-  _init (name, data) {
+  _init (name, data, header) {
     let tableData = [];
     let filteredOptions = new Array(data.length).fill({});
+    console.log(data);
     data.forEach((row, i) => {
       let item = {};
+      let k = 0;
       row.forEach((col, j) => {
+        let key = (typeof header[k] == 'object' && header[k].key != undefined)? header[k].key : '';
+        if (col.type == 'hidden') {
+          key = col.name;
+        } else {
+          k++;
+        }
         if (col.type == 'select') {
-          filteredOptions = this._initFilteredOptions(filteredOptions, col.options, i, col.name, col.searchString);
+          filteredOptions[i][key] = col.options;
         }
         if (col.value != undefined) {
           if (typeof col.value === 'number') {
-            item[col.name] = String(col.value);
+            item[key] = String(col.value);
           } else {
-            item[col.name] = col.value;
+            item[key] = col.value;
           }
         } else {
-          item[col.name] = '';
+          item[key] = '';
         }
         
       });
       tableData.push(item);
     });
+    console.log(filteredOptions);
     this.setState({filteredOptions});
     this.props.dispatch({type: TABLE_FORM_CHANGE, payload: {name, data: tableData}});
   }
 
-  _initFilteredOptions (filteredOptions, options, row, name, searchString) {
-    if (searchString) {
-      const temp = options.filter(e => {
-        let result;
-        if (typeof e === 'string') {
-          result = e.toLowerCase().includes(searchString.toLowerCase());
-        } else {
-          result = e.label.toLowerCase().includes(searchString.toLowerCase());
-        }
-        return result;
-      });
-      if (temp.length == 0) {
-        filteredOptions[row][name] = options;
-      } else {
-        filteredOptions[row][name] = temp;
-      }
-    } else {
-      filteredOptions[row][name] = options;
-    }
-    return filteredOptions;
-  }
+  // _initFilteredOptions (filteredOptions, options, row, name, searchString) {
+  //   if (searchString) {
+  //     const temp = options.filter(e => {
+  //       let result;
+  //       if (typeof e === 'string') {
+  //         result = e.toLowerCase().includes(searchString.toLowerCase());
+  //       } else {
+  //         result = e.label.toLowerCase().includes(searchString.toLowerCase());
+  //       }
+  //       return result;
+  //     });
+  //     if (temp.length == 0) {
+  //       filteredOptions[row][name] = options;
+  //     } else {
+  //       filteredOptions[row][name] = temp;
+  //     }
+  //   } else {
+  //     filteredOptions[row][name] = options;
+  //   }
+  //   return filteredOptions;
+  // }
 
   _onColAdd () {
     let {header, data} = this.state;
-    if (typeof header[0] === 'string') {
-      const tmp = header[header.length-1].replace(String(header.length-1),String(header.length));
-      header.push(tmp);
+    if (typeof header[0] === 'object') {
+      header.push({...header[header.length-1], label: ''});
     } else {
-      const tmp = header[header.length-1].label.replace(String(header.length-1),String(header.length));
-      header.push(tmp);
+      header.push('');
     }
     let newKey;
     data.forEach(row => {
       let item = row[row.length-1];
       let {name, value, ...rest} = item;
-      newKey = name.replace(String(row.length-1), String(row.length));
+      newKey = 'newKey';
       row.push({name: newKey, value: undefined, ...rest});
     });
     this.setState({header, data});
@@ -120,23 +127,20 @@ class TForm extends Component {
   }
 
   _onRowAdd () {
-    let {data, filteredOptions} = this.state;
+    let {data, filteredOptions, header} = this.state;
     let tmp = data[data.length-1];
     let lastRow = [];
+    let filteredOption = {};
     tmp.forEach((e, i) => {
-      if (i == 0 && e.type === 'label' && e.value) {
-        let v = e.value.replace(String(data.length-1),String(data.length));
-        lastRow.push({...e, value: v});
-      } else if (e.type == 'select') {
-        filteredOptions.push({});
-        filteredOptions = this._initFilteredOptions(filteredOptions, e.options, data.length, e.name, e.searchString);
-        lastRow.push(fromJS(e).toJS());
-      } else {
-        lastRow.push(fromJS({...e, value: undefined}).toJS());
+      if (e.type == 'select') {
+        const key = (typeof header[i] == 'object' && header[i].key != undefined) ? header[i].key : '';
+        filteredOption[key] = e.options;
       }
+      lastRow.push(fromJS({...e, value: undefined}).toJS());
     });
+    filteredOptions.push(filteredOption);
     data.push(lastRow);
-    this.setState({data});
+    this.setState({data, filteredOptions});
 
     const {name, form: {tableData}} = this.props;
     let temp = tableData[name];
@@ -223,8 +227,20 @@ class TForm extends Component {
 
     const body = data.map((row, i) => {
       let colItems = [];
+      let k = 0;
       row.forEach((col, j) => {
+        const key = (typeof header[k] == 'object' && header[k].key != undefined)? header[k].key : '';
+        if (col.type != 'hidden') {
+          k++;
+        }
         let cell;
+        let width = cellWidth.medium;
+        if (typeof header[j] == 'object' && header[j].width && typeof header[j].width == 'number') {
+          width = header[j].width;
+        } else if (typeof header[j] == 'object' && header[j].width && typeof header[j].width == 'string') {
+          width = cellWidth[header[j].width];
+        }
+        style = {...style, width};
         if (col.type === 'label') {
           let value;
           if (col.value != undefined) {
@@ -235,8 +251,8 @@ class TForm extends Component {
           cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name, col.path)}>{col.value || ''}</a></td>);
         } else if (col.type === 'input') {
           let value;
-          if (formData[i] && formData[i][col.name] != undefined) {
-            value = typeof formData[i][col.name] == 'number' ? String(formData[i][col.name]) : formData[i][col.name];
+          if (formData[i] && formData[i][key] != undefined) {
+            value = typeof formData[i][key] == 'number' ? String(formData[i][key]) : formData[i][key];
           } else if (col.value != undefined) {
             value = typeof col.value == 'number' ? String(col.value) : col.value;
           }
@@ -247,13 +263,13 @@ class TForm extends Component {
                 disabled={col.disabled || false}
                 placeholder={col.placeholder} 
                 value={value || ''} 
-                onChange={this._onChange.bind(this, 'input', i, col.name, undefined)} 
+                onChange={this._onChange.bind(this, 'input', i, key, undefined)} 
                 />
             </td>
           );
         } else if (col.type === 'select') {
-          let options = filteredOptions[i][col.name];
-          if (options.length > 0 && ((typeof options[0] == 'object' && options[0].value != undefined) || (typeof options[0] == 'string' && options[0] != 'No Value'))) {
+          let options = filteredOptions[i][key];
+          if (options && options.length > 0 && ((typeof options[0] == 'object' && options[0].value != undefined) || (typeof options[0] == 'string' && options[0] != 'No Value'))) {
             options.unshift({label: 'No Value', value: undefined});
           }
           
@@ -262,9 +278,9 @@ class TForm extends Component {
               <Select options={options} 
                 placeHolder={col.placeholder}
                 disabled={col.disabled || false}
-                value={formData[i][col.name] || col.value || ''} 
-                onChange={this._onChange.bind(this, 'select', i, col.name, undefined)}
-                onSearch={this._onSearch.bind(this, i, col.name, col.options)}
+                value={formData[i][key] || col.value || ''} 
+                onChange={this._onChange.bind(this, 'select', i, key, undefined)}
+                onSearch={this._onSearch.bind(this, i, key, col.options)}
                 style={style} />
             </td>
           );
@@ -273,9 +289,9 @@ class TForm extends Component {
             <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5}}>
               <CheckBox 
                 disabled={col.disabled || false}
-                checked={formData[i][col.name] || col.value || false}  
+                checked={formData[i][key] || col.value || false}  
                 toggle={col.toggle || false} 
-                onChange={this._onChange.bind(this, 'checkbox', i, col.name, undefined)}/>
+                onChange={this._onChange.bind(this, 'checkbox', i, key, undefined)}/>
             </td>
           );
         }
@@ -306,6 +322,7 @@ TForm.propTypes = {
   header: PropTypes.arrayOf(PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.shape({
+      key: PropTypes.string,
       label: PropTypes.string.isRequired,
       tooltip: PropTypes.string,
       width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['xsmall','small','medium','large','xlarge'])])
@@ -314,10 +331,11 @@ TForm.propTypes = {
   ])).isRequired,
   data: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({
     type: PropTypes.oneOf(['label','link','input','select','checkbox','hidden']).isRequired,
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     value: PropTypes.oneOfType([
       PropTypes.string, 
-      PropTypes.shape({label: PropTypes.string.isRequired, value: PropTypes.string.isRequired}),
+      PropTypes.bool,
+      PropTypes.shape({label: PropTypes.string, value: PropTypes.oneOfType([PropTypes.string,PropTypes.number,PropTypes.bool])}),
       PropTypes.number,
       PropTypes.node
     ]),

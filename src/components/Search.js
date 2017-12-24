@@ -5,7 +5,10 @@ import { connect } from 'react-redux';
 import {FORM_CHANGE} from '../actions/formActions';
 
 import Box from 'grommet/components/Box';
+import Header from 'grommet/components/Header';
+import Heading from 'grommet/components/Heading';
 import Select from 'grommet/components/Select';
+import Title from 'grommet/components/Title';
 
 class Search extends Component {
 
@@ -21,11 +24,13 @@ class Search extends Component {
 
   componentWillMount() {
     const {data} = this.props;
-    let filteredOptions = {};
-    data.forEach((e) => {
-      filteredOptions[e.name] = e.options
-    });
-    this.setState({filteredOptions});
+    if (data && data.length > 0) {
+      let filteredOptions = {};
+      data.forEach((e) => {
+        filteredOptions[e.name] = e.options
+      });
+      this.setState({filteredOptions});
+    }
   }
   
 
@@ -57,35 +62,43 @@ class Search extends Component {
 
 
     const titleItem = title && (
-      <Box> <h3> {title} </h3> </Box>
+      <Box alignSelf='center'> 
+        <Title><Heading tag='h3'> {title}</Heading></Title>
+      </Box>
     );
 
-    const content = data.map((e, i) => {
-      let result;
-      if (e.type == 'select') {
-        const size = e.width || 'medium';
-        let options = filteredOptions[e.name];
-        if (options.length > 0 && ((typeof options[0] == 'object' && options[0].value != undefined) || (typeof options[0] == 'string' && options[0] != 'No Value'))) {
-          options.unshift({label: 'No Value', value: undefined});
+    let content;
+    if (data && data.length > 0) {
+      content = data.map((e, i) => {
+        let result;
+        if (e.type == 'select') {
+          const size = e.width || 'medium';
+          let options = filteredOptions[e.name];
+          if (options.length > 0 && ((typeof options[0] == 'object' && options[0].value != undefined) || (typeof options[0] == 'string' && options[0] != 'No Value'))) {
+            options.unshift({label: 'No Value', value: undefined});
+          }
+          result = (
+            <Box key={i} size={size} >
+              <Select options={options} 
+                placeHolder={e.placeholder}
+                value={formData[e.name] || e.value || ''} 
+                onChange={this._onChange.bind(this, e.type, e.name)}
+                onSearch={this._onSearch.bind(this, e.name, e.options)} />
+            </Box>
+          );
         }
-        result = (
-          <Box key={i} size={size}>
-            <Select options={options} 
-              placeHolder={e.placeholder}
-              value={formData[e.name] || e.value || ''} 
-              onChange={this._onChange.bind(this, e.type, e.name)}
-              onSearch={this._onSearch.bind(this, e.name, e.options)} />
-          </Box>
-        );
-      }
-      return result;
-    });
+        return result;
+      });
+    }
+
 
     return (
-      <Box direction='row' size='medium' pad={{between: 'small'}} alignSelf='center' {...restProps}>
+      <Header justify='between' pad={{horizontal: 'medium'}}  {...restProps}>
         {titleItem}
-        {content}
-      </Box>
+        <Box direction='row'>
+          {content}
+        </Box>
+      </Header>
     );
   }
 }
@@ -104,7 +117,7 @@ Search.propTypes = {
         value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
       })
     ]))
-  })).isRequired,
+  })),
   onChange: PropTypes.func,
   ...Box.propTypes
 };

@@ -7,19 +7,29 @@ import { fromJS } from 'immutable';
 import {TABLE_FORM_CHANGE} from '../../actions/formActions';
 
 import Box from 'grommet/components/Box';
+import Button from 'grommet/components/Button';
 import Tooltip from 'react-toolbox/lib/tooltip';
 import AddIcon from 'grommet/components/icons/base/Add';
 import Select from 'grommet/components/Select';
 import CheckBox from 'grommet/components/CheckBox';
+import ViewIcon from 'grommet/components/icons/base/View';
+import EditIcon from 'grommet/components/icons/base/Edit';
+import PrintIcon from 'grommet/components/icons/base/Print';
 
 const THeadTooltip = Tooltip('th');
+
+const ButtonTooltip = Tooltip((props) => {
+  const {theme, ...restProps} = props;
+  return <Button {...restProps} />;
+});
 
 const cellWidth = {
   xsmall: 50,
   small: 100,
   medium: 150,
   large: 200,
-  xlarge: 250
+  xlarge: 250,
+  xxlarge: 300,
 };
 
 const defaultCellStyle = {
@@ -36,6 +46,8 @@ class TForm extends Component {
     this._onColAdd = this._onColAdd.bind(this);
     this._onRowAdd = this._onRowAdd.bind(this);
     this._onSearch = this._onSearch.bind(this);
+    this._onActionClick = this._onActionClick.bind(this);
+
     this.state = {
       header: [],
       data: [[]],
@@ -52,7 +64,6 @@ class TForm extends Component {
   _init (name, data, header) {
     let tableData = [];
     let filteredOptions = new Array(data.length).fill({});
-    console.log(data);
     data.forEach((row, i) => {
       let item = {};
       let k = 0;
@@ -79,32 +90,9 @@ class TForm extends Component {
       });
       tableData.push(item);
     });
-    console.log(filteredOptions);
     this.setState({filteredOptions});
     this.props.dispatch({type: TABLE_FORM_CHANGE, payload: {name, data: tableData}});
   }
-
-  // _initFilteredOptions (filteredOptions, options, row, name, searchString) {
-  //   if (searchString) {
-  //     const temp = options.filter(e => {
-  //       let result;
-  //       if (typeof e === 'string') {
-  //         result = e.toLowerCase().includes(searchString.toLowerCase());
-  //       } else {
-  //         result = e.label.toLowerCase().includes(searchString.toLowerCase());
-  //       }
-  //       return result;
-  //     });
-  //     if (temp.length == 0) {
-  //       filteredOptions[row][name] = options;
-  //     } else {
-  //       filteredOptions[row][name] = temp;
-  //     }
-  //   } else {
-  //     filteredOptions[row][name] = options;
-  //   }
-  //   return filteredOptions;
-  // }
 
   _onColAdd () {
     let {header, data} = this.state;
@@ -171,6 +159,17 @@ class TForm extends Component {
     }
   }
 
+  _onActionClick (row, action, idx, path, event) {
+    if (path) {
+      const { history } = this.props;
+      history.push(`${path}`);
+    }
+
+    if (this.props.onActionClick) {
+      this.props.onActionClick(row, action, idx, event);
+    }
+  }
+
   _onSearch (row, name, options, event) {
     let {filteredOptions} = this.state;
     const value = event.target.value;
@@ -202,21 +201,21 @@ class TForm extends Component {
  
     let head = header.map((e, i) => {
       let item;
-      let width = cellWidth.medium;
+      let width = cellWidth.medium, textAlign = e.align || 'center';
       if (e.width && typeof e.width == 'number') {
         width = e.width;
       } else if (e.width && typeof e.width == 'string') {
         width = cellWidth[e.width];
       }
       if (typeof e === 'string') {
-        item = (<th key={i} style={{padding: 5, width}}>{e}</th>);
+        item = (<th key={i} style={{padding: 5, width, textAlign}}>{e}</th>);
       } else if (typeof e === 'object') {
         if (e.type) { //react element
           item = <th key={i}> {e} </th>;
         } else if (e.tooltip) {
-          item = (<THeadTooltip key={i} tooltip={e.tooltip} style={{padding: 5, width}}>{e.label}</THeadTooltip>);
+          item = (<THeadTooltip key={i} tooltip={e.tooltip} style={{padding: 5, width, textAlign}}>{e.label}</THeadTooltip>);
         } else {
-          item = (<th key={i} style={{padding: 5, width}}>{e.label}</th>);
+          item = (<th key={i} style={{padding: 5, width, textAlign}}>{e.label}</th>);
         }
       }
       return item;
@@ -229,18 +228,25 @@ class TForm extends Component {
       let colItems = [];
       let k = 0;
       row.forEach((col, j) => {
-        const key = (typeof header[k] == 'object' && header[k].key != undefined)? header[k].key : '';
+        let head;
+        if (col.label) {
+          head = (typeof header[col.label] == 'object') ? header[col.label] : {};
+        } else {
+          head = (typeof header[k] == 'object') ? header[k] : {};
+        }
+        let key = head.key || '';
         if (col.type != 'hidden') {
           k++;
         }
         let cell;
-        let width = cellWidth.medium;
-        if (typeof header[j] == 'object' && header[j].width && typeof header[j].width == 'number') {
-          width = header[j].width;
-        } else if (typeof header[j] == 'object' && header[j].width && typeof header[j].width == 'string') {
-          width = cellWidth[header[j].width];
+        let width = cellWidth.medium, textAlign = head.align || 'center';
+        if (head.width && typeof head.width == 'number') {
+          width = head.width;
+        } else if (head.width && typeof head.width == 'string') {
+          width = cellWidth[head.width];
         }
-        style = {...style, width};
+
+        style = {...style, width, textAlign, paddingLeft: 5};
         if (col.type === 'label') {
           let value;
           if (col.value != undefined) {
@@ -291,9 +297,37 @@ class TForm extends Component {
                 disabled={col.disabled || false}
                 checked={formData[i][key] || col.value || false}  
                 toggle={col.toggle || false} 
-                onChange={this._onChange.bind(this, 'checkbox', i, key, undefined)}/>
+                onChange={this._onChange.bind(this, 'checkbox', i, key, undefined)}
+                style={style}/>
             </td>
           );
+        } else if (col.type === 'action') {
+          if (col.value && col.value.length > 0) {
+            let actions = [];
+            col.value.forEach((e, l) => {
+              let {action, tooltip, path, icon} = e;
+              if (action == 'read') {
+                icon = <ViewIcon />;
+              } else if (action == 'update') {
+                icon = <EditIcon />
+              } else if (action == 'print') {
+                icon = <PrintIcon />
+              }
+              if (tooltip) {
+                actions.push(<Box key={l}> <ButtonTooltip tooltip={tooltip}  icon={icon} onClick={this._onActionClick.bind(this, i, action, l, path)} /> </Box>);
+              } else {
+                actions.push(<Box key={l}> <Button icon={icon} onClick={this._onActionClick.bind(this,i, action, l, path)} /> </Box>);
+              }
+            });
+
+            cell = (
+              <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}>
+                <Box direction='row' justify='center' >{actions}</Box>
+              </td>
+            );
+          }
+          const actions = col.value;
+
         }
         colItems.push(cell);
       });
@@ -325,16 +359,19 @@ TForm.propTypes = {
       key: PropTypes.string,
       label: PropTypes.string.isRequired,
       tooltip: PropTypes.string,
-      width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['xsmall','small','medium','large','xlarge'])])
+      width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['xsmall','small','medium','large','xlarge','xxlarge'])]),
+      align: PropTypes.oneOf(['left','center','right'])
     }),
     PropTypes.node
   ])).isRequired,
   data: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({
-    type: PropTypes.oneOf(['label','link','input','select','checkbox','hidden']).isRequired,
+    type: PropTypes.oneOf(['label','link','input','select','checkbox','hidden','action']).isRequired,
     name: PropTypes.string,
+    label: PropTypes.string,
     value: PropTypes.oneOfType([
       PropTypes.string, 
       PropTypes.bool,
+      PropTypes.arrayOf(PropTypes.shape({action: PropTypes.oneOf(['read','update','print']).isRequired, tooltip: PropTypes.string, path: PropTypes.string, icon: PropTypes.node})),
       PropTypes.shape({label: PropTypes.string, value: PropTypes.oneOfType([PropTypes.string,PropTypes.number,PropTypes.bool])}),
       PropTypes.number,
       PropTypes.node
@@ -354,13 +391,15 @@ TForm.propTypes = {
   onChange: PropTypes.func,
   onRowAdd: PropTypes.func,
   onColAdd: PropTypes.func,
-  size: PropTypes.oneOf(['xsmall','small','large','xlarge','xxlarge'])
+  onActionClick: PropTypes.func,
+  size: PropTypes.oneOf(['auto','xsmall','small','large','xlarge','xxlarge'])
 };
 
 TForm.defaultProps = {
   name: 'table1',
   dynamicRow: false,
-  dynamicCol: false
+  dynamicCol: false,
+  size: 'auto'
 };
 
 const select = (store) => {

@@ -8,6 +8,7 @@ import Box from 'grommet/components/Box';
 import FormField from 'grommet/components/FormField';
 import RadioButton from 'grommet/components/RadioButton';
 import Select from 'grommet/components/Select';
+import CheckBox from 'grommet/components/CheckBox';
 
 /**
  * Multi Column Form
@@ -45,6 +46,8 @@ class MCForm extends Component {
     } else if (elementType == 'radio-button') {
       //here event contains value selected
       value = event;
+    } else if (elementType == 'checkbox') {
+      value = event.target.checked;
     }
 
     if (this.props.name) {
@@ -95,6 +98,17 @@ class MCForm extends Component {
                   onChange={this._onChange.bind(this, 'select', cell.name)} />
               </FormField>
                 
+            </Box>
+          );
+        } else if (cell.elementType == 'checkbox') {
+          cellItem = (
+            <Box key={j} basis={cell.basis} >
+              <FormField label={cell.label} >
+                <CheckBox 
+                  checked={formData[cell.name] == undefined ? false : formData[cell.name]} 
+                  toggle={true} 
+                  onChange={this._onChange.bind(this, 'checkbox', cell.name)}/>
+              </FormField>
             </Box>
           );
         } else if (cell.elementType === 'radio-button') {

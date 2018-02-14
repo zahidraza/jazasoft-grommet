@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes, { element } from 'prop-types';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
 import {splitCamelCase} from '../utils/utility';

@@ -34,18 +34,20 @@ export const fetch = (config = {}, dispatch) => {
       .catch(error => {
         if (typeof dispatch === 'function') {
           const response = error.response;
-          if (response.status == 400) {
-            if (response.data instanceof Array) {
-              let message = '';
-              response.data.forEach(e => {
-                message += '[ ' + e.field + ': \t' + e.message + ' ],'; 
-              });
-              dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {message, status: 'critical'}}});
+          if (response.status == 400 && response.data) {
+            if (response.data.code == 40001) { //Single Bean validation
+              dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {errors: response.data.errors, status: 'critical'}}});
+            } else if (response.data.code == 40002) { //Multiple Bean
+              dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {errorMap: response.data.errorMap, status: 'critical'}}});
+            } else if (response.data instanceof Array) {
+              dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {errors: response.data, status: 'critical'}}});
               // let err = {};
               // response.data.forEach(e => {
               //   err[e.field] = e.message;
               // });
               // dispatch({type: BAD_REQUEST, payload: { error: err}});
+            } else {
+              dispatch({type: SHOW_NOTIFICATION, payload: {nfn: {message: response.data.message, status: 'critical'}}});
             }
           } else if (response.status == 401) {
             dispatch(userLogout());

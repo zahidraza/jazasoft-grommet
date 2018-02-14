@@ -18,7 +18,7 @@ const handlers = {
   [FILTER_COUNT]: (_, action) => ({filteredTotal: action.payload.filteredTotal, unfilteredTotal: action.payload.unfilteredTotal, toggleCount: !_.toggleCount}),
   [SORT_APPLY]: (_, action) => ({sort: action.payload.sort}),
   [SEARCH]: (_, action) => ({searchValue: action.payload.searchValue}),
-  [LOCATION_CHANGE]: (_, action) => ({filter: {}, sort: {}, searchValue: '', filteredTotal: 0, unfilteredTotal: 0}),
+  [LOCATION_CHANGE]: (_, action) => ({searchValue: ''}),
   [FILTER_CLEAR]: (_, action) => ({filter: {}, range: {}, filteredTotal: 0, unfilteredTotal: 0})
 };
 

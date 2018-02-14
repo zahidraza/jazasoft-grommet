@@ -9,7 +9,7 @@ import Layer from 'grommet/components/Layer';
 
 class Dailog extends Component {
   render() {
-    const {active, title} = this.props;
+    const {active, title, size, height, onSubmit, onCancel, children} = this.props;
     let titleContent;
     if (title) {
       titleContent = (
@@ -19,20 +19,20 @@ class Dailog extends Component {
       );
     }
     let submitItem;
-    if (this.props.onSubmit) {
-      submitItem = (<Box><Button label='Submit' plain={true} onClick={this.props.onSubmit} /></Box>);
+    if (onSubmit) {
+      submitItem = (<Box><Button label='Submit' plain={true} onClick={onSubmit} /></Box>);
     }
     return (
       <Layer hidden={!active} flush={true} >
-        <Box size={this.props.size} margin={{vertical: 'small', horizontal:'medium'}}>
+        <Box size={size} margin={{vertical: 'small', horizontal:'medium'}}>
           {titleContent}
           
-          <Box style={{height: 500, overflow: 'auto'}}>
-            {this.props.children}
+          <Box style={{height, overflow: 'auto'}}>
+            {children}
           </Box>
 
           <Box pad={{vertical: 'medium'}} direction='row' justify='end'>
-            <Box><Button label='Cancel' plain={true} onClick={this.props.onCancel} /></Box>
+            <Box><Button label='Cancel' plain={true} onClick={onCancel} /></Box>
             {submitItem}
           </Box>
         </Box>
@@ -46,11 +46,13 @@ Dailog.propTypes = {
   title: PropTypes.string,
   onSubmit: PropTypes.func,
   onCancel: PropTypes.func.isRequired,
-  size: PropTypes.oneOf(['small','medium','large','xlarge','xxlarge'])
+  size: PropTypes.oneOf(['small','medium','large','xlarge','xxlarge']),
+  height: PropTypes.number
 };
 
 Dailog.defaultProps = {
-  size: 'medium'
+  size: 'medium',
+  height: 500
 };
 
 export default Dailog;

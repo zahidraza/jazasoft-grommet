@@ -57,7 +57,6 @@ class GForm extends Component {
     2. If collectionItems are there, initialize state with items and value
   */
   componentWillMount() {
-    console.log('GForm will mount');
     let {data, collectionData} = this.props;
     let suggestions = {}, filteredOptions = {};
 
@@ -72,6 +71,7 @@ class GForm extends Component {
             formData[element.name] = (element.value == undefined) ? '' : element.value;
           }
           if (element.elementType == 'text-input') {
+            formData[element.name] = (element.value == undefined) ? '' : element.value;
             suggestions[element.name] = element.suggestions;
           }
           if (element.elementType == 'select') {

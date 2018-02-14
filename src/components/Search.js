@@ -8,6 +8,8 @@ import Box from 'grommet/components/Box';
 import Header from 'grommet/components/Header';
 import Heading from 'grommet/components/Heading';
 import Select from 'grommet/components/Select';
+import DateTime from 'grommet/components/DateTime';
+import FormField from 'grommet/components/FormField';
 import Title from 'grommet/components/Title';
 
 class Search extends Component {
@@ -35,7 +37,14 @@ class Search extends Component {
   
 
   _onChange (type, key, event) {
-    this.props.dispatch({type: FORM_CHANGE, payload: {key, value: event.value}});
+    let value;
+    if (type == 'select') {
+      value = event.value;
+    } else if (type == 'date') {
+      value = new Date(event);
+    }
+
+    this.props.dispatch({type: FORM_CHANGE, payload: {key, value}});
     if (this.props.onChange) {
       this.props.onChange(type, key, event.value);
     }
@@ -71,19 +80,35 @@ class Search extends Component {
     if (data && data.length > 0) {
       content = data.map((e, i) => {
         let result;
+        const size = e.width || 'medium';
         if (e.type == 'select') {
-          const size = e.width || 'medium';
           let options = filteredOptions[e.name];
           if (options.length > 0 && ((typeof options[0] == 'object' && options[0].value != undefined) || (typeof options[0] == 'string' && options[0] != 'No Value'))) {
             options.unshift({label: 'No Value', value: undefined});
           }
           result = (
-            <Box key={i} size={size} >
+            <Box key={i} size={size}>
               <Select options={options} 
                 placeHolder={e.placeholder}
                 value={formData[e.name] || e.value || ''} 
                 onChange={this._onChange.bind(this, e.type, e.name)}
                 onSearch={this._onSearch.bind(this, e.name, e.options)} />
+            </Box>
+          );
+        } else if (e.type == 'date') {
+          result = (
+            <Box key={i} direction='row' pad={{between: 'small', horizontal: 'small'}} >
+              <Box alignSelf='center' alignContent='center'>
+                <Title><Heading tag='h4'> {e.placeholder}</Heading></Title>
+              </Box>
+              <Box>
+                <FormField>
+                  <DateTime format='MM/DD/YYYY' 
+                    value={formData[e.name] || e.value || ''} 
+                    onChange={this._onChange.bind(this, e.type, e.name)}/>
+                </FormField>
+              </Box>
+              
             </Box>
           );
         }
@@ -95,7 +120,7 @@ class Search extends Component {
     return (
       <Header justify='between' pad={{horizontal: 'medium'}}  {...restProps}>
         {titleItem}
-        <Box direction='row'>
+        <Box direction='row'  >
           {content}
         </Box>
       </Header>
@@ -107,7 +132,7 @@ Search.propTypes = {
   title: PropTypes.string,
   data: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,  //Key with which data will store in formReducer
-    type: PropTypes.oneOf(['select']).isRequired,
+    type: PropTypes.oneOf(['select','date']).isRequired,
     width: PropTypes.oneOf(['small','medium','large','xlarge','full']),
     placeholder: PropTypes.string,
     options: PropTypes.arrayOf(PropTypes.oneOfType([

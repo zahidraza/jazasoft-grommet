@@ -9,6 +9,7 @@ import FormField from 'grommet/components/FormField';
 import RadioButton from 'grommet/components/RadioButton';
 import Select from 'grommet/components/Select';
 import CheckBox from 'grommet/components/CheckBox';
+import TextInput from 'grommet/components/TextInput';
 
 /**
  * Multi Column Form
@@ -17,11 +18,16 @@ class MCForm extends Component {
 
   constructor () {
     super();
+    this._onChange = this._onChange.bind(this);
+    this._onSuggestionSelect = this._onSuggestionSelect.bind(this);
+    this.state = {
+      suggestions: {}
+    }
   }
 
   componentWillMount() {
     const {data} = this.props;
-    let formData = {};
+    let formData = {}, suggestions = {};
     data.forEach((row) => {
       row.forEach((cell) => {
         if (cell.elementType == 'radio-button' && cell.options) {
@@ -29,18 +35,32 @@ class MCForm extends Component {
           if (item.length > 0) {
             formData[cell.name] = item[0].label;
           }
+        } else if (cell.elementType == 'text-input') {
+          formData[cell.name] = cell.value;
+          suggestions[cell.name] = cell.suggestions;
         } else {
           formData[cell.name] = cell.value;
         }
       });
     });
+    this.setState({suggestions});
     this.props.dispatch({type: FORM_CHANGE, payload: {name: this.props.name, data: formData}});
   }
   
   _onChange (elementType, name, event) {
+    console.log({elementType, name});
     let payload, value;
     if (elementType == 'input') {
       value = event.target.value
+    } else if (elementType == 'text-input') {
+      let {suggestions} = this.state;
+      value = event.target.value;
+      let suggestion = suggestions[name];
+      if (suggestion) {
+        suggestions[name] = suggestion.filter(e => e.toLowerCase().includes(value.toLowerCase()));
+        this.setState({suggestions});
+      }
+      console.log(suggestions);
     } else if (elementType == 'select') {
       value = event.value;
     } else if (elementType == 'radio-button') {
@@ -50,6 +70,17 @@ class MCForm extends Component {
       value = event.target.checked;
     }
 
+    if (this.props.name) {
+      payload = { name: this.props.name, key: name, value}
+    } else {
+      payload = { key: name, value}
+    }
+    this.props.dispatch({type: FORM_CHANGE, payload});
+  }
+
+  _onSuggestionSelect (name, event) {
+    const value = event.suggestion;
+    let payload;
     if (this.props.name) {
       payload = { name: this.props.name, key: name, value}
     } else {
@@ -73,7 +104,6 @@ class MCForm extends Component {
           const value = (formData[cell.name] != undefined) ? formData[cell.name] : (cell.value != undefined ? cell.value : '');
           cellItem = (
             <Box key={j} basis={cell.basis} >
-
               <FormField label={cell.label} error={error[cell.name]} >
                 <input type='text' 
                   placeholder={cell.placeholder}
@@ -85,19 +115,39 @@ class MCForm extends Component {
                 
             </Box>
           );
-        } else if (cell.elementType === 'select') {
-          e.options.unshift({label: 'No Value', value: undefined});
+        } else if (cell.elementType === 'text-input') {
+          const value = (formData[cell.name] != undefined) ? formData[cell.name] : (cell.value != undefined ? cell.value : '');
           cellItem = (
             <Box key={j} basis={cell.basis} >
-
               <FormField label={cell.label} error={error[cell.name]} >
-                <Select options={cell.options} 
+                <TextInput
                   placeholder={cell.placeholder}
+                  disabled={cell.disabled || false}
+                  name={cell.name} 
+                  value={value} 
+                  onDOMChange={this._onChange.bind(this, 'text-input', cell.name)}
+                  onSelect={this._onSuggestionSelect.bind(this, cell.name)}
+                  suggestions={this.state.suggestions[cell.name] || []}
+                  />
+              </FormField>
+                
+            </Box>
+          );
+        } else if (cell.elementType === 'select') {
+          let options = [...cell.options];
+          options.unshift({label: 'No Value', value: undefined});
+          if (cell.disabled && cell.disabled == true) {
+            options = [];
+          }
+          cellItem = (
+            <Box key={j} basis={cell.basis} >
+              <FormField label={cell.label} error={error[cell.name]} >
+                <Select options={options} 
+                  placeHolder={cell.placeholder}
                   disabled={cell.disabled || false}
                   value={formData[cell.name] || cell.value || ''} 
                   onChange={this._onChange.bind(this, 'select', cell.name)} />
-              </FormField>
-                
+              </FormField>               
             </Box>
           );
         } else if (cell.elementType == 'checkbox') {
@@ -115,6 +165,7 @@ class MCForm extends Component {
           const radioItems = cell.options.map((e, i) => {
             return (
               <RadioButton id={cell.name + i} key={i}
+                disabled={cell.disabled || false}
                 name={cell.name + i}
                 label={e.label}
                 checked={formData[cell.name] == e.label}

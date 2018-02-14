@@ -48,6 +48,15 @@ export function getCsvFromArray (list) {
   return csv;
 }
 
+export function split(input, delimitter) {
+  let regex = new RegExp('\s*,\s*');
+  if (delimitter) {
+    regex = new RegExp('\s*' + delimitter + '\s*');
+  }
+  if (input == undefined) return [];
+  return input.split(regex);
+}
+
 export function getCollectionData(collectionData) {
   let collections = [];
   collectionData.forEach((cData) => {

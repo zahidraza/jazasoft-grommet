@@ -75,8 +75,8 @@ class GTable extends Component {
 
   _onClick (action, index, event) {
     if (this.props.onClick) {
-      const id = this.state.data[index].id;
-      this.props.onClick(action, id, index, event);
+      const item = this.state.data[index];
+      this.props.onClick(action, item.id, item, event);
     }
   }
 
@@ -106,12 +106,25 @@ class GTable extends Component {
         //handle case where data filter field has comma separated multiple values
         data = data.filter(d => {
           let result = false;
-          if (typeof d[key] === 'string') {
-            getArrayFromCsv(d[key]).forEach(item => {
-              if (selectedFilter.includes(item)) result = true;
-            })
+          if ({}.hasOwnProperty.call(d, key)) {
+            if (typeof d[key] === 'string') {
+              getArrayFromCsv(d[key]).forEach(item => {
+                if (selectedFilter instanceof Array) {
+                  for (let i = 0; i < selectedFilter.length; i++) {
+                    if (item.includes(selectedFilter[i])) {
+                      result = true;
+                      break;
+                    }
+                  }
+                } else {
+                  result = item.includes(selectedFilter);
+                }
+              })
+            } else {
+              result = selectedFilter.includes(d[key]);
+            }
           } else {
-            result = selectedFilter.includes(d[key]);
+            result = true;
           }
           return result;
         });

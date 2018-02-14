@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { element } from 'prop-types';
 import {connect} from 'react-redux';
 
 import {splitCamelCase} from '../utils/utility';
@@ -159,6 +159,9 @@ class Filter extends Component {
             return e;
           }
         });
+        if (item.sort && item.sort == true) {
+          elements = elements.sort((a, b) => a.label < b.label ? -1 : 1);
+        }
         if (item.inline != undefined && !item.inline) {
           elements.unshift({label: 'All', value: 'All'});
         } else {

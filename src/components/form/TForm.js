@@ -16,6 +16,8 @@ import ViewIcon from 'grommet/components/icons/base/View';
 import EditIcon from 'grommet/components/icons/base/Edit';
 import PrintIcon from 'grommet/components/icons/base/Print';
 import TrashIcon from 'grommet/components/icons/base/Trash';
+import UploadIcon from 'grommet/components/icons/base/Upload';
+import DownloadIcon from 'grommet/components/icons/base/Download';
 
 const THeadTooltip = Tooltip('th');
 
@@ -65,19 +67,27 @@ class TForm extends Component {
 
   _init (name, data, header) {
     let tableData = [];
-    let filteredOptions = new Array(data.length).fill({});
+    let filteredOptions = [];
     data.forEach((row, i) => {
       let item = {};
       let k = 0;
+      let x = {};
       row.forEach((col, j) => {
-        let key = (typeof header[k] == 'object' && header[k].key != undefined)? header[k].key : '';
-        if (col.type == 'hidden') {
-          key = col.name;
+        let head;
+        if (col.label) {
+          head = header.find(e => typeof e == 'object' && col.label == e.label) || {};
         } else {
-          k++;
+          head = (typeof header[k] == 'object') ? header[k] : {};
         }
+        let key = head.key || '';
+        if (col.type != 'hidden') {
+          k++;
+        } else {
+          key = col.name;
+        }
+
         if (col.type == 'select') {
-          filteredOptions[i][key] = col.options;
+          x[key] = col.options;
         }
         if (col.value != undefined) {
           if (typeof col.value === 'number') {
@@ -90,9 +100,9 @@ class TForm extends Component {
         }
         
       });
+      filteredOptions[i] = x;
       tableData.push(item);
     });
-    console.log(tableData);
     this.setState({filteredOptions});
     this.props.dispatch({type: TABLE_FORM_CHANGE, payload: {name, data: tableData}});
   }
@@ -240,7 +250,7 @@ class TForm extends Component {
 
   render() {
     const {header, data, filteredOptions} = this.state;
-    const {name, rows, cols, controls, dynamicRow, dynamicCol, form: {tableData}, cellStyle, size, id, style: tableStyle} = this.props;
+    const {name, rows, cols, controls, dynamicRow, dynamicCol, form: {tableData}, cellStyle, size, id, tableName, style: tableStyle} = this.props;
 
     let style = {...defaultCellStyle};
     if (cellStyle) {
@@ -317,7 +327,7 @@ class TForm extends Component {
       row.forEach((col, j) => {
         let head;
         if (col.label) {
-          head = (typeof header[col.label] == 'object') ? header[col.label] : {};
+          head = header.find(e => typeof e == 'object' && col.label == e.label) || {};
         } else {
           head = (typeof header[k] == 'object') ? header[k] : {};
         }
@@ -339,7 +349,7 @@ class TForm extends Component {
           if (col.value != undefined) {
             value = typeof col.value == 'number' ? String(col.value) : col.value;
           }
-          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{...style, background: undefined}}>{value || ''}</td>);
+          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{...style, color: col.textColor, fontWeight: col.fontWeight, background: undefined}}>{value || ''}</td>);
         } else if (col.type == 'link') {
           cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name, col.path)}>{col.value || ''}</a></td>);
         } else if (col.type === 'input') {
@@ -352,7 +362,7 @@ class TForm extends Component {
           cell = (
             <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5}}>
               <input style={style} 
-                type='text' 
+                type={col.inputType || 'text'} 
                 disabled={col.disabled || false}
                 placeholder={col.placeholder} 
                 value={value || ''} 
@@ -418,6 +428,10 @@ class TForm extends Component {
                 icon = <PrintIcon />
               } else if (action == 'delete') {
                 icon = <TrashIcon />
+              } else if (action == 'upload') {
+                icon = <UploadIcon />
+              } else if (action == 'download') {
+                icon = <DownloadIcon />
               }
               if (tooltip) {
                 actions.push(<Box key={l}> <ButtonTooltip tooltip={tooltip}  icon={icon} onClick={this._onActionClick.bind(this, i, action, l, path)} /> </Box>);
@@ -448,7 +462,7 @@ class TForm extends Component {
 
     return (
       <Box alignSelf='center' size={size}>
-        <table id={id} style={{width: '100%',marginTop: 20, ...tableStyle}}>
+        <table id={id} name={tableName} style={{width: '100%',marginTop: 20, ...tableStyle}}>
           <thead>{head}</thead>
           <tbody>{body}</tbody>
         </table>
@@ -470,6 +484,8 @@ const headerType = PropTypes.oneOfType([
 ]);
 
 TForm.propTypes = {
+  tableName: PropTypes.string,
+  id: PropTypes.string,
   name: PropTypes.string,
   header: PropTypes.arrayOf(PropTypes.oneOfType([
     headerType,
@@ -479,10 +495,11 @@ TForm.propTypes = {
     type: PropTypes.oneOf(['label','link','input','select','checkbox','radio-button','hidden','action']).isRequired,
     name: PropTypes.string,
     label: PropTypes.string,
+    inputType: PropTypes.string,
     value: PropTypes.oneOfType([
       PropTypes.string, 
       PropTypes.bool,
-      PropTypes.arrayOf(PropTypes.shape({action: PropTypes.oneOf(['read','update','print','delete']).isRequired, tooltip: PropTypes.string, path: PropTypes.string, icon: PropTypes.node})),
+      PropTypes.arrayOf(PropTypes.shape({action: PropTypes.oneOf(['read','update','print','delete','upload','download']).isRequired, tooltip: PropTypes.string, path: PropTypes.string, icon: PropTypes.node})),
       PropTypes.shape({label: PropTypes.string, value: PropTypes.oneOfType([PropTypes.string,PropTypes.number,PropTypes.bool])}),
       PropTypes.number,
       PropTypes.node
@@ -493,7 +510,8 @@ TForm.propTypes = {
     searchString: PropTypes.string,    //applicable for select type
     disabled: PropTypes.bool,
     rowspan: PropTypes.number,
-    colspan: PropTypes.number
+    colspan: PropTypes.number,
+    textColor: PropTypes.string
   }))).isRequired,
   controls: PropTypes.oneOf(['add','remove']),
   dynamicRow: PropTypes.bool,

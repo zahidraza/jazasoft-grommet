@@ -88,7 +88,7 @@ class GLayout extends Component {
       <Box justify='between' >
         <Box> 
           {header}
-          <MainRoute {...restProps} authenticator={authenticator} resources={resources} customRoutes={customRoutes} /> 
+          <MainRoute {...restProps} authClient={authClient} authenticator={authenticator} resources={resources} customRoutes={customRoutes} /> 
         </Box>
       </Box>
     );

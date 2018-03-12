@@ -54,7 +54,7 @@ class GAppHeader extends Component {
         </Title>
         <Menu  direction='row' align='center' responsive={false}>
           <ButtonTooltip icon={<SyncIcon colorIndex='light-1' />} tooltip='Refresh Application' onClick={this.refreshApp} />
-          <Anchor style={{color: '#ffffff'}} path='/profile'>{localStorage.name}</Anchor>
+          <Anchor style={{color: '#ffffff'}} path='/profile'>{localStorage.firstName + ' ' + localStorage.lastName}</Anchor>
           {logout}
         </Menu>
       </Header>

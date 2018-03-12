@@ -19,7 +19,17 @@ const handlers = {
   [SORT_APPLY]: (_, action) => ({sort: action.payload.sort}),
   [SEARCH]: (_, action) => ({searchValue: action.payload.searchValue}),
   [LOCATION_CHANGE]: (_, action) => ({searchValue: ''}),
-  [FILTER_CLEAR]: (_, action) => ({filter: {}, range: {}, filteredTotal: 0, unfilteredTotal: 0})
+  [FILTER_CLEAR]: (_, action) => {
+    let filter = _.filter;
+    if (action.payload && action.payload.keys && action.payload.keys instanceof Array && filter) {
+      action.payload.keys.forEach(key => {
+        delete filter[key];
+      })
+    } else {
+      filter = {};
+    }
+    return {filter, range: {}};
+  }
 };
 
 export default function section (state = initialState, action) {

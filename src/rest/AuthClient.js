@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { queryParameters, fetchJson } from '../utils/fetch';
-import { AUTH_LOGIN, AUTH_LOGOUT } from './authTypes';
+import { AUTH_LOGIN, AUTH_PROFILE, AUTH_LOGOUT, CUSTOM } from './authTypes';
 
 export const fetch = (config = {}, dispatch) => {
   const requestHeaders = config.headers || {
@@ -10,12 +10,6 @@ export const fetch = (config = {}, dispatch) => {
   };
 
   return axios({headers: requestHeaders, ...config});
-      // .catch(error => {
-      //   if (typeof dispatch === 'function') {
-      //     //TODO: dispatch notification action
-      //   }
-      //   return error;
-      // });
 };
 
 export default (authUrl) => {
@@ -26,9 +20,27 @@ export default (authUrl) => {
 
     switch (type) {
     case AUTH_LOGIN:
-      config.url = `${authUrl}/token`;
+      config.url = `${authUrl}/oauth/token`;
       config.method = 'POST';
       break;
+    case AUTH_PROFILE:
+      config.url = `${authUrl}/api/users/profile`;
+      config.method = 'get';
+      config.headers = {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + localStorage['access_token']
+      }
+      break;
+    case CUSTOM:
+      config.url = `${authUrl}/${options.url}`;
+      config.method = options.method;
+      config.headers = options.headers || {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + localStorage['access_token']
+      }
+      config.data = options.data;
+      break;
+
     default:
       throw new Error(`Unsupported authentication type - ${type}`);
     }

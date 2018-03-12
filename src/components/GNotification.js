@@ -74,7 +74,6 @@ class GNotification extends Component {
 
   render() {
     const { hidden, message, errors, errorMap, status, key} = this.state;
-    console.log(this.state);
     let content;
     if (message) {
       content = (

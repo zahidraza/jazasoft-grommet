@@ -19,6 +19,7 @@ import TrashIcon from 'grommet/components/icons/base/Trash';
 import ArchiveIcon from 'grommet/components/icons/base/Archive';
 import LinkNextIcon from 'grommet/components/icons/base/LinkNext';
 import CirclePlayIcon from 'grommet/components/icons/base/CirclePlay';
+import DownloadIcon from 'grommet/components/icons/base/Download';
 
 import Tooltip from 'react-toolbox/lib/tooltip';
 const THeadTooltip = Tooltip('th');
@@ -248,6 +249,8 @@ class GTable extends Component {
               icon = <LinkNextIcon />
             } else if (action == 'run') {
               icon = <CirclePlayIcon />
+            } else if (action == 'download') {
+              icon = <DownloadIcon />
             }
             if (tooltip) {
               actions.push(<ButtonTooltip tooltip={tooltip} key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
@@ -304,6 +307,8 @@ class GTable extends Component {
               icon = <TrashIcon />
             } else if (action == 'next') {
               icon = <LinkNextIcon />
+            }  else if (action == 'download') {
+              icon = <DownloadIcon />
             }
             if (tooltip) {
               actions.push(<ButtonTooltip tooltip={tooltip} key={i} icon={icon} onClick={this._onClick.bind(this, action, idx)} />);
@@ -380,7 +385,7 @@ data: array of objects
   {color: , ...other_data}
 ]
 scope: array of string or object {value: , tooltip}
-values can be [read,update,delete,archive,next]
+values can be [read,update,delete,archive,next,download]
 
 
 searchKeys: array of Strings. It is used with PageHeader Component. When user types something in seacrh of pageHeader, 

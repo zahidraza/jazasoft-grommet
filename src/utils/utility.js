@@ -4,7 +4,7 @@
 export const getRoles = () => {
   if (localStorage.authorities) {
     const authorities = JSON.parse(localStorage.authorities);
-    return authorities.map(a => a.authority);
+    return authorities.map(a => a.authority.substring(5));
   }
   return [];
 }

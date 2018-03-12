@@ -156,7 +156,8 @@ class MCForm extends Component {
               <FormField label={cell.label} >
                 <CheckBox 
                   checked={formData[cell.name] == undefined ? false : formData[cell.name]} 
-                  toggle={true} 
+                  toggle={cell.toggle} 
+                  disabled={cell.disabled || false}
                   onChange={this._onChange.bind(this, 'checkbox', cell.name)}/>
               </FormField>
             </Box>

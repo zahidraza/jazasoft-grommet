@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {withRouter} from 'react-router-dom';
 import {connect} from 'react-redux';
 
-import { userLogin, userProfile } from '../actions/authActions';
+import { userLogin, userProfile, resetPassword } from '../actions/authActions';
 import { SHOW_SNACKBAR } from '../actions/notificationActions';
 import { CUSTOM } from '../rest/types';
 
@@ -91,7 +91,7 @@ class Login extends Component {
     }
     if (authProgress && loginSuccess && !profileSuccess) {
       console.log('get profile');
-      this.props.dispatch(userProfile(this.props.restClient, localStorage.username));
+      this.props.dispatch(userProfile(this.props.authClient));
     }
     if (this.props.auth.authProgress && !authProgress && !authenticated) {
       console.log('auth failure');
@@ -116,28 +116,9 @@ class Login extends Component {
       alert('Enter username/email');
       return;
     }
-    const url = 'users/forgotPassword';
-    const options = {
-      url,
-      method: 'PATCH',
-      params: {username: formData.username}
-    };
-    this.setState({busy: true});
-    this.props.restClient(CUSTOM, url, options)
-    .then(response => {
-      console.log(response);
-      if (response.status == 200 && response.data && response.data.message) {
-        this.props.dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: response.data.message}}});
-        this.setState({busy: false, dialogActive: false});
-      }
-    })
-    .catch(error => {
-      console.log(error.response);
-      if (error.response.status == 404) {
-        this.props.dispatch({type: SHOW_SNACKBAR, payload: {snackbar: {message: 'User Not Found.'}}});
-      }
-      this.setState({busy: false, dialogActive: false});
-    });
+    
+    this.props.dispatch(resetPassword(this.props.authClient, formData.username));
+    this.setState({dialogActive: false});
   }
 
   _toggleDialog() {

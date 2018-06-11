@@ -461,7 +461,7 @@ class TForm extends Component {
 
 
     return (
-      <Box alignSelf='center' size={size}>
+      <Box alignSelf='center' size={size} >
         <table id={id} name={tableName} style={{width: '100%',marginTop: 20, ...tableStyle}}>
           <thead>{head}</thead>
           <tbody>{body}</tbody>

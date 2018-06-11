@@ -28,7 +28,7 @@ export const userLogin = (authClient, username, password) => {
         localStorage.username = username;
         const resp = response.data;
         Object.keys(resp).forEach(key => {
-          localStorage[key] = resp[key];
+          localStorage[key] = typeof resp[key] === 'object' ? JSON.stringify(resp[key]) : resp[key];
         });
         dispatch({type: LOGIN_SUCCESS});
       }
@@ -50,13 +50,14 @@ export const userProfile = (authClient) => {
       console.log(response);
       if (response.status == 200) {
         localStorage.authenticated = true;
-        const {id, firstName, lastName, username, email, mobile, authorities} = response.data;
+        const {id, firstName, lastName, username, email, mobile, authorities, roleList, resources} = response.data;
         const user = {userId: id, firstName, lastName, username, email, mobile};
 
         Object.keys(user).forEach(key => {
           localStorage[key] = user[key];
         });
         localStorage.authorities = JSON.stringify(authorities);
+        localStorage.roleList = roleList.map(r => r.desc).join(', ');
         localStorage.loggedInNow = 'true';
         dispatch({type: PROFILE_SUCCESS});
         dispatch({type: AUTH_SUCCESS});

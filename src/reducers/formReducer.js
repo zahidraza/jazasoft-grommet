@@ -22,14 +22,16 @@ const handlers = {
       } else {
         let tmp = formData[name] || {};
         tmp[key] = value;
-        formData[name] = tmp;
+        // formData[name] = tmp;
+        formData = {...formData, [name]: tmp};
       }
 
     } else {
       if (data) {
         formData = {...formData, ...data};
       } else {
-        formData[key] = value;
+        // formData[key] = value;
+        formData = {...formData, [key]: value};
       }
     }
     return {formData, toggleForm: !_.toggleForm};

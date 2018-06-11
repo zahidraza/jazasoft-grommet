@@ -151,7 +151,7 @@ class GTable extends Component {
         return result;
       });
     }
-    
+
     const filteredTotal = data.length;
     data = data.slice(0, page * this.props.pageSize);
     this.setState({data, page, filteredTotal});
@@ -209,9 +209,9 @@ class GTable extends Component {
         } else {
           const tooltip = h.tooltip;
           if (tooltip != undefined) {
-            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{...style, fontWeight: 'bold'}} > {h.label}</THeadTooltip>);
+            result = (<THeadTooltip key={i} tooltipPosition='top' tooltip={tooltip} style={{...style, width: h.width, fontWeight: 'bold'}} > {h.label}</THeadTooltip>);
           } else {
-            result = (<th key={i} style={{...style, fontWeight: 'bold'}} >{h.label}</th>);
+            result = (<th key={i} style={{...style, width: h.width, fontWeight: 'bold'}} >{h.label}</th>);
           }
         }
         return result;

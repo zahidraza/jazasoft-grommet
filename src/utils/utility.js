@@ -10,18 +10,12 @@ export const getRoles = () => {
 }
 
 export const getResourcePermission = (resource) => {
-  if (localStorage.resourcePermission) {
-    const permissions = JSON.parse(localStorage.resourcePermission);
-    const res = permissions.find(e => e.resource == resource);
-    if (res) {
-      if (res.scopes.includes('full')) {
-        return 'full';
-      } else if (res.scopes.includes('read')) {
-        return 'read';
-      }
+  if (localStorage.resources) {
+    const permissions = JSON.parse(localStorage.resources);
+    if (permissions) {
+      return permissions[resource];
     }
   }
-  return 'forbidden';
 }
 
 export function capitalize(param) {

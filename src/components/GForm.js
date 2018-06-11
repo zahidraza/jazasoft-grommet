@@ -47,6 +47,7 @@ class GForm extends Component {
       elements: [],
       dtElements: [],
       suggestions: {},
+      filteredSuggestions: {},
       filteredOptions:{}
     };
   }
@@ -83,7 +84,7 @@ class GForm extends Component {
           }
         })
       });
-      this.setState({suggestions, filteredOptions});
+      this.setState({suggestions, filteredSuggestions: {...suggestions}, filteredOptions});
       if (Object.keys(formData).length != 0) {
         this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {...formData}});
       }
@@ -215,12 +216,12 @@ class GForm extends Component {
 
   _onInputChange (type, name, event) {
     if (type == 'text-input') {
-      let {suggestions} = this.state;
+      let {suggestions, filteredSuggestions} = this.state;
       const value = event.target.value;
       let suggestion = suggestions[name];
       if (suggestion) {
-        suggestions[name] = suggestion.filter(e => e.toLowerCase().includes(value.toLowerCase()));
-        this.setState({suggestions});
+        filteredSuggestions[name] = suggestion.filter(e => e.toLowerCase().includes(value.toLowerCase()));
+        this.setState({filteredSuggestions});
       }
     }
     this.props.dispatch({type: FORM_CHANGE_BASIC, payload: {[name]: event.target.value}});
@@ -374,7 +375,7 @@ class GForm extends Component {
       err: { error, show}
     } = this.props;
 
-    const {dialogActive, collection, dtElements, suggestions, filteredOptions} = this.state;
+    const {dialogActive, collection, dtElements, filteredSuggestions, filteredOptions} = this.state;
     let submit, cancel;
     if (!busy) {
       submit = this._onSubmit;
@@ -415,7 +416,7 @@ class GForm extends Component {
                   value={formData[e.name]} 
                   onDOMChange={this._onInputChange.bind(this, e.elementType, e.name)}
                   onSelect={this._onSuggestionSelect.bind(this, e.name)}
-                  suggestions={suggestions[e.name] || []}
+                  suggestions={filteredSuggestions[e.name] || []}
                   />
               </FormField>
             );

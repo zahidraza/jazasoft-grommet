@@ -21,7 +21,8 @@ class MCForm extends Component {
     this._onChange = this._onChange.bind(this);
     this._onSuggestionSelect = this._onSuggestionSelect.bind(this);
     this.state = {
-      suggestions: {}
+      suggestions: {},
+      filteredSuggestions: {}
     }
   }
 
@@ -43,24 +44,23 @@ class MCForm extends Component {
         }
       });
     });
-    this.setState({suggestions});
+    this.setState({suggestions, filteredSuggestions: {...suggestions}});
     this.props.dispatch({type: FORM_CHANGE, payload: {name: this.props.name, data: formData}});
   }
   
   _onChange (elementType, name, event) {
-    console.log({elementType, name});
     let payload, value;
     if (elementType == 'input') {
       value = event.target.value
     } else if (elementType == 'text-input') {
-      let {suggestions} = this.state;
+      let {suggestions, filteredSuggestions} = this.state;
       value = event.target.value;
       let suggestion = suggestions[name];
+
       if (suggestion) {
-        suggestions[name] = suggestion.filter(e => e.toLowerCase().includes(value.toLowerCase()));
-        this.setState({suggestions});
+        filteredSuggestions[name] = suggestion.filter(e => e.toLowerCase().includes(value.toLowerCase()));
+        this.setState({filteredSuggestions});
       }
-      console.log(suggestions);
     } else if (elementType == 'select') {
       value = event.value;
     } else if (elementType == 'radio-button') {
@@ -127,7 +127,7 @@ class MCForm extends Component {
                   value={value} 
                   onDOMChange={this._onChange.bind(this, 'text-input', cell.name)}
                   onSelect={this._onSuggestionSelect.bind(this, cell.name)}
-                  suggestions={this.state.suggestions[cell.name] || []}
+                  suggestions={this.state.filteredSuggestions[cell.name] || []}
                   />
               </FormField>
                 

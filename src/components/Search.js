@@ -32,6 +32,7 @@ class Search extends Component {
         filteredOptions[e.name] = e.options
       });
       this.setState({filteredOptions});
+      this.props.dispatch({type: FORM_CHANGE, payload: {data:  data.reduce((acc, el) => ({...acc, [el.name]: el.value}), {})}});
     }
   }
   

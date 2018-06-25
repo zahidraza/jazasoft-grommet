@@ -436,6 +436,9 @@ class GForm extends Component {
                 options.unshift('No Value');
               }
             }
+            if (e.disabled) {
+              options = [];
+            }
             element = (
               <FormField key={i} label={e.label}>
                 <Select options={options} 

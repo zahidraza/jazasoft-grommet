@@ -36,7 +36,7 @@ const cellWidth = {
 };
 
 const defaultCellStyle = {
-  padding: 0,
+  padding: 5,
   textAlign: 'center'
 };
 
@@ -159,6 +159,7 @@ class TForm extends Component {
   }
   
   _onChange (type, row, key, path, event) {
+    console.log({type, row, key, path});
     let value;
     let dispatchEvent = true;
     if (type === 'input') {
@@ -445,6 +446,11 @@ class TForm extends Component {
                 <Box direction='row' justify='center' >{actions}</Box>
               </td>
             );
+          } else {
+            cell = (
+              <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}>
+              </td>
+            );
           }
           const actions = col.value;
 
@@ -499,7 +505,8 @@ TForm.propTypes = {
     value: PropTypes.oneOfType([
       PropTypes.string, 
       PropTypes.bool,
-      PropTypes.arrayOf(PropTypes.shape({action: PropTypes.oneOf(['read','update','print','delete','upload','download']).isRequired, tooltip: PropTypes.string, path: PropTypes.string, icon: PropTypes.node})),
+      // PropTypes.arrayOf(PropTypes.shape({action: PropTypes.oneOf(['read','update','print','delete','upload','download']), tooltip: PropTypes.string, path: PropTypes.string, icon: PropTypes.node})),
+      PropTypes.arrayOf(PropTypes.shape({action: PropTypes.string, tooltip: PropTypes.string, path: PropTypes.string, icon: PropTypes.node})),
       PropTypes.shape({label: PropTypes.string, value: PropTypes.oneOfType([PropTypes.string,PropTypes.number,PropTypes.bool])}),
       PropTypes.number,
       PropTypes.node

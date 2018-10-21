@@ -9,16 +9,17 @@ const initialState = {
   toggleCount: false,
   sort: {},   // {value: , direction: }
   searching: false,
-  searchValue: ''
+  searchValue: '',
+  version: 0
 };
 
 const handlers = { 
-  [FILTER_APPLY]: (_, action) => ({filter: action.payload.filter}),
-  [RANGE_CHANGE]: (_, action) => ({range: action.payload.range}),
-  [FILTER_COUNT]: (_, action) => ({filteredTotal: action.payload.filteredTotal, unfilteredTotal: action.payload.unfilteredTotal, toggleCount: !_.toggleCount}),
-  [SORT_APPLY]: (_, action) => ({sort: action.payload.sort}),
-  [SEARCH]: (_, action) => ({searchValue: action.payload.searchValue}),
-  [LOCATION_CHANGE]: (_, action) => ({searchValue: ''}),
+  [FILTER_APPLY]: (_, action) => ({filter: action.payload.filter, version: _.version+1}),
+  [RANGE_CHANGE]: (_, action) => ({range: action.payload.range, version: _.version+1}),
+  [FILTER_COUNT]: (_, action) => ({filteredTotal: action.payload.filteredTotal, unfilteredTotal: action.payload.unfilteredTotal, toggleCount: !_.toggleCount, version: _.version+1}),
+  [SORT_APPLY]: (_, action) => ({sort: action.payload.sort, version: _.version+1}),
+  [SEARCH]: (_, action) => ({searchValue: action.payload.searchValue, version: _.version+1}),
+  [LOCATION_CHANGE]: (_, action) => ({searchValue: '', version: 0}),
   [FILTER_CLEAR]: (_, action) => {
     let filter = _.filter;
     if (action.payload && action.payload.keys && action.payload.keys instanceof Array && filter) {
@@ -28,7 +29,7 @@ const handlers = {
     } else {
       filter = {};
     }
-    return {filter, range: {}};
+    return {filter, range: {}, version: _.version+1};
   }
 };
 

@@ -11,6 +11,7 @@ import Select from 'grommet/components/Select';
 import DateTime from 'grommet/components/DateTime';
 import FormField from 'grommet/components/FormField';
 import Title from 'grommet/components/Title';
+import FilterIcon from 'grommet/components/icons/base/Filter';
 
 class Search extends Component {
 
@@ -68,7 +69,7 @@ class Search extends Component {
 
   render() {
     const {filteredOptions} = this.state;
-    const {title, data, form: {formData}, dispatch, ...restProps} = this.props;
+    const {title, data, form: {formData}, dispatch, filter, onFilter, ...restProps} = this.props;
 
 
     const titleItem = title && (
@@ -102,7 +103,7 @@ class Search extends Component {
               <Box alignSelf='center' alignContent='center'>
                 <Title><Heading tag='h4'> {e.placeholder}</Heading></Title>
               </Box>
-              <Box>
+              <Box alignSelf='center'>
                 <FormField>
                   <DateTime format='MM/DD/YYYY' 
                     value={formData[e.name] || e.value || ''} 
@@ -117,12 +118,14 @@ class Search extends Component {
       });
     }
 
-
     return (
       <Header justify='between' pad={{horizontal: 'medium'}}  {...restProps}>
         {titleItem}
         <Box direction='row'  >
           {content}
+          {filter && (
+            <Box alignSelf="center"> <FilterIcon onClick={onFilter} /> </Box>
+          )}
         </Box>
       </Header>
     );
@@ -144,12 +147,15 @@ Search.propTypes = {
       })
     ]))
   })),
+  filter: PropTypes.bool,
+  onFilter: PropTypes.func,
   onChange: PropTypes.func,
   ...Box.propTypes
 };
 
 Search.defaultProps = {
-  size: 'large'
+  size: 'large',
+  filter: false
 };
 
 const select = (store) => ({form: store.form});

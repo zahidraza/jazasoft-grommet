@@ -17,7 +17,6 @@ class GSidebar extends Component {
   }
 
   _onClick () {
-    console.log('Side bar clicked');
     if (this.props.toggleMenu) {
       this.props.toggleMenu();
     }

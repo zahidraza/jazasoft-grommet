@@ -34,7 +34,7 @@ const handlers = {
         formData = {...formData, [key]: value};
       }
     }
-    return {formData, toggleForm: !_.toggleForm};
+    return {formData, toggleForm: !_.toggleForm, opCompleted: false};
   },
   [TABLE_FORM_CHANGE]: (_, action) => {
     //To change one cell value: (name, row, key, value)
@@ -51,21 +51,21 @@ const handlers = {
       tmp[row][key] = value;
     }
     tableData[name] = tmp;
-    return {tableData, toggleForm: !_.toggleForm};
+    return {tableData, toggleForm: !_.toggleForm, opCompleted: false};
   },
   [FORM_CHANGE_BASIC]: (_, action) => {
     let formData = _.formData;
     formData = {...formData, ...action.payload};
-    return {formData, toggleForm: !_.toggleForm};
+    return {formData, toggleForm: !_.toggleForm, opCompleted: false};
   },
   [FORM_CHANGE_COLLECTION]: (_, action) => {
     let collectionData = [..._.collectionData];
     collectionData[action.payload.row] = action.payload.collection;
-    return {collectionData, toggleForm: !_.toggleForm};
+    return {collectionData, toggleForm: !_.toggleForm, opCompleted: false};
   },
-  [TILE_FORM_CHANGE]: (_, action) => ({tileData: action.payload.data, toggleForm: !_.toggleForm}),
-  [CT_FORM_CHANGE]: (_, action) => ({ctFormData: action.payload.data, toggleForm: !_.toggleForm}),
-  [FORM_CLEAR]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm}),
+  [TILE_FORM_CHANGE]: (_, action) => ({tileData: action.payload.data, toggleForm: !_.toggleForm, opCompleted: false}),
+  [CT_FORM_CHANGE]: (_, action) => ({ctFormData: action.payload.data, toggleForm: !_.toggleForm, opCompleted: false}),
+  [FORM_CLEAR]: (_, action) => ({formData: {}, collectionData: [], toggleForm: !_.toggleForm, opCompleted: false}),
   [OPERATION_COMPLETED]: (_, action) => ({formData: {}, collectionData: [], tileData: fromJS([]), ctFormData: [[]], opCompleted: true}),
   [LOCATION_CHANGE]: (_, action) => ({formData: {}, tableData: {}, collectionData: [], tileData: fromJS([]), ctFormData: [[]],  toggleForm: !_.toggleForm, opCompleted: false})
 };

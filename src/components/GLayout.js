@@ -27,7 +27,6 @@ class GLayout extends Component {
   }
 
   _onResponsive (param) {
-    console.log(param);
     if (param == 'single') {
       this.setState({fixedSidebar: true});
     } else {

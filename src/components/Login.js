@@ -86,15 +86,12 @@ class Login extends Component {
   componentWillReceiveProps(nextProps) {
     const {authProgress, loginSuccess, profileSuccess , authenticated, message} = nextProps.auth;
     if (authenticated) {
-      console.log('auth successful');
       this.props.history.push('/');
     }
     if (authProgress && loginSuccess && !profileSuccess) {
-      console.log('get profile');
       this.props.dispatch(userProfile(this.props.authClient));
     }
     if (this.props.auth.authProgress && !authProgress && !authenticated) {
-      console.log('auth failure');
       this.setState({errorMsg: message});
     }
   }
@@ -163,17 +160,16 @@ class Login extends Component {
               <Form>
                 <FormFields>
                   <FormField label='User Name'>
-                    <input type='text' name='email' value={email} onChange={this._onChange} />
+                    <input id="email" type='text' name='email' value={email} onChange={this._onChange} />
                   </FormField>
                   <FormField label='Password'>
-                    <input type='password' name='password' value={password} onChange={this._onChange} />
+                    <input id="password" type='password' name='password' value={password} onChange={this._onChange} />
                   </FormField>
                 </FormFields>
                 <a style={{color:'blue'}} onClick={this._toggleDialog}>Forgot password?</a>
                 <p style={{color:'red'}} >{errorMsg}</p>
                 <Footer pad={{'vertical': 'small'}}>
-                  <Button label='Login' fill={true} primary={true}  onClick={this._onLogin} />
-                  
+                  <Button id="loginBtn" label='Login' fill={true} primary={true}  onClick={this._onLogin} />
                 </Footer>
               </Form>
               <Box alignSelf='center' margin='none'>

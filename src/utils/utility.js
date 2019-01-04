@@ -76,9 +76,11 @@ export function getCollectionData(collectionData) {
 
 export function normalise (list) {
   let object = {};
-  list.forEach((o) => {
-    object[o.id] = o;
-  });
+  if (list && list.constructor === Array) {
+    list.forEach((o) => {
+      object[o.id] = o;
+    });
+  }
   return object;
 }
 

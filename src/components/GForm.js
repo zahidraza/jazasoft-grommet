@@ -468,7 +468,7 @@ class GForm extends Component {
       });
       basicForm = (
         <Form plain={true}>
-          <FormHeader title={title} busy={busy} /> 
+          {title && <FormHeader title={title} busy={busy} /> } 
           <FormFields>
             {fieldsets}
           </FormFields>

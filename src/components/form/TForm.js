@@ -128,7 +128,6 @@ class TForm extends Component {
   }
 
   _onRowAdd () {
-    console.log('_onRowAdd');
     let {data, filteredOptions, header} = this.state;
     let tmp = data[data.length-1];
     let lastRow = [];
@@ -146,7 +145,6 @@ class TForm extends Component {
     });
     filteredOptions.push(filteredOption);
     data.push(lastRow);
-    console.log(data, filteredOptions);
     this.setState({data, filteredOptions});
 
     const {name, form: {tableData}} = this.props;
@@ -159,7 +157,6 @@ class TForm extends Component {
   }
   
   _onChange (type, row, key, path, event) {
-    console.log({type, row, key, path});
     let value;
     let dispatchEvent = true;
     if (type === 'input') {
@@ -269,7 +266,7 @@ class TForm extends Component {
         itemIsRow = true;
         let rowItem = e.map((cell, j) => {
           let cellItem;
-          let width = cellWidth.medium, textAlign = cell.align || 'center';
+          let width = null, textAlign = cell.align || 'center';
           if (cell.width && typeof cell.width == 'number') {
             width = cell.width;
           } else if (cell.width && typeof cell.width == 'string') {
@@ -295,17 +292,20 @@ class TForm extends Component {
           <tr key={i}>{rowItem}</tr>
         );
       } else {
-        let width = cellWidth.medium, textAlign = e.align || 'center';
+        let width = null, textAlign = e.align || 'center';
         if (e.width && typeof e.width == 'number') {
           width = e.width;
         } else if (e.width && typeof e.width == 'string') {
           width = cellWidth[e.width];
         }
+        
         if (typeof e === 'string') {
           item = (<th key={i} colSpan={e.colspan || 1} style={{padding: 5, width, textAlign}}>{e}</th>);
+        } else if (React.isValidElement(e)) {
+          item = <th key={i}  colSpan={e.colspan || 1}> {e} </th>;
         } else if (typeof e === 'object') {
-          if (e.type) { //react element
-            item = <th key={i}  colSpan={e.colspan || 1}> {e} </th>;
+          if (e.element) { //react element
+            item = <th key={i}  colSpan={e.colspan || 1} style={{width, textAlign}} > {e.element} </th>;
           } else if (e.tooltip) {
             item = (<THeadTooltip key={i} colSpan={e.colspan || 1} tooltip={e.tooltip} style={{padding: 5, width, textAlign}}>{e.label}</THeadTooltip>);
           } else {
@@ -337,22 +337,22 @@ class TForm extends Component {
           k++;
         }
         let cell;
-        let width = cellWidth.medium, textAlign = head.align || 'center';
+        let width = null, textAlign = head.align || 'center';
         if (head.width && typeof head.width == 'number') {
           width = head.width;
         } else if (head.width && typeof head.width == 'string') {
           width = cellWidth[head.width];
         }
 
-        style = {...style, width, textAlign, paddingLeft: 5};
+        style = {...style, width, textAlign, color: col.textColor, fontWeight: col.fontWeight, backgroundColor: col.bgColor, paddingLeft: 5};
         if (col.type === 'label') {
           let value;
           if (col.value != undefined) {
             value = typeof col.value == 'number' ? String(col.value) : col.value;
           }
-          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{...style, color: col.textColor, fontWeight: col.fontWeight, background: undefined}}>{value || ''}</td>);
+          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}>{value || ''}</td>);
         } else if (col.type == 'link') {
-          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={style}><a onClick={this._onChange.bind(this, 'link', i, col.name, col.path)}>{col.value || ''}</a></td>);
+          cell = (<td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{...style, color: 'blue'}}><a onClick={this._onChange.bind(this, 'link', i, col.name, col.path)}>{col.value || ''}</a></td>);
         } else if (col.type === 'input') {
           let value;
           if (formData[i] && formData[i][key] != undefined) {
@@ -397,19 +397,22 @@ class TForm extends Component {
             value = col.value;
           }
           cell = (
-            <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5, textAlign: 'center'}}>
+            <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5, textAlign}}>
+              <div>
               <CheckBox 
                 disabled={col.disabled || false}
                 checked={value}  
                 toggle={col.toggle || false} 
                 onChange={this._onChange.bind(this, 'checkbox', i, key, undefined)}
                 style={style}/>
+              </div>
             </td>
           );
         } else if (col.type === 'radio-button') {
           cell = (
-            <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5, textAlign: 'center'}}>
+            <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5}}>
               <CheckBox 
+                disabled={col.disabled || false}
                 checked={formData[i][key] || false}  
                 toggle={col.toggle || false} 
                 onChange={this._onChange.bind(this, 'radio-button', i, key, undefined)}
@@ -465,10 +468,11 @@ class TForm extends Component {
       body.push(<tr key={data.length+1}><td><AddIcon size='xsmall' onClick={this._onRowAdd}/></td></tr>)
     }
 
+    const props = size === 'full' ? {full: 'horizontal'} : {size}
 
     return (
-      <Box alignSelf='center' size={size} >
-        <table id={id} name={tableName} style={{width: '100%',marginTop: 20, ...tableStyle}}>
+      <Box alignSelf='center' {...props} >
+        <table id={id} name={tableName} style={{marginTop: 20, ...tableStyle}}>
           <thead>{head}</thead>
           <tbody>{body}</tbody>
         </table>
@@ -484,7 +488,8 @@ const headerType = PropTypes.oneOfType([
     label: PropTypes.string.isRequired,
     tooltip: PropTypes.string,
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['xsmall','small','medium','large','xlarge','xxlarge'])]),
-    align: PropTypes.oneOf(['left','center','right'])
+    align: PropTypes.oneOf(['left','center','right']),
+    element: PropTypes.node,
   }),
   PropTypes.node
 ]);
@@ -528,7 +533,7 @@ TForm.propTypes = {
   onRowAdd: PropTypes.func,
   onColAdd: PropTypes.func,
   onActionClick: PropTypes.func,
-  size: PropTypes.oneOf(['auto','xsmall','small','large','xlarge','xxlarge'])
+  size: PropTypes.oneOf(['auto','xsmall','small','large','xlarge','xxlarge', 'full'])
 };
 
 TForm.defaultProps = {

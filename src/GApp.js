@@ -6,9 +6,10 @@ import createHistory from 'history/createHashHistory';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter, routerMiddleware } from 'react-router-redux';
 import { routerReducer, authReducer, notificationReducer, errReducer, filterReducer, formReducer } from './reducers';
-import logger  from 'redux-logger';
+// import logger  from 'redux-logger';
 import thunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import { getRoles, getMasterLinks } from './utils/utility';
 
 import Login from './components/Login';
@@ -56,12 +57,12 @@ const GApp = ({
   });
   const appReducer = combineReducers(reducers);
   const routerHistory = history || createHistory();
-  const middleware = applyMiddleware(
+  const middleware = composeWithDevTools(applyMiddleware(
     promise(),
     thunk,
-    logger,
+    // logger,
     routerMiddleware(routerHistory)
-  );
+  ));
   const store = createStore(appReducer, middleware);
   if (!appLayout) {
     appLayout = GLayout;

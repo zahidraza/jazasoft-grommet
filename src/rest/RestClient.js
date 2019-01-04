@@ -29,7 +29,6 @@ export const fetch = (config = {}, dispatch) => {
   if (localStorage['access_token']) {
     requestHeaders['Authorization'] = 'Bearer ' + localStorage['access_token'];
   }
-
   return axios({headers: requestHeaders, ...config})
       .catch(error => {
         if (typeof dispatch === 'function') {
@@ -140,7 +139,6 @@ export default (apiUrl) => {
       config = {...config, ...options};
       config.url = `${apiUrl}/${resource}`;
       config.method = options.method || 'post';
-      console.log(config);
       break;
     default:
       throw new Error(`Unsupported fetch action type ${type}`);

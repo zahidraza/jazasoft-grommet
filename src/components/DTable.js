@@ -121,7 +121,6 @@ class DTable extends Component {
             }
 
             if (colItem.disabled && colItem.disabled == true) {
-              console.log(moment(colItem.value).format('DD MMM, YY'));
               let v = (typeof colItem.value == 'undefined' ? '-' : (typeof colItem.value == 'string' ? colItem.value : moment(colItem.value).format('DD MMM, YY')));
               cellContent = <h4 style={{marginTop: 15, width}}> {v} </h4>
               //cellContent = 'Hello';

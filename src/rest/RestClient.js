@@ -91,7 +91,18 @@ export default (apiUrl) => {
     switch (type) {
     case GET_LIST: {
       config.method = 'get';
-      config.url = `${apiUrl}/${resource}`;
+      const {sort, page, size = 20, search} = options;
+      let params = [];
+      if (page !== null || page !== undefined) {
+        params.push(`page=${page}&size=${size}`); 
+      }
+      if (sort) {
+        params.push(`sort=${sort}`);
+      }
+      if (search) {
+        params.push(`search=${search}`);
+      }
+      config.url = `${apiUrl}/${resource}?${params.join('&')}`;
       break;
     }
     case GET_MANY: {

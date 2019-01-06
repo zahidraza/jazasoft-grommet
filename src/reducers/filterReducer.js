@@ -1,5 +1,6 @@
-import { FILTER_APPLY, FILTER_CLEAR, FILTER_COUNT, SORT_APPLY, SEARCH, RANGE_CHANGE } from '../actions/filterActions';
+import { FILTER_APPLY, FILTER_CLEAR, FILTER_COUNT, SORT_APPLY, SEARCH, RANGE_CHANGE, PAGE_CHANGE } from '../actions/filterActions';
 import { LOCATION_CHANGE } from '../actions/routerAction';
+import cloneDeep from 'lodash/cloneDeep';
 
 const initialState = {
   filter: {},
@@ -10,16 +11,20 @@ const initialState = {
   sort: {},   // {value: , direction: }
   searching: false,
   searchValue: '',
-  version: 0
+  version: 0,
+  page: 0,
 };
 
 const handlers = { 
-  [FILTER_APPLY]: (_, action) => ({filter: action.payload.filter, version: _.version+1}),
+  [PAGE_CHANGE]: (_, action) => ({page: _.page + 1}),
+  [FILTER_APPLY]: (_, action) => {
+    return {filter: cloneDeep(action.payload.filter), version: _.version+1};
+  },
   [RANGE_CHANGE]: (_, action) => ({range: action.payload.range, version: _.version+1}),
   [FILTER_COUNT]: (_, action) => ({filteredTotal: action.payload.filteredTotal, unfilteredTotal: action.payload.unfilteredTotal, toggleCount: !_.toggleCount, version: _.version+1}),
   [SORT_APPLY]: (_, action) => ({sort: action.payload.sort, version: _.version+1}),
   [SEARCH]: (_, action) => ({searchValue: action.payload.searchValue, version: _.version+1}),
-  [LOCATION_CHANGE]: (_, action) => ({searchValue: '', version: 0}),
+  [LOCATION_CHANGE]: (_, action) => ({searchValue: '', page: 0, version: 0}),
   [FILTER_CLEAR]: (_, action) => {
     let filter = _.filter;
     if (action.payload && action.payload.keys && action.payload.keys instanceof Array && filter) {

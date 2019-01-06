@@ -4,3 +4,4 @@ export const FILTER_CLEAR = 'FILTER_CLEAR';
 export const SORT_APPLY = 'SORT_APPLY';
 export const SEARCH = 'SEARCH';
 export const RANGE_CHANGE = 'RANGE_CHANGE';
+export const PAGE_CHANGE = 'PAGE_CHANGE';

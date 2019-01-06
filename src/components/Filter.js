@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
+import cloneDeep from 'lodash/cloneDeep';
 
 import {splitCamelCase} from '../utils/utility';
 import { FILTER_APPLY, FILTER_CLEAR, SORT_APPLY, RANGE_CHANGE } from '../actions/filterActions';
@@ -92,7 +93,7 @@ class Filter extends Component {
   }
 
   _onChange (name,event) {
-    let filter = this.props.filter.filter;
+    let filter = cloneDeep(this.props.filter.filter);
     if (!event.option.value || event.option.value == 'All') {
       // user selected the 'All' option, which has no value, clear filter
       delete filter[name];

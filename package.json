@@ -1,6 +1,6 @@
 {
   "name": "jazasoft",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Jaza Soft component library",
   "repository": {
     "type": "git",
@@ -74,6 +74,7 @@
     "axios": "^0.16.2",
     "babel-runtime": "^6.6.1",
     "history": "^4.6.3",
+    "lodash": "^4.17.11",
     "prop-types": "^15.5.10",
     "react-router-redux": "^5.0.0-alpha.6",
     "react-toolbox": "^2.0.0-beta.12",

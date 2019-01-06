@@ -22,35 +22,30 @@ class PageHeader extends Component {
 
   constructor () {
     super();
-    this._onSearch = this._onSearch.bind(this);
-    this._onAdd = this._onAdd.bind(this);
-    this._onFilter = this._onFilter.bind(this);
-    this._onHelp = this._onHelp.bind(this);
-    this._onRefresh = this._onRefresh.bind(this);
   }
 
-  _onSearch (event) {
+  _onSearch = (event) => {
     this.props.dispatch({type: SEARCH, payload: {searchValue: event.target.value}});
   }
 
-  _onAdd () {
+  _onAdd = () => {
     const { history, match, pathAdd } = this.props;
     history.push(`${match.path}${pathAdd}`);
   }
 
-  _onFilter () {
+  _onFilter = () => {
     if (this.props.onFilter) {
       this.props.onFilter();
     }
   }
 
-  _onHelp () {
+  _onHelp = () => {
     if (this.props.onHelp) {
       this.props.onHelp();
     }
   }
 
-  _onRefresh () {
+  _onRefresh = () => {
     if (this.props.onRefresh) {
       this.props.onRefresh();
     }

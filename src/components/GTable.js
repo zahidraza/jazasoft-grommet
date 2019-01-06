@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import {getArrayFromCsv, splitCamelCase} from '../utils/utility';
-import { FILTER_COUNT } from '../actions/filterActions';
+import { FILTER_COUNT, PAGE_CHANGE } from '../actions/filterActions';
 
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
@@ -166,12 +166,13 @@ class GTable extends Component {
     } else {
       this._loadData(data, filter, sort, page+1);
     }
+    this.props.dispatch({type: PAGE_CHANGE});
   }
   
 
   render() {
     const { data, filteredTotal } = this.state;
-    const { headers, scope, cellStyle } = this.props;
+    const { headers, scope, cellStyle, totalElements } = this.props;
 
     let style = defaultCellStyle;
     if (cellStyle) {
@@ -191,7 +192,9 @@ class GTable extends Component {
     });
 
     let onMore;
-    if (data.length < filteredTotal) {
+    if (totalElements && data.length < totalElements) {
+      onMore = this._onMore;
+    } else if (data.length < filteredTotal) {
       onMore = this._onMore;
     }
 
@@ -350,6 +353,7 @@ const headerType = PropTypes.oneOfType([PropTypes.string, PropTypes.object]);
 GTable.propTypes = {
   headers: PropTypes.arrayOf(headerType).isRequired,
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  totalElements: PropTypes.number,
   pageSize: PropTypes.number,
   container: PropTypes.oneOf(['table','list']),
   scope: PropTypes.arrayOf(headerType),

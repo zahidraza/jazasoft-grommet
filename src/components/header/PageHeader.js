@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import debounce from 'lodash/debounce';
 
 import {SEARCH} from '../../actions/filterActions';
 
@@ -25,14 +26,18 @@ class PageHeader extends Component {
 
   constructor () {
     super();
-    this._onClick = this._onClick.bind(this);
+    this.state = {
+      searchValue: ''
+    };
+    this.debouncedOnSearch = debounce(this._onSearch.bind(this), 500);
   }
 
-  _onClick (type, idx, path, event) {
+  _onClick = (type, idx, path) => (event) => {
     if (type == 'search') {
-      this.props.dispatch({type: SEARCH, payload: {searchValue: event.target.value}});
+      const searchValue = event.target.value;
+      this.setState({searchValue});
+      this.debouncedOnSearch(searchValue);
     }
-
     if (path) {
       const { history, match } = this.props;
       history.push(`${path}`);
@@ -41,7 +46,11 @@ class PageHeader extends Component {
     if (this.props.onClick) {
       this.props.onClick(idx, type, event);
     }
-  }
+  };
+
+  _onSearch = (searchValue) => {
+    this.props.dispatch({type: SEARCH, payload: {searchValue}});
+  };
 
   render() {
     let { 
@@ -58,35 +67,35 @@ class PageHeader extends Component {
       if (control.type == 'search') {
         searchItem = (
           <Search key={idx} inline={true} fill={true} size='medium' placeHolder={control.placeholder || 'Seacrh'}
-            value={this.props.filter.searchValue} onDOMChange={this._onClick.bind(this, 'search', idx, undefined)} />
+            value={this.state.searchValue} onDOMChange={this._onClick('search', idx, undefined)} />
         );
       } else if (control.type == 'filter') {
         item = (
           <FilterControl key={idx} filteredTotal={control.filteredTotal || this.props.filter.filteredTotal}
             unfilteredTotal={control.unfilteredTotal || this.props.filter.unfilteredTotal}
-            onClick={this._onClick.bind(this, 'filter', idx, control.path)} />
+            onClick={this._onClick('filter', idx, control.path)} />
         );
       } else if (control.type == 'add') {
-        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Add'} icon={<AddIcon />} onClick={this._onClick.bind(this, 'add', idx, control.path)}/>);
+        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Add'} icon={<AddIcon />} onClick={this._onClick('add', idx, control.path)}/>);
       } else if (control.type == 'help') {
-        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Help'} icon={<HelpIcon />} onClick={this._onClick.bind(this, 'help', idx, control.path)}/>);
+        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Help'} icon={<HelpIcon />} onClick={this._onClick('help', idx, control.path)}/>);
       } else if (control.type == 'refresh') {
-        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Refresh Page'} icon={<SyncIcon />} onClick={this._onClick.bind(this, 'refresh', idx, control.path)}/>);
+        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Refresh Page'} icon={<SyncIcon />} onClick={this._onClick('refresh', idx, control.path)}/>);
       } else if (control.type == 'upload') {
-        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Upload'} icon={<UploadIcon />} onClick={this._onClick.bind(this, 'refresh', idx, control.path)}/>);
+        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Upload'} icon={<UploadIcon />} onClick={this._onClick('refresh', idx, control.path)}/>);
       } else if (control.type == 'download') {
-        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Download'} icon={<DownloadIcon />} onClick={this._onClick.bind(this, 'refresh', idx, control.path)}/>);
+        item = (<TooltipButton key={idx} tooltip={control.tooltip || 'Download'} icon={<DownloadIcon />} onClick={this._onClick('refresh', idx, control.path)}/>);
       } else if (control.type == 'run') {
         if (control.tooltip) {
-          item = (<TooltipButton key={idx} tooltip={control.tooltip} icon={<CirclePlayIcon />} onClick={this._onClick.bind(this, 'custom', idx, control.path)}/>);
+          item = (<TooltipButton key={idx} tooltip={control.tooltip} icon={<CirclePlayIcon />} onClick={this._onClick('custom', idx, control.path)}/>);
         } else {
-          item = (<Button key={idx} icon={<CirclePlayIcon />} onClick={this._onClick.bind(this, 'custom', idx, control.path)}/>);
+          item = (<Button key={idx} icon={<CirclePlayIcon />} onClick={this._onClick('custom', idx, control.path)}/>);
         }
       } else if (control.type == 'custom') {
         if (control.tooltip) {
-          item = (<TooltipButton key={idx} tooltip={control.tooltip} icon={control.icon} onClick={this._onClick.bind(this, 'custom', idx, control.path)}/>);
+          item = (<TooltipButton key={idx} tooltip={control.tooltip} icon={control.icon} onClick={this._onClick('custom', idx, control.path)}/>);
         } else {
-          item = (<Button key={idx} icon={control.icon} onClick={this._onClick.bind(this, 'custom', idx, control.path)}/>);
+          item = (<Button key={idx} icon={control.icon} onClick={this._onClick('custom', idx, control.path)}/>);
         }
       }
       if (item) {

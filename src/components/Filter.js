@@ -208,7 +208,7 @@ class Filter extends Component {
     }
 
     return (
-      <Layer hidden={!active} align='right' flush={true} closer={true} onClose={this._onClose}>
+      <Layer hidden={!active} align='right' flush={true} closer={true} overlayClose={true} onClose={this._onClose}>
         <Sidebar size='large'>
           <div>
             <Header size='large' justify='between' align='center'

@@ -363,6 +363,7 @@ class TForm extends Component {
           cell = (
             <td key={j} rowSpan={col.rowspan || 1} colSpan={col.colspan || 1} style={{padding: 5}}>
               <input style={style} 
+                autoFocus={col.autoFocus}
                 type={col.inputType || 'text'} 
                 disabled={col.disabled || false}
                 placeholder={col.placeholder} 
@@ -471,11 +472,13 @@ class TForm extends Component {
     const props = size === 'full' ? {full: 'horizontal'} : {size}
 
     return (
-      <Box alignSelf='center' {...props} >
-        <table id={id} name={tableName} style={{marginTop: 20, ...tableStyle}}>
-          <thead>{head}</thead>
-          <tbody>{body}</tbody>
-        </table>
+      <Box alignSelf='center' {...props}  >
+        <div style={{overflowX: 'auto'}}>
+          <table id={id} name={tableName} style={{marginTop: 20, ...tableStyle}}>
+            <thead>{head}</thead>
+            <tbody>{body}</tbody>
+          </table>
+        </div>
       </Box>
     );
   }

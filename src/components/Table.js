@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import isEqual from 'lodash/isEqual';
+import debounce from 'lodash/debounce';
 
 import { getArrayFromCsv, splitCamelCase, denormalise } from '../utils/utility';
 import { FILTER_COUNT, PAGE_CHANGE } from '../actions/filterActions';
@@ -42,6 +43,8 @@ const defaultCellStyle = {
 class Table extends Component {
   constructor() {
     super();
+    this.debouncedNextPage = debounce(this.nextPage.bind(this), 1000);
+
     this.state = {
       data: []
     };
@@ -138,8 +141,12 @@ class Table extends Component {
   }
 
   _onMore = () => {
-    this.props.dispatch({ type: PAGE_CHANGE });
+    this.debouncedNextPage();
   };
+
+  nextPage = () => {
+    this.props.dispatch({ type: PAGE_CHANGE });
+  }
 
   render() {
     let {
@@ -147,7 +154,8 @@ class Table extends Component {
       headers,
       scope,
       cellStyle,
-      totalElements
+      totalElements,
+      emptyMessage,
     } = this.props;
     const { data } = this.state;
     let style = defaultCellStyle;
@@ -175,7 +183,7 @@ class Table extends Component {
 
     let contents;
     if (data.length == 0) {
-      contents = <Box alignSelf='center'>No Data Available.</Box>;
+      contents = <Box alignSelf='center'>{emptyMessage}</Box>;
     }
     if (data.length > 0) {
       const header = tableHeaders.map((h, i) => {
@@ -213,7 +221,8 @@ class Table extends Component {
         }
         return result;
       });
-      if (scope && scope.length > 0) {
+      const scopes = typeof scope === 'function' ? scope() : scope;
+      if (scopes && scopes.length > 0) {
         header.push(
           <th
             key={tableHeaders.length}
@@ -235,11 +244,11 @@ class Table extends Component {
             </TableCell>
           );
         });
-
-        if (scope && scope.length > 0) {
+        const scopes = typeof scope === 'function' ? scope(item) : scope;
+        if (scopes && scopes.length > 0) {
           let actions = [];
-          scope.forEach((e, i) => {
-            let icon, tooltip, action;
+          scopes.forEach((e, i) => {
+            let icon = e.icon, tooltip, action;
             if (typeof e === 'string') {
               action = e;
             } else {
@@ -332,9 +341,10 @@ Table.propTypes = {
   cbMap: PropTypes.func,
   cbFlatMap: PropTypes.func,
   totalElements: PropTypes.number.isRequired,
-  scope: PropTypes.arrayOf(headerType),
+  scope: PropTypes.oneOfType([PropTypes.func, PropTypes.array]),
   onClick: PropTypes.func,
   searchKeys: PropTypes.arrayOf(PropTypes.string),
+  emptyMessage: PropTypes.string,
 
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   full: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
@@ -348,7 +358,8 @@ Table.defaultProps = {
   colorIndex: 'light-1',
   cbMap: e => e,
   cbFlatMap: e => [e],
-  searchKeys: ['name']
+  searchKeys: ['name'],
+  emptyMessage: ''
 };
 
 const mapStateToProps = (state, props) => {

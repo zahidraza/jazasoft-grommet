@@ -13,6 +13,18 @@ class MenuItemLink extends Component {
     className: PropTypes.string
   }
 
+  state = {
+    hover: false,
+  };
+
+  hoverOn = () => {
+    this.setState({hover: true});
+  };
+
+  hoverOff = () => {
+    this.setState({hover: false});
+  };
+
   handleClick = () => {
     this.props.history.push(this.props.to);
     if (this.props.onClick) {
@@ -20,8 +32,9 @@ class MenuItemLink extends Component {
     }
   }
   render() {
+    const backgroundColor = this.props.active ? '#1d9cd9' : this.state.hover ? '#7a7f85' : undefined;
     return (
-        <Anchor style={{color: '#ffffff'}} className={this.props.className} label={this.props.label} onClick={this.handleClick} />
+        <Anchor style={{color: '#ffffff', backgroundColor}}  label={this.props.label} onClick={this.handleClick} onMouseEnter={this.hoverOn} onMouseLeave={this.hoverOff} />
     );
   }
 }

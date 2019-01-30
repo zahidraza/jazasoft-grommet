@@ -26,15 +26,15 @@ class GSidebar extends Component {
     const { links, location, fixed } = this.props;
 
     var items = links.map((link, index) => {
-      var value = (`/${link.path}` == location.pathname) ? 'active' : '';
+      var active = link.path === '' ? location.pathname === '/' : location.pathname.includes(link.path) ? true : false;
       return (
-        <Link  className={value} key={link.label} to={`/${link.path}`} label={link.label} onClick={this._onClick} />
+        <Link active={active}  key={link.label} to={`/${link.path}`} label={link.label} onClick={this._onClick} />
       );
     });
 
     return (
-      <Sidebar style={{background: '#082c44'}} size='small' fixed={fixed}>
-        <Header pad='medium' justify='between' >
+      <Sidebar style={{background: '#222b34'}} size='small' fixed={fixed}>
+        <Header justify='between' alignSelf="center" style={{ padding: '34px 24px'}} >
           <Title style={{color: '#ffffff'}} >{this.props.appShortName}</Title>
         </Header>
         <Menu fill={true} primary={true}>

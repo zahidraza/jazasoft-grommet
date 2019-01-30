@@ -33,7 +33,7 @@ const MainRoute = ({resources = [], customRoutes = [], authenticator, ...restPro
           })
         }
         {/* Dashboard Route. Zeroth element of resorces is dashboard rute*/}
-        <Route exact path='/' component={resources[0].routes[0].component} />
+        <Route exact path='/' render={(routeProps) => React.createElement(resources[0].routes[0].component, {...routeProps, ...restProps})}  />
 
     </Switch>
   )

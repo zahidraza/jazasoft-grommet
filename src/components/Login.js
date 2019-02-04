@@ -155,8 +155,8 @@ class Login extends Component {
         <Box  full='horizontal' margin={{vertical: 'large'}} >
           <Box align='end' margin={{vertical: 'large'}} pad={{vertical: 'large'}} >
             <Box id='loginBox' size='auto' separator='all' justify='center' margin={{vertical: 'large', horizontal: 'medium'}}  pad={{'horizontal': 'medium', vertical:'medium', between:'small'}} >
-              <Heading tag='h2' align='center'>{this.props.appName}</Heading>
-                <Box alignSelf='center' align='center' >{authProgress ? <Spinning /> : null}</Box>
+              <Heading tag='h2' align='center' id="appName">{this.props.appName}</Heading>
+                <Box alignSelf='center' align='center' >{authProgress ? <Spinning id="spinner" /> : null}</Box>
               <Form>
                 <FormFields>
                   <FormField label='User Name'>

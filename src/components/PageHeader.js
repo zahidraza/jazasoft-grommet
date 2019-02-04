@@ -108,7 +108,7 @@ class PageHeader extends Component {
 
     return (
       <Header justify={justify} pad={{ horizontal: 'medium' }} >
-        <Title><Heading tag='h3' strong={true}> {title}</Heading></Title>
+        <Title><Heading id="PageTitle" tag='h3' strong={true}> {title}</Heading></Title>
         {searchItem}
         <Box direction='row'>
           {addItem}
